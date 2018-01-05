@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}
+    C-ASAP | Register as a volunteer
+{% endblock %}
+
+{% block meta_description %}
+{% endblock %}
+
+{% block header_css %}
+{% endblock %}
+
+{% block content %}
+
+    <div class="container p-0">
+        <div class="row justify-content-center">
+            <div class="col-sm-8 col-md-6 col-lg-4">
+                <div class="card mr-auto">
+                    <div class="card-body">
+                        <h4 class="card-title">
+                            Register as a volunteer
+                        </h4>
+                        <hr>
+                        <div class="container-fluid p-0">
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                {% include "registration/forms/register_volunteer.html" %}
+                                <div class="form-group">
+                                    <button class="btn btn-primary btn-block" type="submit">Register</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}
+    C-ASAP | Vulnerable list
+{% endblock %}
+
+{% block meta_description %}
+{% endblock %}
+
+{% block header_css %}
+{% endblock %}
+
+{% block content %}
+
+    <div class="container p-0">
+        <div class="row justify-content-center">
+            <div class="col-sm-8 col-md-6 col-lg-6">
+                <div class="list-group mr-auto">
+                    <div class="list-group-item">
+                        <h4 class="card-title">
+                            Your vulnerable list
+                        </h4>
+                        <hr>
+                        <div class="container-fluid p-0">
+                            {% for vul in vulnerable_list %}
+                                {% if forloop.first %}
+                                    <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Picture</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col" class="text-center">Edit/Delete</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                {% endif %}
+                            <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>
+                                    {% if vul.picture %}
+                                        <img class="ht-lg" src="{{ vul.picture.url }}">
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>{{ vul.full_name }}</td>
+                                <td class="text-center">
+                                    <span class="">
+                                        <a href="{% url "vulnerable_edit" hash=vul.hash %}">
+                                            <div class="btn btn-sm btn-outline-secondary">
+                                                Edit
+                                            </div>
+                                        </a>
+                                    </span>
+                                    <span class="pl-2">
+                                        <form action="{% url "vulnerable_delete" hash=vul.hash %}" method="post" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="hash" value="{{ vul.hash }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </span>
+                                </td>
+                            </tr>
+                            {% if forloop.last %}
+                                </tbody>
+                                </table>
+                            {% endif %}
+                            {% empty %}
+                                <div class="container-fluid text-center">
+                                    You have not created any vulnerable people.
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="list-group-item text-right">
+                        <div class="container-fluid p-0">
+                            <a href="{% url "vulnerable_add" %}">
+                                <div class="btn btn-primary">Add</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

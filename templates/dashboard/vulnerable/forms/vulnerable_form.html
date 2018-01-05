@@ -1,0 +1,71 @@
+<div class="form-group">
+    <label for="id_first_name">First Name <span class="text-danger">*</span></label>
+    {{ form.first_name.errors }}
+    <input type="text" id="id_first_name" name="first_name"
+           class="form-control" placeholder=""
+           value="{{ form.first_name.value|default:"" }}"
+           required>
+</div>
+<div class="form-group">
+    <label for="id_last_name">Last Name <span class="text-danger">*</span></label>
+    {{ form.last_name.errors }}
+    <input type="text" id="id_last_name" name="last_name"
+           class="form-control" placeholder=""
+           value="{{ form.last_name.value|default:"" }}"
+           required>
+</div>
+<div class="form-group">
+    <label for="id_birthday">Birthday <span class="text-danger">*</span></label>
+    {{ form.birthday.errors }}
+    <input type="date" id="id_birthday" name="birthday"
+           class="form-control" placeholder="YYYY-MM-DD"
+            {% if is_post %}
+           value="{{ form.birthday.value|default:"" }}"
+            {% else %}
+           value="{{ form.birthday.value|date:"Y-m-d"|default:"" }}"
+            {% endif %}
+           required>
+</div>
+<div class="form-group">
+    <label for="id_picture">Picture <span class="text-danger">*</span></label>
+    {{ form.picture.errors }}
+    <input type="file" id="id_picture" name="picture"
+           class="" accept="image/png,image/jpeg" required>
+</div>
+<div class="form-group">
+    <label for="id_description">Description <span class="text-danger">*</span></label>
+    {{ form.description.errors }}
+    <textarea id="id_description" name="description"
+              class="form-control" required>{{ form.description.value|default:"" }}</textarea>
+</div>
+{{ formset.management_form }}
+<div class="form-group" ng-cloak="" ng-repeat="form in addresses track by $index">
+    <label for="id_addresses-[[ $index ]]-address" class="d-flex">
+            <span ng-if="$first" class="">
+                Primary Address
+            </span>
+        <span ng-if="$first" class="text-danger float-left">*</span>
+        <span ng-if="!$first" class="">
+                Additional Address [[ $index + 1 ]]
+        </span>
+        <span ng-if="!$first" class="text-danger ml-auto" ng-click="removeAddress($index)">
+            <span class="fa fa-remove"></span>
+            remove
+        </span>
+    </label>
+    <ul class="errorlist" ng-show="form.errors">
+        <li ng-repeat="error in form.errors">[[ error ]]</li>
+    </ul>
+    {% if include_ids %}
+        <input type="hidden" ng-show="form.instance_id" id="id_addresses-[[ $index ]]-id"
+               name="addresses-[[ $index ]]-id" ng-model="form.instance_id">
+    {% endif %}
+    <input id="id_addresses-[[ $index ]]-address"
+           name="addresses-[[ $index ]]-address"
+           class="form-control" placeholder=""
+           ng-model="form.value"
+           ng-required="$first">
+</div>
+<div class="form-group">
+    <div class="btn btn-secondary" ng-click="addAddress()">+</div>
+</div>

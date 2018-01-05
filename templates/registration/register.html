@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}
+    C-ASAP | Register
+{% endblock %}
+
+{% block meta_description %}
+{% endblock %}
+
+{% block header_css %}
+{% endblock %}
+
+{% block content %}
+
+    <div class="container p-0">
+        <div class="row justify-content-center">
+            <div class="col-sm-8 col-md-6 col-lg-4">
+                <div class="card mr-auto">
+                    <div class="card-body">
+                        <h4 class="card-title">
+                            Register
+                        </h4>
+                        <hr>
+                        <div class="container-fluid p-0">
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                {% include "registration/forms/register.html" %}
+                                <div class="form-group">
+                                    <label for="id_password1">Password<span class="text-danger">*</span></label>
+                                    {{ form.password1.errors }}
+                                    <input type="password" id="id_password1" name="password1" class="form-control" placeholder="Password"
+                                           required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_password2">Confirm Password<span class="text-danger">*</span></label>
+                                    {{ form.password2.errors }}
+                                    <input type="password" id="id_password2" name="password2" class="form-control" placeholder="Confirm Password"
+                                           required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="hidden" name="next" value="{{ next }}"/>
+                                    <button class="btn btn-primary btn-block" type="submit">Register</button>
+                                </div>
+                                <div class="form-group">
+                                    <a href="/accounts/login/?next={{ next }}" class="login-link">
+                                        Already a member? login here
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

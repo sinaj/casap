@@ -1,0 +1,83 @@
+@font-face {
+    font-family: "Roboto";
+    src: url("fonts/Roboto-Regular.ttf")
+}
+
+@font-face {
+    font-family: "Roboto";
+    font-weight: bold;
+    src: url("fonts/Roboto-Bold.ttf")
+}
+
+@font-face {
+    font-family: "Roboto";
+    font-weight: 900;
+    src: url("fonts/Roboto-Black.ttf")
+}
+
+@font-face {
+    font-family: "Roboto";
+    font-weight: 300;
+    src: url("fonts/Roboto-Light.ttf")
+}
+
+html {
+    font-family: 'Roboto', sans-serif;
+    font-weight: lighter;
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 60px;
+}
+
+#main-container {
+    padding-top: 56px !important;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 60px;
+    /* Vertically center the text there */
+    line-height: 60px;
+    background-color: #f5f5f5;
+}
+
+.cursor:hover {
+    cursor: pointer;
+}
+
+.border {
+    border: solid;
+}
+
+.errorlist {
+    color: #c82333;
+}
+
+.ht {
+    height: 1.4em;
+}
+
+.ht-lg {
+    height: 1.8em;
+}
+
+.h-200 {
+    height: 200px;
+}
+
+.img-fit {
+    object-fit: cover;
+}
+
+@media (min-width: 1200px) {
+    .mw-l-50 {
+        max-width: 50% !important;
+    }
+}

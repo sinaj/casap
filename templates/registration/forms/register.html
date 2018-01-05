@@ -1,0 +1,24 @@
+<div class="form-group">
+    <div class="container">
+        <div class="row">
+            <div class="col-6 p-0 pr-1">
+                <label for="id_first_name">First Name<span class="text-danger">*</span></label>
+                {{ form.first_name.errors }}
+                <input type="text" id="id_first_name" name="first_name" class="form-control" placeholder="First name" required
+                       value="{{ form.first_name.value|default:"" }}" autofocus>
+            </div>
+            <div class="col-6 p-0 pl-1">
+                <label for="id_last_name">Last Name<span class="text-danger">*</span></label>
+                {{ form.last_name.errors }}
+                <input type="text" id="id_last_name" name="last_name" class="form-control" placeholder="Last name" required
+                       value="{{ form.last_name.value|default:"" }}">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="form-group">
+    <label for="id_username">Email Address<span class="text-danger">*</span></label>
+    {{ form.username.errors }}
+    <input type="email" id="id_username" name="username" class="form-control" placeholder="Email" required
+           value="{{ form.username.value|default:"" }}">
+</div>

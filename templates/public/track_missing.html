@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+{% load tz %}
+
+{% block content %}
+
+    <div class="container p-0">
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-md-8 col-lg-6">
+
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">
+                            Missing Person Details
+                        </h4>
+                        <hr>
+                        <div class="media mb-2">
+                            <img class="mr-3 w-50" src="{{ vulnerable.picture.url }}" alt="{{ vulnerable.full_name }}'s picture">
+                            <div class="media-body">
+                                <h5 class="mt-0 d-inline">{{ vulnerable.full_name }}</h5>
+                                {% if record.state == "reported" %}
+                                    <span class="badge badge-danger float-right">{{ record.get_state_display }}</span>
+                                {% elif record.state == "sighted" %}
+                                    <span class="badge badge-warning float-right">{{ record.get_state_display }}</span>
+                                {% else %}
+                                    <span class="badge badge-success float-right">{{ record.get_state_display }}</span>
+                                {% endif %}
+                                <div class="container-fluid p-0">
+                                    {{ vulnerable.description }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-flush">
+                        <div class="list-group-item list-group-item-danger">
+                            <div class="container-fluid p-0 clearfix">
+                                Reported missing at: <span class="float-right text-dark">{{ record.time|timezone:user_tz_name|time }}</span>
+                            </div>
+                            {{ record.address }}
+                        </div>
+                        {% for sighting in record.get_sighting_records %}
+                            <div class="list-group-item list-group-item-warning">
+                                <div class="container-fluid p-0 clearfix">
+                                    Located at: <span class="float-right text-dark">{{ sighting.time|timezone:user_tz_name|time }}</span>
+                                </div>
+                                {{ sighting.address }}
+                                {% if sighting.description %}
+                                    <div class="container-fluid p-0 text-dark">
+                                        {{ sighting.description }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        {% if record.find_records %}
+                            {% with record.find_records.last as found_record %}
+                                <div class="list-group-item list-group-item-success">
+                                    <div class="container-fluid p-0 clearfix">
+                                        Reported found at: <span class="float-right text-dark">{{ found_record.time|timezone:user_tz_name|time }}</span>
+                                    </div>
+                                    {{ record.address }}
+                                </div>
+                            {% endwith %}
+                        {% endif %}
+                    </div>
+                    {% if record.state != "found" %}
+                        <div class="card-footer clearfix">
+                            <a href="{% url "report_sighting" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                                <div class="btn btn-primary">Report Sighting</div>
+                            </a>
+                            <a href="{% url "report_found" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                                <div class="btn btn-link float-right">Report Found</div>
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+{% endblock %}

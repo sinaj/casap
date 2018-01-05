@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load static %}
+{% load tz %}
+
+{% block content %}
+
+    <div class="container p-0">
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-md-8 col-lg-8">
+
+                {% if missing_people %}
+                    <div class="container-fluid p-0">
+                        {% for day, day_records in missing_people %}
+                            <div class="container-fluid p-0 mb-4">
+                                <h5>Missing Persons on {{ day }}</h5>
+                                <hr>
+                                {% for record in day_records %}
+                                    {% if forloop.counter0|divisibleby:2 %}
+                                        <div class="row mb-2">
+                                        <div class="card-deck">
+                                    {% endif %}
+                                {% with record.vulnerable as vul %}
+                                    <div class="card mw-l-50">
+                                        <img class="card-img-top img-fit" src="{{ vul.picture.url }}">
+                                        <div class="card-body">
+                                            <div class="container-fluid p-0 clearfix">
+                                                <h5 class="card-title d-inline float-left">{{ vul.full_name }}</h5>
+                                                {% if record.state == "reported" %}
+                                                    <span class="badge badge-danger float-right">{{ record.get_state_display }}</span>
+                                                {% elif record.state == "sighted" %}
+                                                    <span class="badge badge-warning float-right">{{ record.get_state_display }}</span>
+                                                {% else %}
+                                                    <span class="badge badge-success float-right">{{ record.get_state_display }}</span>
+                                                {% endif %}
+                                            </div>
+                                            <p class="card-text">
+                                                {{ vul.description }}
+                                            </p>
+                                        </div>
+                                        <div class="list-group-flush">
+                                            <div class="list-group-item list-group-item-danger">
+                                                <div class="container-fluid p-0 clearfix">
+                                                    Reported missing at: <span class="float-right text-dark">{{ record.time|timezone:user_tz_name|time }}</span>
+                                                </div>
+                                                {{ record.address }}
+                                            </div>
+                                            {% with record.sighting_records.last as last_sighting %}
+                                                {% if last_sighting %}
+                                                    <div class="list-group-item  list-group-item-warning">
+                                                        <div class="container-fluid p-0 clearfix">
+                                                            Last located at: <span class="float-right text-dark">{{ last_sighting.time|timezone:user_tz_name|time }}</span>
+                                                        </div>
+                                                        {{ last_sighting.address }}
+                                                        {% if last_sighting.description %}
+                                                            <div class="container-fluid p-0 text-dark">
+                                                                {{ last_sighting.description }}
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                        <div class="card-footer clearfix">
+                                            <a href="{% url "report_sighting" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                                                <div class="btn btn-primary">Report Seen</div>
+                                            </a>
+                                            <a href="{% url "report_found" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                                                <div class="btn btn-link float-right">Report Found</div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endwith %}
+                                {% if forloop.counter0|divisibleby:2 %}
+                                    </div>
+                                    </div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <h4 class="card-title text-center pt-2">
+                        Nobody is lost at the time!
+                    </h4>
+                {% endif %}
+                <div class="container-fluid p-4 text-center">
+                    <div class="container-fluid p-0">
+                        <a href="{% url "report_lost" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                            <div class="btn btn-lg btn-danger">Report missing person</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+{% endblock %}

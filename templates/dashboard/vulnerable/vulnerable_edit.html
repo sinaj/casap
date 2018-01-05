@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}
+    C-ASAP | Edit vulnerable person
+{% endblock %}
+
+{% block meta_description %}
+{% endblock %}
+
+{% block header_css %}
+{% endblock %}
+
+{% block content %}
+
+    <div class="container p-0">
+        <div class="row justify-content-center">
+            <div class="col-sm-8 col-md-6 col-lg-4">
+                <div class="card mr-auto mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title">
+                            Vulnerable Person Profile
+                        </h4>
+                        <hr>
+                        <div class="container-fluid p-0">
+                            <form action="" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                {% include "dashboard/vulnerable/forms/vulnerable_form.html" with include_ids=True %}
+                                <div class="form-group">
+                                        <input type="hidden" name="next" value="{{ next }}"/>
+                                    <a href="{{ next }}">
+                                        <div class="btn btn-link float-left">
+                                            Cancel
+                                        </div>
+                                    </a>
+                                    <button class="btn btn-primary float-right" type="submit">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

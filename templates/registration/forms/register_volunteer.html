@@ -1,0 +1,18 @@
+<div class="form-group">
+    <label for="id_phone">Cell Phone<span class="text-danger">*</span></label>
+    {{ form.phone.errors }}
+    <input type="tel" id="id_phone" name="phone" class="form-control" placeholder="e.g. 780-123-4567" required
+           value="{{ form.phone.value|default:"" }}" autofocus>
+</div>
+<div class="form-group">
+    <label for="id_personal_address">Personal Address (optional)</label>
+    {{ form.personal_address.errors }}
+    <input type="text" id="id_personal_address" name="personal_address" class="form-control" placeholder=""
+           value="{{ form.personal_address.value|default:"" }}">
+</div>
+<div class="form-group">
+    <label for="id_business_address">Business Address (optional)</label>
+    {{ form.business_address.errors }}
+    <input type="text" id="id_business_address" name="business_address" class="form-control" placeholder=""
+           value="{{ form.business_address.value|default:"" }}">
+</div>

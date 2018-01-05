@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}
+    C-ASAP | Login
+{% endblock %}
+
+{% block meta_description %}
+{% endblock %}
+
+{% block header_css %}
+{% endblock %}
+
+{% block content %}
+
+    <div class="container p-0">
+        <div class="row justify-content-center">
+            <div class="col-sm-8 col-md-6 col-lg-4">
+                <div class="card mr-auto">
+                    <div class="card-body">
+                        <h4 class="card-title">
+                            Login
+                        </h4>
+                        <hr>
+                        <div class="container-fluid p-0">
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                {% if form.errors %}
+                                    <div class="errorlist">
+                                        <ul>
+                                            <li>
+                                                Sorry, the username and password could not be found.
+                                            </li>
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                                <div class="form-group">
+                                    <label for="id_email">Email Address</label>
+                                    {{ form.email.errors }}
+                                    <input type="email" id="id_email" name="email" class="form-control" placeholder="Email" required
+                                           value="{{ form.email.value|default:"" }}" autofocus>
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_password">Password</label>
+                                    {{ form.password.errors }}
+                                    <input type="password" id="id_password" name="password" class="form-control" placeholder="Password"
+                                           required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="hidden" name="next" value="{{ next|urlencode }}"/>
+                                    <button class="btn btn-primary btn-block" type="submit">Login</button>
+                                </div>
+                                <div class="form-group">
+                                    <a href="{% url "password_forgot" %}" class="login-link">
+                                        Forgot your password?
+                                    </a>
+                                </div>
+                                <div class="form-group">
+                                    <a href="/accounts/register/?next={{ next }}" class="login-link">
+                                        Not a member? Register
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
