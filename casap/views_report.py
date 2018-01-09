@@ -1,4 +1,5 @@
 import pytz
+import datetime
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages import add_message
@@ -58,6 +59,7 @@ def report_sighting_view(request, hash):
     request.context['vulnerable'] = lost_record.vulnerable
     request.context['record'] = lost_record
     request.context['all_timezones'] = pytz.all_timezones
+    request.context['current_time'] = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime("%Y-%m-%d %H:%M")
     return render(request, "report/report_sighting.html", request.context)
 
 
