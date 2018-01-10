@@ -64,7 +64,7 @@ class VolunteerForm(forms.ModelForm):
             return self.cleaned_data['personal_address']
         address = self.cleaned_data['personal_address']
         map_response = get_address_map_google(address)
-        if map is None:
+        if map_response is None:
             raise forms.ValidationError("Personal address is invalid")
         else:
             self.personal_lat = map_response['lat']
@@ -106,7 +106,7 @@ class VulnerableAddressFormSet(BaseInlineFormSet):
             if not address:
                 continue
             map_response = get_address_map_google(address)
-            if map is None:
+            if map_response is None:
                 form.add_error("address", forms.ValidationError("Address is invalid"))
             else:
                 form.address_lat = map_response['lat']
