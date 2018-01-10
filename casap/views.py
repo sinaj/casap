@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.core.urlresolvers import reverse
 
 from casap.models import LostPersonRecord
+from casap.models import SightingRecord
 
 
 def index(request):
@@ -19,7 +20,8 @@ def index(request):
 
 
 def track_missing_view(request, hash):
-    lost_record = LostPersonRecord.objects.filter(hash=hash).first()
+    sighting_record = SightingRecord.objects.filter(hash=hash).first()
+    lost_record = sighting_record.lost_record
     if not lost_record:
         add_message(request, messages.WARNING, "Record not found")
         return HttpResponseRedirect(reverse("index"))
