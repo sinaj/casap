@@ -41,7 +41,6 @@ class LostPersonRecordForm(forms.ModelForm):
 
 class SightingRecordForm(forms.ModelForm):
     time = forms.DateTimeField(input_formats=['%Y-%m-%d %H:%M'])
-    address = forms.CharField(error_messages={'invalid':'There is no address'})
 
     def clean_address(self):
         if not self.cleaned_data['address']:
