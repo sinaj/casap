@@ -1,4 +1,5 @@
 import pytz
+from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages import add_message
@@ -7,6 +8,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from geopy.distance import vincenty
+from django.forms.utils import ErrorList
 
 from casap.forms_report import LostPersonRecordForm, SightingRecordForm, FindRecordForm
 from casap.models import Vulnerable, LostPersonRecord, Volunteer
@@ -51,6 +53,7 @@ def report_sighting_view(request, hash):
             notify_sighting(sighting_record)
             add_message(request, messages.SUCCESS, "Thank you! Our records are updated.")
             return HttpResponseRedirect(request.POST.get("next", reverse("index")))
+                
     else:
         form = SightingRecordForm(initial=dict(time=get_user_time(request)))
         request.context['next'] = request.GET.get("next", reverse("index"))
