@@ -95,7 +95,7 @@ class VolunteerForm(forms.ModelForm):
 class VulnerableForm(forms.ModelForm):
     class Meta:
         model = Vulnerable
-        fields = ('first_name', 'last_name', 'description', 'birthday', 'picture')
+        fields = ('first_name', 'last_name', 'description', 'birthday', 'picture','file')
 
 
 class VulnerableAddressFormSet(BaseInlineFormSet):

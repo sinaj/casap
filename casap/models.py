@@ -13,6 +13,10 @@ def get_vulnerable_picture_path(instance, filename=None):
     _, file_ext = os.path.splitext(filename)
     return os.path.join('users', 'vulnerable', instance.hash, "profile_picture" + file_ext)
 
+def get_vulnerable_file_path(instance, filename=None):
+    _, file_ext = os.path.splitext(filename)
+    return os.path.join('users', 'vulnerable', instance.hash, "file" + file_ext)
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, related_name='profile', on_delete=models.CASCADE)
@@ -93,6 +97,7 @@ class Vulnerable(models.Model):
     description = models.TextField()
     birthday = models.DateField()
     picture = models.ImageField(upload_to=get_vulnerable_picture_path, null=True, blank=True)
+    file = models.FileField(upload_to=get_vulnerable_file_path, null=True, blank=True)
     hash = models.CharField(max_length=30, unique=True, blank=True)
 
     def save(self, *args, **kwargs):

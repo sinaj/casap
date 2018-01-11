@@ -3,6 +3,8 @@ from django.contrib.messages import add_message
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
+from django.core.files.storage import FileSystemStorage
+
 
 from casap.models import LostPersonRecord
 
