@@ -1,4 +1,11 @@
+# Ignore all media (vulnerable profile pictures
+media/
 
-media/users/vulnerable/1d6e261845e0646b9d885ca03207ff/profile_picture.jpeg
-media/users/vulnerable/40bf9b7f9e896a9813b0e9a17b6bc1/profile_picture.jpeg
-media/users/vulnerable/e0eab1fcf7319dfe6e8e0c9e18de36/profile_picture.jpeg
+*.pyc
+*.DS_Store
+db.sqlite3
+
+# IDE related files
+
+# PyCharm
+/.idea
