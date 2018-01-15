@@ -1,8 +1,9 @@
 from django.contrib import messages
 from django.contrib.messages import add_message
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
+from django.template import loader, context
 
 from casap.models import LostPersonRecord
 from casap.models import SightingRecord
@@ -28,3 +29,8 @@ def track_missing_view(request, hash):
     request.context['record'] = lost_record
     request.context['vulnerable'] = lost_record.vulnerable
     return render(request, "public/track_missing.html", request.context)
+
+def map_view(request):
+    template = loader.get_template('MapView.html')
+    context = {}
+    return render(request, "MapView.html", request.context)
