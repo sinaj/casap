@@ -31,6 +31,4 @@ def track_missing_view(request, hash):
     return render(request, "public/track_missing.html", request.context)
 
 def map_view(request):
-    template = loader.get_template('MapView.html')
-    context = {}
     return render(request, "MapView.html", request.context)
