@@ -26,6 +26,7 @@ dashboard_patterns = [
     url(r'^vulnerable/add/$', views_dashboard.vulnerable_add_view, name="vulnerable_add"),
     url(r'^vulnerable/edit/(?P<hash>[\w\d]+)/$', views_dashboard.vulnerable_edit_view, name="vulnerable_edit"),
     url(r'^vulnerable/delete/(?P<hash>[\w\d]+)/$', views_dashboard.vulnerable_delete_view, name="vulnerable_delete"),
+    url(r'^vulnerable/history/(?P<hash>[\w\d]+)/$', views_dashboard.vulnerable_history_view, name="vulnerable_history"),
 ]
 
 register_patterns = [
