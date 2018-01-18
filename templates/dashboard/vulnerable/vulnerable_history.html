@@ -160,7 +160,7 @@
 
         var size = new OpenLayers.Size(21,25);
         var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-        var icon = new OpenLayers.Icon('https://png.pngtree.com/element_pic/17/09/19/9e5562bb417e6836881b6ca33135d761.jpg', size, offset);
+        var icon = new OpenLayers.Icon('http://pluspng.com/img-png/png-location-file-location-icon-png-287.png', size, offset);
 
         //base layer
         var OSM_layer = new OpenLayers.Layer.OSM("OpenStreet Map");
@@ -173,7 +173,9 @@
         var position = new OpenLayers.LonLat(Edmonton_LonLat[0],Edmonton_LonLat[1]);
 
         OpenLayers.Projection.addTransform("EPSG:4326", "EPSG:3857", OpenLayers.Layer.SphericalMercator.projectForward);
-        var zoom = 16;
+        var zoom = 10;
+
+         map.setCenter(position, zoom);
 
         // journey from activities layer
      var s = new OpenLayers.Style({
@@ -202,9 +204,9 @@
         points = {{point_collection|safe}}; // each activity dict including wkt features // GLOBAL
         show_vectors(point_vectors, points);
 
-        map.setCenter(position, zoom);
-        map.addControl(new OpenLayers.Control.LayerSwitcher());
 
+        map.addControl(new OpenLayers.Control.LayerSwitcher());
+        map.addControl(new OpenLayers.Control.Attribution());
     }
 
     </script>
