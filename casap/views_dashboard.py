@@ -169,14 +169,17 @@ def vulnerable_history_view(request, hash):
             if str(l.location.name):  # if has name then at known geofence
 
                 # went from location to location
-                if prior['act_type'] == "geo_fence" and prior['name'] != l.location.name:
+                if (prior['act_type'] == "geo_fence" or prior['act_type'] == "exit place") and prior['name'] != l.location.name:
                     # use centroids as point to point reference
-                    feature_string = prior['feature'].lstrip('b')
-                    if feature_string.startswith("'") and feature_string.endswith("'"):
-                        prior['feature'] = feature_string[1:-1]
-
+                    a = prior['feature'].lstrip('b')
+                    prior['feature'] = a[1:-1]
                     last_cnt = GEOSGeometry(prior['feature']).centroid
+
                     wkt_feat = wkt_w.write(last_cnt)
+                    a = str(wkt_feat)
+                    b = a.lstrip('b')
+                    wkt_feat = b[1:-1]
+                    print(wkt_feat)
                     to_add = point_map_record(str(l.location.name), wkt_feat, last_cnt, l, "exit place")
                     journeys[j].append(to_add)
                     # start next journey
@@ -198,6 +201,9 @@ def vulnerable_history_view(request, hash):
                     # get point on boundary at that distance
                     entry = boundary.interpolate(opt_dist)
                     wkt_feat = wkt_w.write(entry)
+                    a = str(wkt_feat)
+                    b = a.lstrip('b')
+                    wkt_feat = b[1:-1]
                     to_add = point_map_record(str(l.location.name), wkt_feat, entry, l, "enter location")
                     journeys[j].append(to_add)
 
@@ -212,17 +218,18 @@ def vulnerable_history_view(request, hash):
             currlocation = None
             currentplace = None
 
-            if prior['act_type'] == 'exit place':
-                feature_string = prior['feature'].lstrip('b')
-                if feature_string.startswith("'") and feature_string.endswith("'"):
-                    prior['feature'] = feature_string[1:-1]
-
             # may need exit point from last location to this current point
             if prior['act_type'] == "geo_fence":
+                a = prior['feature']
+                b = a.lstrip('b')
+                prior['feature'] = b[1:-1]
                 boundary = GEOSGeometry(prior['feature']).boundary
                 opt_dist = boundary.project(pnt)
                 exitpnt = boundary.interpolate(opt_dist)
                 wkt_feat = wkt_w.write(exitpnt)
+                a = str(wkt_feat)
+                b = a.lstrip('b')
+                wkt_feat = b[1:-1]
                 to_add = point_map_record(str(prior['name']), wkt_feat, exitpnt, l, "exit place")
                 journeys[j].append(to_add)
 
@@ -231,6 +238,9 @@ def vulnerable_history_view(request, hash):
                 j += 1
 
             wkt_feat = wkt_w.write(pnt)
+            a = str(wkt_feat)
+            b = a.lstrip('b')
+            wkt_feat = b[1:-1]
             reg_point = point_map_record("journey: " + str(j), wkt_feat, pnt, l, "moving")
             journeys[j].append(reg_point)
 
