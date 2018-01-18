@@ -26,6 +26,7 @@ dashboard_patterns = [
     url(r'^vulnerable/add/$', views_dashboard.vulnerable_add_view, name="vulnerable_add"),
     url(r'^vulnerable/edit/(?P<hash>[\w\d]+)/$', views_dashboard.vulnerable_edit_view, name="vulnerable_edit"),
     url(r'^vulnerable/delete/(?P<hash>[\w\d]+)/$', views_dashboard.vulnerable_delete_view, name="vulnerable_delete"),
+    url(r'^vulnerable/history/(?P<hash>[\w\d]+)/$', views_dashboard.vulnerable_history_view, name="vulnerable_history"),
 ]
 
 register_patterns = [
@@ -52,6 +53,7 @@ urlpatterns = [
     url(r'^accounts/', include(register_patterns)),
     url(r'^dashboard/', include(dashboard_patterns)),
     url(r'^admin/', admin.site.urls),
+    url(r'^map/', views.map_view),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

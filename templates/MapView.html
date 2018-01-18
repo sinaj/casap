@@ -1,0 +1,652 @@
+{% extends "base.html" %}
+{% load static %}
+{% load tz %}
+
+{% block header_js %}
+    <link rel="stylesheet" href="/static/css/iThing.css" type="text/css" />
+    <script type="text/javascript" src="/static/admin/js/vendor/jquery/jquery.js"></script>
+    <script src="http://code.jquery.com/jquery-migrate-1.0.0.js"></script>
+    <script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-ui.js"></script>
+    <script type="text/javascript" src="/static/admin/js/admin/RelatedObjectLookups.js"></script>
+    <script type="text/javascript" src="/static/admin/js/prepopulate.js"></script>
+    <script type="text/javascript" src="/static/js/jQAllRangeSliders-min.js"></script>
+    <script type="text/javascript" src="/static/js/moment.min.js"></script>
+    <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+    <script type="text/javascript" src="http://openlayers.org/api/2.13/OpenLayers.js"></script>
+    <script src="http://smalljs.org/ajax/superagent/superagent.js"></script>
+
+    <script type="text/javascript">
+    var map;
+    function init(){
+        map = new OpenLayers.Map('map');
+
+        var Edmonton_LonLat = [-12637731.108363, 7081028.6705168]; // in EPSG:3857
+        // Test location Athabasca
+
+        var size = new OpenLayers.Size(21,25);
+        var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+        var icon = new OpenLayers.Icon('https://png.pngtree.com/element_pic/17/09/19/9e5562bb417e6836881b6ca33135d761.jpg', size, offset);
+
+        //base layer
+        var OSM_layer = new OpenLayers.Layer.OSM("OpenStreet Map");
+        map.addLayer(OSM_layer);
+
+        var markers = new OpenLayers.Layer.Markers("Markers");
+        map.addLayer(markers);
+        markers.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(Edmonton_LonLat[0],Edmonton_LonLat[1]), icon));
+
+        var position = new OpenLayers.LonLat(Edmonton_LonLat[0],Edmonton_LonLat[1]);
+
+        OpenLayers.Projection.addTransform("EPSG:4326", "EPSG:3857", OpenLayers.Layer.SphericalMercator.projectForward);
+        var zoom = 16;
+
+        map.setCenter(position,zoom);
+
+        document.querySelector("#searchForm").addEventListener('submit', function(e) {
+  geocodeSearch(e.target.children.namedItem('search').value);
+  e.preventDefault();
+  return false; // prevent page reload
+});
+document.querySelector('button.search').addEventListener('click', function(e) {
+  geocodeSearch(document.querySelector('#search').value);
+});
+
+        map.events.register('click', map, handleMapClick);
+
+        function handleMapClick(evt) {
+            var lonlat = map.getLonLatFromViewPortPx(evt.xy);
+            // use lonlat
+            alert(lonlat);
+        }
+    }
+
+    function geocodeSearch(searchStr) {
+  //var bbox = ol.proj.transform($.OLMAP.view.calculateExtent($.OLMAP.map.getSize()),
+  //                             'EPSG:3857', 'EPSG:4326').toString(),
+  {#  var bbox = map.getExtent().toBBOX();#}
+  {#  var center = map.getCenter().transform(#}
+  {#                  map.getProjectionObject(), //4326#}
+  {#                  new OpenLayers.Projection("EPSG:3857")#}
+  {#              );#}
+  {#  var distance = map.getExtent().transform(#}
+  {#                 map.getProjectionObject(), new OpenLayers.Projection("EPSG:3857")#}
+  {#              ).getWidth();#}
+  {#  var url = 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates' +#}
+  {#    '?SingleLine=' + searchStr +#}
+  {#    '&f=json' +#}
+  {#    '&location=' + center +#}
+  {#    '&distance=' + distance + // '3218.69' = 2 meters#}
+  {#    //'&outSR=102100'+ // web mercator#}
+  {#    //'&searchExtent='+bbox+#}
+  {#    //'&outFields=Loc_name'+#}
+  {#    '&maxLocations=1';#}
+  {#var parser = new OpenLayers.Format.GeoJSON();#}
+  {#var req = window.superagent;#}
+  {#req.get(url, function(response){#}
+  {#  var responseJson = JSON.parse(response.text);#}
+  {#  var searchExt = responseJson.candidates[0].extent;#}
+  {#  var extent = new OpenLayers.Bounds(searchExt.xmin, searchExt.ymin, searchExt.xmax, searchExt.ymax);#}
+  {#  map.zoomToExtent(extent);#}
+  {#{);#}
+        var geocode_url = "http://nominatim.openstreetmap.org/search/";
+        var geocode_search = geocode_url.concat(searchStr);
+        var search = gecode_search.concat("/")
+
+        $.getJSON(geocode_search, function(data){
+            console.log(data);
+        });
+
+  document.map = map;
+}
+
+    </script>
+
+{% endblock %}
+
+{% block content %}
+
+    <style>
+        #mapContainer {
+  width: 100%;
+  height: 400px;
+}
+#map {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #999;
+}
+
+/* SEARCH BOX */
+.box {
+  position: absolute;
+  top: 15px;
+  right: 50px;
+  z-index: 1000;
+}
+
+.ol-touch .box {
+  top: 1.5em;
+  right: 70px; }
+
+.search-container {
+  overflow: hidden;
+  width: 250px;
+  vertical-align: middle;
+  white-space: nowrap; }
+
+.ol-touch .search-container {
+  width: 200px; }
+
+.search-container input#search {
+  width: 250px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.75);
+  border: none;
+  font-size: 12pt;
+  float: left;
+  color: #1e6aa8;
+  padding-left: 15px;
+  padding-right: 60px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px; }
+
+.ol-touch .search-container input#search {
+  width: 200px; }
+
+.search-container input#search::-webkit-input-placeholder {
+  color: #1e6aa8; }
+
+.search-container input#search:-moz-placeholder {
+  /* Firefox 18- */
+  color: #1e6aa8; }
+
+.search-container input#search::-moz-placeholder {
+  /* Firefox 19+ */
+  color: #1e6aa8; }
+
+.search-container input#search:-ms-input-placeholder {
+  color: #1e6aa8; }
+
+.search-container button.icon {
+  -webkit-border-top-right-radius: 5px;
+  -webkit-border-bottom-right-radius: 5px;
+  -moz-border-radius-topright: 5px;
+  -moz-border-radius-bottomright: 5px;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border: none;
+  background: #1e6aa8;
+  height: 30px;
+  width: 50px;
+  color: #4f5b66;
+  opacity: 0;
+  font-size: 12pt;
+  -webkit-transition: all .1s ease;
+  -moz-transition: all .1s ease;
+  -ms-transition: all .1s ease;
+  -o-transition: all .1s ease;
+  transition: all .1s ease; }
+
+.search-container:hover button.icon,
+.search-container:active button.icon,
+.search-container:focus button.icon {
+  outline: none;
+  opacity: 1;
+  margin-left: -50px;
+  color: #fff; }
+
+.search-container:hover button.icon:hover {
+  background: #3498db;
+  color: #fff;
+  cursor: pointer; }
+
+
+    </style>
+
+    <body onload="init()">
+    <div class="search-container">
+        <form id="searchForm">
+            <input type="search" id="search" placeholder="Search..." />
+        </form>
+        <button class="icon search"><i class="fa fa-search"></i></button>
+    </div>
+
+    <div id="mapContainer">
+        <div id="map"></div>
+    </div>
+
+{##}
+{##}
+{#<script>#}
+{#    // draws vector shapes on specified layer. data in wkt string format. example:#}
+{#    // MULTIPOLYGON (((-12638268.5812490005046129 7081697.4326630001887679, -12637389.5554239992052317 7081582.7771206004545093)))#}
+{#    function show_vectors(layer, data, datemin, datemax){#}
+{#        var wkt_f = new OpenLayers.Format.WKT();#}
+{#        var last_exit = null;#}
+{#        var _MS_PER_HOUR = 1000*60*60;#}
+{#        var _MS_PER_MIN = 1000*60;#}
+{#        var seen_ids = [];#}
+{#        // iterate through each journey#}
+{#        data.forEach(function(journey) {#}
+{##}
+{#            var pointList = [];#}
+{#            var time_spent = {enter: null, exit: null};#}
+{#            // add each path for each journey separately#}
+{#            journey.forEach(function(place, i) {#}
+{#                var color = "orange";#}
+{#                if (layer.name == "Activities path") color ="green";#}
+{#                if (place.category == "Harmful") color = "red";#}
+{##}
+{#                if (place.time != null) {#}
+{#                    var time = place.time;#}
+{#                    time_compare = moment(time, 'YYYY-MM-DD, hh:mm:ss ').startOf('day').toDate();#}
+{#                    // skip all activities not within the date range#}
+{#                    if (time_compare < datemin  || time_compare > datemax){#}
+{#                        return#}
+{#                    }#}
+{#                }#}
+{#                else var time = '';#}
+{##}
+{#                if (i==0 && last_exit != null && pointList.length==0) {#}
+{#                    pointList.push(last_exit); // keep track of exit point to draw line from THIS IS BUGGY#}
+{#                    last_exit = null;#}
+{#                }#}
+{##}
+{#                var shape_type = place.feature.substr(0, place.feature.indexOf(" "));#}
+{#                var geom = wkt_f.read(place.feature);#}
+{##}
+{#                if (shape_type == 'MULTIPOLYGON' && seen_ids.indexOf(place.id) == -1) var title = place.name;#}
+{#                else var title = place.name + " " + place.act_type;#}
+{##}
+{#                if (place.act_type == 'enter location') time_spent.enter = new Date(place.time);#}
+{##}
+{#                if (place.act_type == 'exit place'){#}
+{#                    time_spent.exit = new Date(place.time);#}
+{#                    // keep track of total time spent there in millis#}
+{#                    var place_update = layer.getFeaturesByAttribute('title', place.name);#}
+{#                    if (place_update.length!=0){#}
+{#                    // add total time spent there all together#}
+{#                        if (place_update[0].attributes.time != '' && typeof place_update[0].attributes.time==='number' ){#}
+{#                            place_update[0].attributes.time = place_update[0].attributes.time + (time_spent.exit.getTime() - time_spent.enter.getTime());#}
+{#                        }#}
+{#                        else {#}
+{#                            place_update[0].attributes.time = time_spent.exit.getTime() - time_spent.enter.getTime();#}
+{#                        }#}
+{#                        layer.drawFeature(place_update[0]);#}
+{##}
+{#                        // update table#}
+{#                        var curr_entry = $("table#listevent tbody tr > th:first-child").filter(function () {#}
+{#                            return ($(this).text() == moment(time_spent.enter, "YYYY-MM-DD, hh:mm:ss").format('LLL'));#}
+{#                        });#}
+{#                        curr_entry.next().text(moment(time_spent.exit, "YYYY-MM-DD, hh:mm:ss").format('LLL'));#}
+{#                    }#}
+{##}
+{#                }#}
+{#                geom.attributes = {#}
+{#                    'label': '',#}
+{#                    'color': color,#}
+{#                    'fillcolor': color,#}
+{#                    'highlight': "0.4",#}
+{#                    'xOffset': 0,#}
+{#                    'yOffset': -15,#}
+{#                    'strokeWidth': 2,#}
+{#                    'title': title,#}
+{#                    'time': time,#}
+{#                    'owner': place.person,#}
+{#                    'category': place.category,#}
+{#                };#}
+{#                if (shape_type == 'MULTIPOLYGON'){#}
+{##}
+{#                    if (seen_ids.indexOf(place.id) == -1){#}
+{#                        if (time_spent.enter == null){#}
+{#                            time_spent.enter = new Date(place.time);#}
+{#                        }#}
+{#                        layer.addFeatures([geom]);#}
+{#                        layer.drawFeature(geom);#}
+{#                        seen_ids.push(place.id);#}
+{#                    }#}
+{#                }#}
+{##}
+{#                if (shape_type == 'POINT'){#}
+{#                    layer.addFeatures([geom]);#}
+{#                    layer.drawFeature(geom);#}
+{#                    var coords = place.feature.replace(/[`~!@#$%^&*()_|+\=?;:'",<>\{\}\[\]\\\/]/gi, '').split(' ');#}
+{#                    var path_pnt = new OpenLayers.Geometry.Point(coords[1], coords[2]);#}
+{##}
+{##}
+{#                    // if at last point in journey update last exit#}
+{#                    if (place.act_type == 'exit place') {#}
+{#                        last_exit = path_pnt;#}
+{##}
+{#                    }#}
+{#                    else {#}
+{#                        pointList.push(path_pnt);#}
+{#                    }#}
+{#                }#}
+{#                // after two points#}
+{##}
+{#                if (pointList.length > 1) {#}
+{#                    line = new OpenLayers.Geometry.LineString(pointList);#}
+{#                    var feature = new OpenLayers.Feature.Vector(line);#}
+{#                    feature.attributes = {#}
+{#                        'label': '',#}
+{#                        'dash': "solid",#}
+{#                        'strokeWidth': 2,#}
+{#                    };#}
+{#                    last = pointList[1];#}
+{#                    pointList = [];#}
+{#                    pointList.push(last);#}
+{##}
+{#                    layer.addFeatures([feature]);#}
+{#                    layer.drawFeature(feature);#}
+{#                }#}
+{##}
+{#            });#}
+{#        });#}
+{##}
+{#    }#}
+{##}
+{# function init(map){#}
+{#     //var Edmonton_LonLat = [-113.49566,53.52646]; // in EPSG:4326#}
+{#     var Edmonton_LonLat = [-12635985, 7079780]; // in EPSG:3857#}
+{##}
+{#     //base layer#}
+{#     var OSM_layer = new OpenLayers.Layer.OSM("OpenStreet Map");#}
+{#     map.addLayer(OSM_layer);#}
+{##}
+{#     OpenLayers.Projection.addTransform("EPSG:4326", "EPSG:3857", OpenLayers.Layer.SphericalMercator.projectForward);#}
+{#     var position       = new OpenLayers.LonLat(Edmonton_LonLat[0],Edmonton_LonLat[1]);#}
+{#     var zoom           = 13;#}
+{##}
+{#     var currDateMin = $("#slider").dateRangeSlider("values").min;#}
+{#     var currDateMax = $("#slider").dateRangeSlider("values").max;#}
+{##}
+{#     // home polygon fences layer#}
+{#     var h = new OpenLayers.Style({#}
+{#         'strokeColor':"${color}",#}
+{#         'fillColor':"${fillcolor}",#}
+{#         'fillOpacity': 0.4,#}
+{#         'label': "${label}",#}
+{#         'fontColor': "white",#}
+{#         'fontSize': "12px",#}
+{#         'fontFamily': "Courier New, monospace",#}
+{#         'fontWeight': "bold",#}
+{#         'labelAlign': "cm",#}
+{#         'labelOutlineColor': "black",#}
+{#         'labelOutlineWidth': 3,#}
+{#         'labelXOffset': "${xOffset}",#}
+{#         'labelYOffset': "${yOffset}"#}
+{#     });#}
+{#     var home_style = new OpenLayers.StyleMap(h);#}
+{#     other_locs = new OpenLayers.Layer.Vector("Other locations", {#}
+{#         styleMap: home_style,#}
+{##}
+{#     });#}
+{#     map.addLayer(other_locs);#}
+{#     var data = {{known_locations|safe}}; // each location dict including wkt polygon#}
+{#     show_vectors(other_locs, data, currDateMin, currDateMax);#}
+{##}
+{#     // journey from activities layer#}
+{#     var s = new OpenLayers.Style({#}
+{#         'strokeColor':"green",#}
+{#         'pointRadius': 4,#}
+{#         'strokeWidth': "${strokeWidth}",#}
+{#         'fillColor':"${color}",#}
+{#         'fillOpacity': "${highlight}",#}
+{#         'label': "${label}",#}
+{#         'fontColor': "white",#}
+{#         'fontSize': "12px",#}
+{#         'fontFamily': "Courier New, monospace",#}
+{#         'fontWeight': "bold",#}
+{#         'labelAlign': "cm",#}
+{#         'strokeDashstyle': "${dash}",#}
+{#         'labelOutlineColor': "black",#}
+{#         'labelOutlineWidth': 3,#}
+{#         'labelXOffset': "${xOffset}",#}
+{#         'labelYOffset': "${yOffset}"#}
+{#     });#}
+{#     var path_style = new OpenLayers.StyleMap(s);#}
+{#     point_vectors = new OpenLayers.Layer.Vector("Activities path", {styleMap: path_style}); //GLOBALLY AVAILABLE#}
+{##}
+{#     map.addLayer(point_vectors);#}
+{##}
+{#     points = {{point_collection|safe}}; // each activity dict including wkt features // GLOBAL#}
+{#     show_vectors(point_vectors, points, currDateMin, currDateMax);#}
+{##}
+{#     // zoom center and add toggles#}
+{#     map.addControl(new OpenLayers.Control.LayerSwitcher());#}
+{#     map.setCenter(position, zoom );#}
+{##}
+{#     selectFeature = new OpenLayers.Control.SelectFeature(#}
+{#         [other_locs, point_vectors],#}
+{#         {#}
+{#             onSelect: clickNotice,#}
+{#             click: true,#}
+{#             autoActivate: true,#}
+{#             multiple: true#}
+{#         }#}
+{#     );#}
+{#     map.addControl(selectFeature);#}
+{#     selectFeature.activate();#}
+{##}
+{#     map.addControl(new OpenLayers.Control.Attribution());#}
+{##}
+{#     // detect click events onlocations#}
+{#     function clickNotice(feat) {#}
+{#         if (feat.layer.name == "Activities path") {#}
+{#             feat.attributes.highlight = "0.8";#}
+{#             point_vectors.redraw();#}
+{##}
+{#         }#}
+{#         else {#}
+{#             feat.attributes.color = "black";#}
+{#             other_locs.redraw();#}
+{#         }#}
+{#         if (feat.geometry.x == null) { // then we have a polygon or linestring#}
+{#             if (feat.geometry.components.length > 1) return; // skip linestring#}
+{#             var poplon = feat.geometry.bounds.right - (feat.geometry.bounds.right - feat.geometry.bounds.left)/2;#}
+{#             var poplat = feat.geometry.bounds.top - (feat.geometry.bounds.top - feat.geometry.bounds.bottom)/2;#}
+{##}
+{#             var time_string = formatTime(feat.attributes.time);#}
+{#             var message = "<center><span class='editable'>" + feat.attributes.title +"</span>"#}
+{#                         + "<button data-id="+feat.attributes.title+" id='editLocation'><img class='icon' src='/static/Edit.png'></button>"#}
+{#                         + "</center>"#}
+{#                         + "</br> Person: "#}
+{#                         + feat.attributes.owner + "</br>Category: " + feat.attributes.category#}
+{#                         + "</br>Total time spent here: " + time_string;#}
+{#         }#}
+{#         else  { // we have a point#}
+{#             var poplon = feat.geometry.x;#}
+{#             var poplat = feat.geometry.y;#}
+{#             var time = new Date(feat.attributes.time).toLocaleString();#}
+{#             var message = "<center>" + time + "</center>";#}
+{#         }#}
+{##}
+{#         var popup = new OpenLayers.Popup.FramedCloud(#}
+{#             "popup",#}
+{#             new OpenLayers.LonLat(poplon, poplat),#}
+{#             new OpenLayers.Size(50,100),#}
+{#             message,#}
+{#             null, true, function(){#}
+{#                 onPopupClose(feat);#}
+{#             });#}
+{##}
+{#         popup.maxSize = new OpenLayers.Size(400, 350);#}
+{#         popup.minSize = new OpenLayers.Size(50, 50);#}
+{#         feat.popup = popup;#}
+{#         map.addPopup(popup);#}
+{#         var clickedLocation = null;#}
+{##}
+{#         // edit the location name#}
+{#         $('#editLocation').click(function(e){#}
+{#             var update = $(this).siblings(".editable").text();#}
+{#             clickedLocation = update;#}
+{#             console.log(feat);#}
+{#             $(this).siblings(".editable").html('');#}
+{#             $('<input style="width:100%;"></input>')#}
+{#            .attr({#}
+{#                'type': 'text',#}
+{#                'id': 'edited',#}
+{#                'value': update#}
+{#            })#}
+{#            .appendTo($(this).siblings(".editable"));#}
+{#             $('#edited').focus();#}
+{##}
+{#             // save the edit on blur#}
+{#             $('#edited').blur(function(e){#}
+{#                 var update = $(this).val();#}
+{#                 var loc_nameKey = clickedLocation;#}
+{#                 var data = {'locKey':loc_nameKey, 'value':update};#}
+{#                 $.ajax({#}
+{#                     type: 'post',#}
+{#                     url: '/editLocation/',#}
+{#                     data: data,#}
+{#                     dataType: 'json',#}
+{#                     success: $.proxy(function(){#}
+{#                         $(this).parent().html(update);#}
+{#                         clickedLocation = null;#}
+{#                         feat.attributes.title = update;#}
+{#                     },this),#}
+{#                     error: $.proxy(function(e){#}
+{#                         var message = '';#}
+{#                         if (e.responseText == "Fail"){#}
+{#                             message = "Server error, failed to save name change";#}
+{#                         }#}
+{#                         else if (e.responseText == "Duplicate"){#}
+{#                             message = "Location name already exists";#}
+{#                         }#}
+{#                         alert(e.responseText + ': ' + message);#}
+{#                         clickedLocation = null;#}
+{#                         feat.attributes.title = loc_nameKey;#}
+{#                     },this)#}
+{#                 });#}
+{##}
+{#             });#}
+{#         });#}
+{#     }#}
+{#}#}
+{##}
+{# function onPopupClose(feat) {#}
+{##}
+{#     if (feat.layer.name == "Activities path") {#}
+{#         if (feat.attributes.category == "Harmful") feat.attributes.color = "red"#}
+{#         feat.attributes.highlight = "0.4";#}
+{#         point_vectors.redraw();#}
+{#     }#}
+{#     else {#}
+{#         if (feat.attributes.category == "Harmful") feat.attributes.color = "red"#}
+{#         else feat.attributes.color = "orange";#}
+{#         other_locs.redraw();#}
+{#     }#}
+{#     map.removePopup(feat.popup);#}
+{#     feat.popup.destroy();#}
+{##}
+{# }#}
+{##}
+{# function formatTime(millis) {#}
+{#     console.log("MILLIS", millis);#}
+{#     var minutes = Math.floor((millis/(1000 * 60))%60);#}
+{#     var hours = Math.floor(millis/(1000 * 60 * 60));#}
+{#     if (isNaN(minutes)) return "unknown, \narrived at: " + millis.toString();#}
+{#     var time_string = Math.abs(hours) + " hours, " + Math.abs(minutes) + " minutes";#}
+{#     return time_string.toString();#}
+{# }#}
+{##}
+{# $(document).ready(function () {#}
+{#     $("p#header").hide();#}
+{#     var startd = new Date({{time_from|safe}}.date);#}
+{#     var defaultdate = new Date({{time_from|safe}}.date);#}
+{#     var endd = new Date({{time_to|safe}}.date);#}
+{#     startd.setHours(0,0,0,0);#}
+{##}
+{#     $("table#listevent tbody tr > th:first-child").each(function(index, time) {#}
+{#         var format = moment($(time).text(), "YYYY-MM-DD, hh:mm:ss").format('LLL');#}
+{#         var format_end = moment($(time).next().text(), "YYYY-MM-DD, hh:mm:ss").format('LLL');#}
+{#         $(time).text(format);#}
+{#         $(time).next().text(format_end);#}
+{##}
+{#     });#}
+{#     if (endd.getMonth() < defaultdate.getMonth()+1){#}
+{#         defaultdate = endd;#}
+{#     }#}
+{#     else {#}
+{#         defaultdate.setMonth(defaultdate.getMonth()+1);#}
+{#     }#}
+{##}
+{#     slider = $("#slider").dateRangeSlider({#}
+{#         bounds:{#}
+{#             min: startd, //new Date(2016, 12, 01, 0, 0, 0),#}
+{#             max: endd //new Date(2017, 02, 01, 0, 0, 0)#}
+{#         },#}
+{#         defaultValues:{#}
+{#             min: startd, //new Date(2016, 12, 25, 0, 0, 0),#}
+{#             max: defaultdate//new Date(2017, 02, 01, 0, 0, 0)#}
+{#         },#}
+{#         step:{#}
+{#             days: 1#}
+{#         }});#}
+{##}
+{#     var options = {#}
+{#         'target': "map",#}
+{#         'units' : "m",#}
+{#         'maxResolution' : 156543.0339,#}
+{#         'numZoomLevels' : 25,#}
+{#         'projection' : new OpenLayers.Projection("EPSG:3857"),#}
+{#         'maxExtent' : new OpenLayers.Bounds(-17037508,40000000,-5000000,12020000)#}
+{#     };#}
+{#     map = new OpenLayers.Map('map', options);#}
+{##}
+{#     init(map);#}
+{#     refineTable($("#slider").dateRangeSlider("values").min, $("#slider").dateRangeSlider("values").max);#}
+{##}
+{#     // detect changes in daterange slider#}
+{#     $("#slider").bind("valuesChanged", function(e, data){#}
+{#         var path_layer = map.getLayersByName("Activities path")[0];#}
+{#         while( map.popups.length ) map.removePopup(map.popups[0]); // remove all popups#}
+{#         selectFeature.unselectAll(); // unselect all features#}
+{#         path_layer.removeAllFeatures(); //remove  all features and re-add them within the time limits#}
+{#         show_vectors(path_layer, points, data.values.min, data.values.max);#}
+{#         refineTable(data.values.min, data.values.max);#}
+{#     });#}
+{##}
+{#     // refine table to only have relevant entries by date#}
+{#     function refineTable(min, max){#}
+{#         $("table#listevent tbody tr > th:first-child").each(function(index, time) {#}
+{#             var compare_start = moment($(time).text(), 'MMMMDD, Y hh:mm a').toDate(); // format date#}
+{#             var compare_end = moment($(time).next().text(), 'MMMMDD, Y hh:mm a').startOf('day').toDate(); // only care about date not time#}
+{#             if (compare_start < min || compare_end > max){#}
+{#                 $(time).parent().hide();#}
+{#             }#}
+{#             else{#}
+{#                 $(time).parent().show();#}
+{#             }#}
+{#         });#}
+{#     }#}
+{##}
+{##}
+{# });#}
+{##}
+{#</script>#}
+{##}
+{#    <span class="mapview">#}
+{#        <h2 style="text-align:center;" >MAPSSSS</h2>#}
+{##}
+{#        <style type="text/css">#}
+{##}
+{#         #map {#}
+{#             width: 100%;#}
+{#             height: 80%;#}
+{#             margin: 10;#}
+{#         }#}
+{#        </style>#}
+{#        <div id="map"></div>#}
+{#    </span>#}
+{#    <div id="slider"></div></br>#}
+{#    <div>#}
+{##}
+{#       {% include "filtered_activity_table.html" %}#}
+{#    </div>#}
+
+{% endblock %}
