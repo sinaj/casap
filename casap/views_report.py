@@ -10,7 +10,9 @@ from geopy.distance import vincenty
 
 from casap.forms_report import LostPersonRecordForm, SightingRecordForm, FindRecordForm
 from casap.models import Vulnerable, LostPersonRecord, Volunteer
-from casap.utils import get_user_time, send_sms, get_standard_phone
+from casap.utils import get_user_time, send_sms, get_standard_phone,SimpleMailHelper
+from django.utils.html import strip_tags
+
 
 
 @login_required
@@ -51,6 +53,7 @@ def report_sighting_view(request, hash):
             notify_sighting(sighting_record)
             add_message(request, messages.SUCCESS, "Thank you! Our records are updated.")
             return HttpResponseRedirect(request.POST.get("next", reverse("index")))
+                
     else:
         form = SightingRecordForm(initial=dict(time=get_user_time(request)))
         request.context['next'] = request.GET.get("next", reverse("index"))
@@ -73,6 +76,7 @@ def notify_sighting(sighting_record, max_distance=None):
             close_volunteers.add(vol)
 
     for vol in close_volunteers:
+        print(vol.email)
         if sighting_record.description:
             sms_text = "Dear %s,\n%s has been lost near you with description:\n%s\n\n" % (vol.full_name,
                                                                                         sighting_record.lost_record.vulnerable.full_name,
@@ -83,7 +87,7 @@ def notify_sighting(sighting_record, max_distance=None):
                                                                    sighting_record.lost_record.vulnerable.full_name) + \
                        "Please report to use when sighted by following the link below:\n%s" % sighting_record.get_link()
         send_sms(get_standard_phone(vol.phone), sms_text)
-
+        SimpleMailHelper("Someone lost near you", sms_text, sighting_record.get_link(), vol.email).send_email()
 
 @login_required
 def report_found_view(request, hash):

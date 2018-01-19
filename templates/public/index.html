@@ -42,7 +42,8 @@
                                                 <div class="container-fluid p-0 clearfix">
                                                     Reported missing at: <span class="float-right text-dark">{{ record.time|timezone:user_tz_name|time }}</span>
                                                 </div>
-                                                {{ record.address }}
+                                                <a href="{% url 'location' %}?lat={{ record.address_lat}}&{{ record.address_lng}}">{{ record.address}}</a>
+            
                                             </div>
                                             {% with record.sighting_records.last as last_sighting %}
                                                 {% if last_sighting %}
@@ -50,7 +51,8 @@
                                                         <div class="container-fluid p-0 clearfix">
                                                             Last located at: <span class="float-right text-dark">{{ last_sighting.time|timezone:user_tz_name|time }}</span>
                                                         </div>
-                                                        {{ last_sighting.address }}
+                                                        <a href="{% url 'location' %}?lat={{ last_sighting.address_lat}}&{{ last_sighting.address_lng}}}">{{ last_sighting.address}}</a>
+                                                        
                                                         {% if last_sighting.description %}
                                                             <div class="container-fluid p-0 text-dark">
                                                                 {{ last_sighting.description }}
