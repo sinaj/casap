@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.forms.models import BaseModelFormSet, BaseInlineFormSet
+from django.core.validators import validate_email
 
 from casap.models import *
 from casap.utils import normalize_email, get_standard_phone, get_address_map_google
@@ -59,6 +60,14 @@ class VolunteerForm(forms.ModelForm):
             return standard_phone
         raise forms.ValidationError("Phone number is invalid.")
 
+    def clean_email(self):
+        try:
+            validate_email(self.cleaned_data['email'])
+        except:
+            raise forms.ValidationError("Email is invalid.")
+        else:
+            return self.cleaned_data['email']
+
     def clean_personal_address(self):
         if not self.cleaned_data['personal_address']:
             return self.cleaned_data['personal_address']
@@ -89,7 +98,7 @@ class VolunteerForm(forms.ModelForm):
 
     class Meta:
         model = Volunteer
-        fields = ('phone', 'personal_address', 'business_address')
+        fields = ('phone', 'email', 'personal_address', 'business_address')
 
 
 class VulnerableForm(forms.ModelForm):
