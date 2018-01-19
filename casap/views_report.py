@@ -76,7 +76,6 @@ def notify_sighting(sighting_record, max_distance=None):
             close_volunteers.add(vol)
 
     for vol in close_volunteers:
-        print(vol.email)
         if sighting_record.description:
             sms_text = "Dear %s,\n%s has been lost near you with description:\n%s\n\n" % (vol.full_name,
                                                                                         sighting_record.lost_record.vulnerable.full_name,

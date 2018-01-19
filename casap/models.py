@@ -73,7 +73,7 @@ class PasswordResetCode(models.Model):
 class Volunteer(models.Model):
     profile = models.OneToOneField(Profile, related_name="volunteer")
     phone = models.CharField(max_length=15)
-    email = models.CharField(max_length=25)
+    email = models.CharField(max_length=50)
     personal_address = models.TextField(default="")
     personal_lat = models.FloatField()
     personal_lng = models.FloatField()
