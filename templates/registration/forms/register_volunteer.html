@@ -5,13 +5,19 @@
            value="{{ form.phone.value|default:"" }}" autofocus>
 </div>
 <div class="form-group">
-    <label for="id_personal_address">Personal Address (optional)</label>
+    <label for="id_email">Email<span class="text-danger">*</span></label>
+    {{ form.email.errors }}
+    <input type="tel" id="id_email" name="email" class="form-control" placeholder="e.g. username@email.com" required
+           value="{{ form.email.value|default:"" }}" autofocus>
+</div>
+<div class="form-group">
+    <label for="id_personal_address">Personal Address<span class="text-danger">*</span></label> </label>
     {{ form.personal_address.errors }}
     <input type="text" id="id_personal_address" name="personal_address" class="form-control" placeholder=""
            value="{{ form.personal_address.value|default:"" }}">
 </div>
 <div class="form-group">
-    <label for="id_business_address">Business Address (optional)</label>
+    <label for="id_business_address">Business Address <span class="text-danger">*</span></label></label>
     {{ form.business_address.errors }}
     <input type="text" id="id_business_address" name="business_address" class="form-control" placeholder=""
            value="{{ form.business_address.value|default:"" }}">
