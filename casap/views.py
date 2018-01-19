@@ -30,5 +30,5 @@ def track_missing_view(request, hash):
     request.context['vulnerable'] = lost_record.vulnerable
     return render(request, "public/track_missing.html", request.context)
 
-def map_view(request):
-    return render(request, "MapView.html", request.context)
+def location_view(request):
+    return render(request, "LocationView.html", request.context)
