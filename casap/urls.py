@@ -52,6 +52,7 @@ urlpatterns = [
     url(r'^accounts/', include(register_patterns)),
     url(r'^dashboard/', include(dashboard_patterns)),
     url(r'^admin/', admin.site.urls),
+    url(r'^location/',views.location_view,name="location"),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

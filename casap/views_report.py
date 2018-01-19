@@ -51,6 +51,7 @@ def report_sighting_view(request, hash):
             notify_sighting(sighting_record)
             add_message(request, messages.SUCCESS, "Thank you! Our records are updated.")
             return HttpResponseRedirect(request.POST.get("next", reverse("index")))
+                
     else:
         form = SightingRecordForm(initial=dict(time=get_user_time(request)))
         request.context['next'] = request.GET.get("next", reverse("index"))

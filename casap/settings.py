@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
     'casap',
 ]
 
@@ -109,4 +110,7 @@ MESSAGE_TAGS = {
     messages.DEBUG: 'default',
     messages.ERROR: 'danger',
 }
+
+GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH')
+GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH')
 
