@@ -287,9 +287,18 @@ def vulnerable_add_view(request):
             if not vulnerable.creation_time:
                 vulnerable.creation_time = timezone.now()
             vulnerable.save()
-        formset = address_formset(request.POST,
-                                  queryset=VulnerableAddress.objects.filter(vulnerable=vulnerable))
+        formset = address_formset(request.POST, queryset=VulnerableAddress.objects.all())
         if formset.is_valid():
+            for k,v in formset.data.items():
+                if k.endswith("-address") and k != "addresses-0-address":
+                    loc = get_address_map_google(v)
+                    additional_address = VulnerableAddress()
+                    additional_address.vulnerable = vulnerable
+                    additional_address.address = v
+                    additional_address.address_lng = loc['lng']
+                    additional_address.address_lat = loc['lat']
+                    additional_address.save()
+
             for address in formset.save(commit=False):
                 address.vulnerable = vulnerable
                 address.save()
