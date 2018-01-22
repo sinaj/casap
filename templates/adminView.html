@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Location</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/mapview.css" />
+    <script src="http://dev.openlayers.org/OpenLayers.js"></script>
+    <script type="text/javascript">
+    var map, vectors, controls;
+
+    function init() {
+        var a = location.href;
+        var b = a.substring(a.indexOf("?") + 1);
+        var locationData = b.substring(b.indexOf("=") + 1).split("&");
+        map = new OpenLayers.Map('map');
+        var OSM_layer = new OpenLayers.Layer.OSM("OpenStreet Map");
+        map.addLayer(OSM_layer);
+
+
+        var position = new OpenLayers.LonLat(-113.4909,53.444).transform('EPSG:4326', 'EPSG:3857');
+
+        var zoom = 13;
+
+        var size = new OpenLayers.Size(21, 25);
+        var offset = new OpenLayers.Pixel(-(size.w / 2), -size.h);
+
+        var icon = new OpenLayers.Icon("http://pluspng.com/img-png/png-location-file-location-icon-png-287.png", size, offset);
+        //base layer
+        var markers = new OpenLayers.Layer.Markers("Markers");
+        markers.addMarker(new OpenLayers.Marker(position, icon));
+
+        var volunteer = new OpenLayers.Layer.Vector("volunteer");
+
+        map.setCenter(position, zoom);
+        map.addLayers([markers,volunteer]);
+       
+        map.addControl(new OpenLayers.Control.LayerSwitcher());
+
+        map.addControl(new OpenLayers.Control.Attribution());
+
+
+        
+
+    }
+    </script>
+</head>
+
+<body onload="init()">
+    </p>
+    <div id="map" class="smallmap"></div>
+</body>
+
+</html>

@@ -72,6 +72,7 @@ def gen_unique_hash(model_class, length, all_caps=None, field_name=None):
     return unique_hash.upper() if all_caps else unique_hash
 
 
+
 def get_standard_phone(raw_phone, ignore_error=None):
     try:
         non_decimal = re.compile(r'[^\d]+')

@@ -32,3 +32,9 @@ def track_missing_view(request, hash):
 
 def location_view(request):
     return render(request, "LocationView.html", request.context)
+
+def admin_view(request):
+
+    return render(request, "adminView.html", request.context)
+
+
