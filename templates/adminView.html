@@ -12,6 +12,7 @@
     var map, vectors, controls;
 
     function init() {
+        var Edmonton_LonLat = [-12637731.108363, 7081028.6705168]; 
         var a = location.href;
         var b = a.substring(a.indexOf("?") + 1);
         var locationData = b.substring(b.indexOf("=") + 1).split("&");
@@ -19,9 +20,19 @@
         var OSM_layer = new OpenLayers.Layer.OSM("OpenStreet Map");
         map.addLayer(OSM_layer);
 
-
-        var position = new OpenLayers.LonLat(-113.4909,53.444).transform('EPSG:4326', 'EPSG:3857');
-
+        var volunteer = new OpenLayers.Layer.Vector("Volunteer");
+        volunteeraddress = {{volunteeraddress}}
+        
+        Points = []
+        for (each in volunteeraddress){
+            var point = new OpenLayers.Geometry.Point(volunteeraddress[each][1], volunteeraddress[each][0]).transform('EPSG:4326', 'EPSG:3857');
+            var pointFeature = new OpenLayers.Feature.Vector(point,null,null);
+            Points.push(pointFeature);
+        }
+       
+        volunteer.addFeatures(Points);
+        
+        var position = new OpenLayers.LonLat(Edmonton_LonLat[0],Edmonton_LonLat[1])
         var zoom = 13;
 
         var size = new OpenLayers.Size(21, 25);
@@ -32,7 +43,6 @@
         var markers = new OpenLayers.Layer.Markers("Markers");
         markers.addMarker(new OpenLayers.Marker(position, icon));
 
-        var volunteer = new OpenLayers.Layer.Vector("volunteer");
 
         map.setCenter(position, zoom);
         map.addLayers([markers,volunteer]);
@@ -40,10 +50,6 @@
         map.addControl(new OpenLayers.Control.LayerSwitcher());
 
         map.addControl(new OpenLayers.Control.Attribution());
-
-
-        
-
     }
     </script>
 </head>

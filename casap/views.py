@@ -7,6 +7,7 @@ from django.template import loader, context
 
 from casap.models import LostPersonRecord
 from casap.models import SightingRecord
+from casap.models import Volunteer
 
 
 def index(request):
@@ -34,6 +35,22 @@ def location_view(request):
     return render(request, "LocationView.html", request.context)
 
 def admin_view(request):
+    address = []
+    for each in Volunteer.objects.all():
+        personallocation = [each.personal_lat,each.personal_lng]
+        businesslocation = [each.business_lat,each.business_lng]
+        address.append(businesslocation)
+        address.append(personallocation)
+
+    request.context['volunteeraddress'] = address
+
+    LostPersonName = []
+
+    for each in LostPersonRecord.objects.all():
+        name = each.vulnerable.first_name + each.vulnerable.last_name
+        LostPersonName.append(name)
+
+    request.context['LostPersonName'] = LostPersonName
 
     return render(request, "adminView.html", request.context)
 
