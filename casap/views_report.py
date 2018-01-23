@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from geopy.distance import vincenty
+from django.contrib.gis.geos import Point
 
 from casap.forms_report import LostPersonRecordForm, SightingRecordForm, FindRecordForm
 from casap.models import Vulnerable, LostPersonRecord, Volunteer
@@ -48,6 +49,18 @@ def report_sighting_view(request, hash):
         request.context['next'] = request.POST.get("next", reverse("index"))
         if form.is_valid():
             sighting_record = form.save(request.user, lost_record)
+            activity = Activity()
+            activity.locLat = sighting_record.address_lat
+            activity.locLon = sighting_record.address_lng
+            activity.person_id = sighting_record.lost_record.vulnerable_id
+            activity.time = sighting_record.time
+            activity.adminPoint = Point(float(activity.locLon), float(activity.locLat), srid=3857)
+            fence_loc = Location.objects.filter(fence__contains=activity.adminPoint)
+            if fence_loc:
+                activity.location = fence_loc[0]
+
+            activity.save()
+
             lost_record.state = "sighted"
             lost_record.save()
             notify_sighting(sighting_record)
