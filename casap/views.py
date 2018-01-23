@@ -8,6 +8,7 @@ from django.template import loader, context
 from casap.models import LostPersonRecord
 from casap.models import SightingRecord
 from casap.models import Volunteer
+from casap.models import Vulnerable
 
 
 def index(request):
@@ -47,10 +48,11 @@ def admin_view(request):
     LostPersonName = []
 
     for each in LostPersonRecord.objects.all():
-        name = each.vulnerable.first_name + each.vulnerable.last_name
+        name = each.vulnerable.first_name +' '+each.vulnerable.last_name
         LostPersonName.append(name)
 
     request.context['LostPersonName'] = LostPersonName
+    request.context['Vulnerable'] = Vulnerable
 
     return render(request, "adminView.html", request.context)
 

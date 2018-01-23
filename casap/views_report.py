@@ -10,7 +10,7 @@ from geopy.distance import vincenty
 from django.contrib.gis.geos import Point
 
 from casap.forms_report import LostPersonRecordForm, SightingRecordForm, FindRecordForm
-from casap.models import Vulnerable, LostPersonRecord, Volunteer
+from casap.models import Vulnerable, LostPersonRecord, Volunteer,Activity,Location
 from casap.utils import get_user_time, send_sms, get_standard_phone,SimpleMailHelper
 from django.utils.html import strip_tags
 

@@ -41,7 +41,6 @@ class Profile(models.Model):
     def __str__(self):
         return str(self.user)
 
-
 class EmailConfirmationCode(models.Model):
     user = models.ForeignKey(User)
     code = models.CharField(max_length=120)
