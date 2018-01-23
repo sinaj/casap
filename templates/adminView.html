@@ -155,8 +155,29 @@
 
         var formData = new FormData();
 
+        var s = new OpenLayers.Style({
+         'strokeColor':"green",
+         'pointRadius': 4,
+         'strokeWidth': "${strokeWidth}",
+         'fillColor':"${color}",
+         'fillOpacity': "${highlight}",
+         'label': "${label}",
+         'fontColor': "white",
+         'fontSize': "12px",
+         'fontFamily': "Courier New, monospace",
+         'fontWeight': "bold",
+         'labelAlign': "cm",
+         'strokeDashstyle': "${dash}",
+         'labelOutlineColor': "black",
+         'labelOutlineWidth': 3,
+         'labelXOffset': "${xOffset}",
+         'labelYOffset': "${yOffset}"
+        });
+
+        var path_style = new OpenLayers.StyleMap(s);
+
         for (each in LostPersonName){
-            var Personlayer = new OpenLayers.Layer.Vector(LostPersonName[each]);
+            var Personlayer = new OpenLayers.Layer.Vector(LostPersonName[each],{styleMap: path_style});
             map.addLayer(Personlayer);
             var name = LostPersonName[each];
             formData.append('csrfmiddlewaretoken',"{{ csrf_token }}");
@@ -188,10 +209,8 @@
         var markers = new OpenLayers.Layer.Markers("Markers");
         markers.addMarker(new OpenLayers.Marker(position, icon));
 
-
         map.setCenter(position, zoom);
         map.addLayers([markers,volunteer]);
-       
         map.addControl(new OpenLayers.Control.LayerSwitcher());
 
         map.addControl(new OpenLayers.Control.Attribution());
