@@ -90,7 +90,7 @@ class Volunteer(models.Model):
 
 
 class VolunteerAvailability(models.Model):
-    volunteer = models.ForeignKey(Volunteer, related_name="addresses")
+    volunteer = models.ForeignKey(Volunteer, related_name="volunteers")
     address = models.TextField()
     address_lat = models.FloatField()
     address_lng = models.FloatField()
@@ -98,7 +98,7 @@ class VolunteerAvailability(models.Model):
     time_to = models.TimeField()
 
     def __str__(self):
-        return u"%s - %s from %s to %s" % (self.vulnerable, self.address, self.time_from, self.time_to)
+        return u"%s - %s from %s to %s" % (self.volunteer, self.address, self.time_from, self.time_to)
 
 
 class Vulnerable(models.Model):
