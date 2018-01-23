@@ -30,7 +30,6 @@
                 if (place.category == "Harmful") color = "red";
 
                 else var time = '';
-                console.log(place)
 
                 if (i==0 && last_exit != null && pointList.length==0) {
                     pointList.push(last_exit); // keep track of exit point to draw line from THIS IS BUGGY
@@ -134,6 +133,14 @@
     var map, vectors, controls;
 
     function init() {
+        var pointStyle = {
+        strokeColor: "#00FFFF",
+        fillColor: "#00FFFF",
+        strokeOpacity: 10,
+        strokeWidth: 2,
+        pointRadius: 3,
+        }
+        var point_style = new OpenLayers.StyleMap(pointStyle);
         var Edmonton_LonLat = [-12637731.108363, 7081028.6705168]; 
         var a = location.href;
         var b = a.substring(a.indexOf("?") + 1);
@@ -142,7 +149,7 @@
         var OSM_layer = new OpenLayers.Layer.OSM("OpenStreet Map");
         map.addLayer(OSM_layer);
 
-        var volunteer = new OpenLayers.Layer.Vector("Volunteer");
+        var volunteer = new OpenLayers.Layer.Vector("Volunteer",{styleMap: point_style});
         volunteeraddress = {{volunteeraddress}}
         LostPersonName = {{LostPersonName|safe}};
 
