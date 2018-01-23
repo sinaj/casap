@@ -1,3 +1,4 @@
+import datetime
 import pytz
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -9,11 +10,19 @@ from django.core.urlresolvers import reverse
 from geopy.distance import vincenty
 
 from casap.forms_report import LostPersonRecordForm, SightingRecordForm, FindRecordForm
-from casap.models import Vulnerable, LostPersonRecord, Volunteer
+from casap.models import Vulnerable, LostPersonRecord, Volunteer, VolunteerAvailability
 from casap.utils import get_user_time, send_sms, get_standard_phone,SimpleMailHelper
 from django.utils.html import strip_tags
 
-
+# Taken from https://stackoverflow.com/questions/10747974/how-to-check-if-the-current-time-is-in-range-in-python
+# Date: January 23, 2018
+# Author: Dietrich Epp
+def time_in_range(start, end, x):
+    """Return true if x is in the range [start, end]"""
+    if start <= end:
+        return start <= x <= end
+    else:
+        return start <= x or x <= end
 
 @login_required
 def report_lost_view(request):
@@ -47,13 +56,14 @@ def report_sighting_view(request, hash):
         form = SightingRecordForm(request.POST)
         request.context['next'] = request.POST.get("next", reverse("index"))
         if form.is_valid():
+            time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime("%H:%M")
             sighting_record = form.save(request.user, lost_record)
             lost_record.state = "sighted"
             lost_record.save()
-            notify_sighting(sighting_record)
+            notify_sighting(sighting_record, time_seen)
             add_message(request, messages.SUCCESS, "Thank you! Our records are updated.")
             return HttpResponseRedirect(request.POST.get("next", reverse("index")))
-                
+
     else:
         form = SightingRecordForm(initial=dict(time=get_user_time(request)))
         request.context['next'] = request.GET.get("next", reverse("index"))
@@ -64,16 +74,18 @@ def report_sighting_view(request, hash):
     return render(request, "report/report_sighting.html", request.context)
 
 
-def notify_sighting(sighting_record, max_distance=None):
+def notify_sighting(sighting_record, time_seen, max_distance=None):
     if max_distance is None:
         max_distance = 5
     lat, lng = sighting_record.address_lat, sighting_record.address_lng
     close_volunteers = set()
     for vol in Volunteer.objects.all():
-        if vincenty((vol.personal_lat, vol.personal_lng), (lat, lng)).kilometers <= max_distance:
-            close_volunteers.add(vol)
-        if vincenty((vol.business_lat, vol.business_lng), (lat, lng)).kilometers <= max_distance:
-            close_volunteers.add(vol)
+        availability = VolunteerAvailability.objects.filter(volunteer=vol)
+        for x in availability:
+            seen = datetime.datetime.strptime(time_seen, "%H:%M").time()
+            if (time_in_range(x.time_from, x.time_to, seen)) and \
+                    (vincenty((x.address_lat, x.address_lng), (lat, lng)).kilometers <= max_distance):
+                    close_volunteers.add(vol)
 
     for vol in close_volunteers:
         if sighting_record.description:
