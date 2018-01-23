@@ -81,7 +81,7 @@ def register_volunteer_view(request):
             volunteer = form.save(commit=False)
             volunteer.profile = profile
             volunteer.save()
-        formset = availability_formset(request.POST, request.FILES, prefix='addresses',
+        formset = availability_formset(request.POST, request.FILES, prefix='volunteers',
                                        queryset=VolunteerAvailability.objects.all())
         if formset.is_valid():
             for f in formset:
