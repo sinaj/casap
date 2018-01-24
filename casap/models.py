@@ -125,7 +125,7 @@ class Vulnerable(models.Model):
 
 
 class VulnerableAddress(models.Model):
-    vulnerable = models.ForeignKey(Vulnerable, related_name="availabilities")
+    vulnerable = models.ForeignKey(Vulnerable, related_name="addresses")
     address = models.TextField()
     address_lat = models.FloatField()
     address_lng = models.FloatField()
