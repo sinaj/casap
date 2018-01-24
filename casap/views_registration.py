@@ -13,11 +13,12 @@ from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
+from django.forms import inlineformset_factory, forms
 
 from casap import settings
-from casap.forms import UserLoginForm, UserCreateForm, VolunteerForm, Volunteer
-from casap.models import EmailConfirmationCode, Profile, PasswordResetCode
-from casap.utils import url_with_params, unquote_redirect_url, normalize_email, SimpleMailHelper
+from casap.forms import UserLoginForm, UserCreateForm, VolunteerForm, Volunteer, VolunteerAvailabilityForm
+from casap.models import EmailConfirmationCode, Profile, PasswordResetCode, VolunteerAvailability
+from casap.utils import url_with_params, unquote_redirect_url, SimpleMailHelper, get_address_map_google
 
 
 @login_required
@@ -67,31 +68,44 @@ def register_view(request):
 @login_required
 def register_volunteer_view(request):
     profile = request.user.profile
+    availability_formset = inlineformset_factory(Volunteer, VolunteerAvailability,
+                                                 form=VolunteerAvailabilityForm, fk_name="volunteer")
+    item_forms = availability_formset
     if request.method == "POST":
         next = request.POST.get("next", reverse("index"))
         if Volunteer.objects.filter(profile=profile).exists():
             form = VolunteerForm(request.POST, instance=profile.volunteer)
         else:
-            form = VolunteerForm(request.POST)
+            form = VolunteerForm(request.POST, request.FILES)
         if form.is_valid():
             volunteer = form.save(commit=False)
             volunteer.profile = profile
-            if form.cleaned_data['personal_address']:
-                volunteer.personal_lat = form.personal_lat
-                volunteer.personal_lng = form.personal_lng
-            if form.cleaned_data['business_address']:
-                volunteer.business_lat = form.business_lat
-                volunteer.business_lng = form.business_lng
             volunteer.save()
-            add_message(request, messages.SUCCESS, "Registration was successful.")
-            return HttpResponseRedirect(request.POST.get("next", reverse("index")))
-        request.context['next'] = next
+        formset = availability_formset(request.POST, request.FILES, prefix='volunteers',
+                                       queryset=VolunteerAvailability.objects.all())
+        if formset.is_valid():
+            for f in formset:
+                if f.cleaned_data.get('address'):  # Check if there is a provided address
+                    address = get_address_map_google(f.cleaned_data['address'])
+                    if address is None:
+                        raise forms.ValidationError("Address is invalid")
+                    else:
+                        # Create new windows of availabilities for a volunteer
+                        availability = VolunteerAvailability(volunteer=volunteer, address=f.cleaned_data.get('address'),
+                                                             address_lat=address['lat'], address_lng=address['lng'],
+                                                             time_from=f.cleaned_data['time_from'],
+                                                             time_to=f.cleaned_data['time_to'])
+                        availability.save()
+
+        add_message(request, messages.SUCCESS, "Registration was successful.")
+        return HttpResponseRedirect(request.POST.get("next", reverse("index")))
     else:
         request.context['next'] = request.GET.get('next', reverse("index"))
         if Volunteer.objects.filter(profile=profile).exists():
             form = VolunteerForm(instance=profile.volunteer)
         else:
             form = VolunteerForm()
+    request.context['formset'] = item_forms
     request.context['form'] = form
     return render(request, 'registration/register_volunteer.html', request.context)
 
@@ -140,7 +154,8 @@ def password_forgot(request):
         reset_code = PasswordResetCode.objects.create(user=user, creation_time=timezone.now())
         context = dict(
             domain=settings.DOMAIN,
-            url=url_with_params(settings.DOMAIN + reverse("password_reset"), dict(email=user.email, code=reset_code.code)),
+            url=url_with_params(settings.DOMAIN + reverse("password_reset"),
+                                dict(email=user.email, code=reset_code.code)),
         )
         msg_html = str(render_to_string('emails/password_reset/password_reset_email.html', context))
         SimpleMailHelper('C-ASAP - Reset your Password', strip_tags(msg_html), msg_html, user.email).send_email()

@@ -7,6 +7,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.forms.models import BaseModelFormSet, BaseInlineFormSet
 from django.core.validators import validate_email
+from django.forms import inlineformset_factory, TimeInput, DateField, TimeField
+from static.select_time_widget import SelectTimeWidget
 
 from casap.models import *
 from casap.utils import normalize_email, get_standard_phone, get_address_map_google
@@ -53,6 +55,25 @@ class UserEditForm(forms.ModelForm):
         fields = ('first_name', 'last_name', 'username')
 
 
+class VolunteerAvailabilityForm(forms.ModelForm):
+    time_from = TimeField(widget=forms.widgets.DateInput(attrs={'type': 'time'}))
+    time_to = TimeField(widget=forms.widgets.DateInput(attrs={'type': 'time'}))
+    class Meta:
+        model = VolunteerAvailability
+        exclude = ('address_lat', 'address_lng')
+
+    def clean_personal_address(self):
+        if not self.cleaned_data['address']:
+            return self.cleaned_data['address']
+        address = self.cleaned_data['address']
+        map_response = get_address_map_google(address)
+        if map_response is None:
+            raise forms.ValidationError("Address is invalid")
+        else:
+            self.lat = map_response['lat']
+            self.lng = map_response['lng']
+        return address
+
 class VolunteerForm(forms.ModelForm):
     def clean_phone(self):
         standard_phone = get_standard_phone(self.cleaned_data['phone'])
@@ -68,37 +89,9 @@ class VolunteerForm(forms.ModelForm):
         else:
             return self.cleaned_data['email']
 
-    def clean_personal_address(self):
-        if not self.cleaned_data['personal_address']:
-            return self.cleaned_data['personal_address']
-        address = self.cleaned_data['personal_address']
-        map_response = get_address_map_google(address)
-        if map_response is None:
-            raise forms.ValidationError("Personal address is invalid")
-        else:
-            self.personal_lat = map_response['lat']
-            self.personal_lng = map_response['lng']
-        return address
-
-    def clean_business_address(self):
-        if not self.cleaned_data['business_address']:
-            return self.cleaned_data['business_address']
-        address = self.cleaned_data['business_address']
-        geocode_url = "http://nominatim.openstreetmap.org/search/%s/" % address
-        req = requests.get(geocode_url, params=dict(format="json", addressdetails=1, limit=1, ))
-        response_json = req.json()
-        if len(response_json) == 0:
-            raise forms.ValidationError("Business address is invalid")
-        address_match = response_json[0]
-        if address_match['type'] in ("city", "country"):
-            raise forms.ValidationError("Business address is not specific enough")
-        self.business_lat = address_match['lat']
-        self.business_lng = address_match['lon']
-        return address
-
     class Meta:
         model = Volunteer
-        fields = ('phone', 'email', 'personal_address', 'business_address')
+        fields = ('phone', 'email')
 
 
 class VulnerableForm(forms.ModelForm):
