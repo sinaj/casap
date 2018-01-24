@@ -68,3 +68,9 @@ class LocationAdmin(admin.OSMGeoAdmin):
     default_lon = -12636243
     default_lat = 7075850
     default_zoom = 12
+
+@admin.register(VolunteerAvailability)
+class VolunteerAvailabilityAdmin(admin.ModelAdmin):
+    model = VolunteerAvailability
+    list_display = ("volunteer", "address", "address_lat", "address_lng", "time_from", "time_to")
+

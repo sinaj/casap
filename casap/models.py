@@ -73,12 +73,6 @@ class Volunteer(models.Model):
     profile = models.OneToOneField(Profile, related_name="volunteer")
     phone = models.CharField(max_length=15)
     email = models.CharField(max_length=50)
-    personal_address = models.TextField(default="")
-    personal_lat = models.FloatField()
-    personal_lng = models.FloatField()
-    business_address = models.TextField(default="")
-    business_lat = models.FloatField()
-    business_lng = models.FloatField()
     hash = models.CharField(max_length=30, unique=True, blank=True)
 
     @property
@@ -92,6 +86,18 @@ class Volunteer(models.Model):
 
     def __str__(self):
         return str(self.profile)
+
+
+class VolunteerAvailability(models.Model):
+    volunteer = models.ForeignKey(Volunteer, related_name="volunteers")
+    address = models.TextField()
+    address_lat = models.FloatField()
+    address_lng = models.FloatField()
+    time_from = models.TimeField()
+    time_to = models.TimeField()
+
+    def __str__(self):
+        return u"%s - %s from %s to %s" % (self.volunteer, self.address, self.time_from, self.time_to)
 
 
 class Vulnerable(models.Model):
@@ -118,7 +124,7 @@ class Vulnerable(models.Model):
 
 
 class VulnerableAddress(models.Model):
-    vulnerable = models.ForeignKey(Vulnerable, related_name="addresses")
+    vulnerable = models.ForeignKey(Vulnerable, related_name="availabilities")
     address = models.TextField()
     address_lat = models.FloatField()
     address_lng = models.FloatField()
