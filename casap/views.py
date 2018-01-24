@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.template import loader, context
 
-from casap.models import LostPersonRecord
+from casap.models import LostPersonRecord,VolunteerAvailability
 from casap.models import SightingRecord
 from casap.models import Volunteer
 from casap.models import Vulnerable
@@ -37,7 +37,7 @@ def location_view(request):
 
 def admin_view(request):
     address = []
-    for each in Volunteer.objects.all():
+    for each in VolunteerAvailability.objects.all():
         personallocation = [each.personal_lat,each.personal_lng]
         businesslocation = [each.business_lat,each.business_lng]
         address.append(businesslocation)

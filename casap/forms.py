@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 from django.forms.models import BaseModelFormSet, BaseInlineFormSet
 from django.core.validators import validate_email
 from django.forms import inlineformset_factory, TimeInput, DateField, TimeField
-
 from casap.models import *
 from casap.utils import normalize_email, get_standard_phone, get_address_map_google
 

@@ -1,7 +1,8 @@
-<!DOCTYPE html>
-<html>
+{% extends "base.html" %}
+{% load static %}
 
-<head>
+{% block header_js %}
+
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -9,11 +10,12 @@
     <link rel="stylesheet" href="/static/css/iThing.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="/static/css/mapview.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script type="text/javascript" src="/static/js/jquery-ui.js"></script>
     <script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-ui.js"></script>
+    
     <script src="http://dev.openlayers.org/OpenLayers.js"></script>
     <script type="text/javascript" src="/static/js/jQAllRangeSliders-min.js"></script>
-    <script type="text/javascript" src="/static/js/moment.min.js"></script>
+
     <script type="text/javascript">
     function show_vectors(layer, data) {
         var wkt_f = new OpenLayers.Format.WKT();
@@ -132,9 +134,13 @@
     }
 
     var map, vectors, controls;
-    
+
 
     function init() {
+
+        $("#slider").dateRangeSlider();
+
+        // $("#slider").editRangeSlider({});
         // var currDateMin = $("#slider").dateRangeSlider("values").min;
         // var currDateMax = $("#slider").dateRangeSlider("values").max;
         var pointStyle = {
@@ -144,7 +150,7 @@
             strokeWidth: 2,
             pointRadius: 3,
         }
-    
+
         var point_style = new OpenLayers.StyleMap(pointStyle);
         var circle_style = new OpenLayers.StyleMap(pointStyle);
 
@@ -159,8 +165,8 @@
         var volunteer = new OpenLayers.Layer.Vector("Volunteer", { styleMap: point_style });
         var volunteerCircle = new OpenLayers.Layer.Vector("VolunteerCircle(5km)");
 
-        var volunteeraddress = {{ volunteeraddress }};
-        var LostPersonName = {{LostPersonName | safe}};
+        var volunteeraddress = {{volunteeraddress }};
+        var LostPersonName = {{ LostPersonName | safe }};
 
         Points = []
         Circles = []
@@ -172,7 +178,6 @@
                 36,
                 0
             );
-
 
             var pointFeature = new OpenLayers.Feature.Vector(point, null, null);
             Points.push(pointFeature);
@@ -242,20 +247,18 @@
         map.addControl(new OpenLayers.Control.LayerSwitcher());
         map.addControl(new OpenLayers.Control.Attribution());
     }
-
-    
     </script>
-</head>
+{% endblock %}
 
+{% block content %}
 <body onload="init()">
-    </p>
-    <!-- <div id="map" class="smallmap"></div> -->
-    <div id="slider"></div>
-    <script type="text/javascript">
-        $("#slider").dateRangeSlider();
-
-    </script>
-
+    <span style="font-size: 3vh;padding-left: 0.5%;">Map View for administrator</span>
+    <div id="map" class="smallmap"></div>
+    <div id="slider" style="margin-top: 40%">
+    </div>
 </body>
 
-</html>
+{% endblock %}
+
+
+
