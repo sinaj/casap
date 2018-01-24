@@ -11,6 +11,12 @@
 {% block header_css %}
 {% endblock %}
 
+{% block header_js %}
+    <script type="text/javascript" src="/static/js/plugins/angular.min.js"></script>
+{% endblock %}
+
+{% block body_attributes %}ng-app="App" ng-controller="Ctrl"{% endblock %}
+
 {% block content %}
 
     <div class="container p-0">
@@ -44,3 +50,13 @@
     </div>
 
 {% endblock %}
+
+{% block scripts %}
+    <script>
+        {% autoescape off %}
+            $.addresses = {{ addresses }};
+        {% endautoescape %}
+    </script>
+    <script type="text/javascript" src="/static/js/dashboard/vulnerable/vulnerable_add.js"></script>
+{% endblock %}
+

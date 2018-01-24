@@ -13,6 +13,18 @@ from django.contrib.gis.geos import GEOSGeometry, Point, WKTWriter, MultiPolygon
 from casap.forms import *
 
 
+def create_address(vulnerable, v):
+    loc = get_address_map_google(v)
+    if loc is None:
+        raise forms.ValidationError("Address is invalid")
+    else:
+        additional_address = VulnerableAddress()
+        additional_address.vulnerable = vulnerable
+        additional_address.address = v
+        additional_address.address_lng = loc['lng']
+        additional_address.address_lat = loc['lat']
+        additional_address.save()
+
 def in_admin_group(user):
     return 'administration' in user.groups
 
@@ -290,15 +302,8 @@ def vulnerable_add_view(request):
         formset = address_formset(request.POST, queryset=VulnerableAddress.objects.all())
         if formset.is_valid():
             for k,v in formset.data.items():
-                if k.endswith("-address") and k != "addresses-0-address":
-                    loc = get_address_map_google(v)
-                    additional_address = VulnerableAddress()
-                    additional_address.vulnerable = vulnerable
-                    additional_address.address = v
-                    additional_address.address_lng = loc['lng']
-                    additional_address.address_lat = loc['lat']
-                    additional_address.save()
-
+                if k.endswith("-address") and k != "addresses-0-address" and v != "":
+                    create_address(vulnerable, v)
             for address in formset.save(commit=False):
                 address.vulnerable = vulnerable
                 address.save()
@@ -343,12 +348,12 @@ def vulnerable_edit_view(request, hash):
                                             VulnerableAddress,
                                             fk_name="vulnerable",
                                             fields=('address',),
-                                            extra=5,
                                             can_delete=True,
+                                            extra=1,
                                             formset=VulnerableAddressFormSet)
     if request.method == "POST":
         request.context['is_post'] = True
-        next = request.POST.get("next", reverse("vulnerable_list"))
+        next1 = request.POST.get("next", reverse("vulnerable_list"))
         form = VulnerableForm(request.POST, request.FILES, instance=vulnerable)
         if form.is_valid():
             vulnerable = form.save(commit=False)
@@ -358,18 +363,12 @@ def vulnerable_edit_view(request, hash):
             vulnerable.save()
 
         formset = address_formset(request.POST, instance=vulnerable)
-        for form in formset:
-            form.fields['address'].required = False
-        if formset.is_valid():
-            for address in formset.save(commit=False):
-                if address.pk and address.address.strip() == '':
-                    address.delete()
-                else:
-                    address.vulnerable = vulnerable
-                    address.save()
-            add_message(request, messages.SUCCESS, "Changes saved successfully.")
-            return HttpResponseRedirect(next)
-
+        VulnerableAddress.objects.filter(vulnerable=vulnerable).delete()
+        for k,v in formset.data.items():
+            if k.endswith("-address") and v != "":
+                create_address(vulnerable, v)
+        add_message(request, messages.SUCCESS, "Changes saved successfully.")
+        return HttpResponseRedirect(next1)
     else:
         form = VulnerableForm(instance=vulnerable)
         formset = address_formset(instance=vulnerable)
@@ -377,6 +376,14 @@ def vulnerable_edit_view(request, hash):
     request.context['next'] = next
     request.context['form'] = form
     request.context['formset'] = formset
+    addresses = json.loads("[]")
+    for form in formset.forms:
+        form_json = json.loads("{}")
+        form_json['errors'] = list(form.errors.values())
+        form_json['instance_id'] = form.instance.id or None
+        form_json['value'] = form['address'].value() or None
+        addresses.append(form_json)
+    request.context['addresses'] = json.dumps(addresses)
     return render(request, 'dashboard/vulnerable/vulnerable_edit.html', request.context)
 
 
