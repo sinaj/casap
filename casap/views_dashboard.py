@@ -25,13 +25,15 @@ def create_address(vulnerable, v):
         additional_address.address_lat = loc['lat']
         additional_address.save()
 
+
 def in_admin_group(user):
     return 'administration' in user.groups
 
-#helper function builds the object for a point location record
+
+# helper function builds the object for a point location record
 def point_map_record(name, feat, point, activity, act_type):
     if act_type == "exit place":
-        time = activity.time - datetime.timedelta(0,1)
+        time = activity.time - datetime.timedelta(0, 1)
     else:
         time = activity.time
 
@@ -40,7 +42,7 @@ def point_map_record(name, feat, point, activity, act_type):
     else:
         person = str(activity.person)
     point_record = {
-        'name' : str(name),
+        'name': str(name),
         'feature': str(feat),
         'time': str(time),
         'locLat': str(point.y),
@@ -97,25 +99,43 @@ def profile_edit_view(request):
 @login_required
 def volunteer_edit_view(request):
     profile = request.context['user_profile']
+    availability_formset = inlineformset_factory(Volunteer, VolunteerAvailability,
+                                                 form=VolunteerAvailabilityForm, fk_name="volunteer")
+    list_of_avail = VolunteerAvailability.objects.filter(volunteer=profile.volunteer).values()
+    item_forms = availability_formset(initial=list_of_avail)
     if request.method == "POST":
         next = request.POST.get("next", reverse("index"))
         form = VolunteerForm(request.POST, instance=profile.volunteer)
         if form.is_valid():
             volunteer = form.save(commit=False)
             volunteer.profile = profile
-            if form.cleaned_data['personal_address']:
-                volunteer.personal_lat = form.personal_lat
-                volunteer.personal_lng = form.personal_lng
-            if form.cleaned_data['business_address']:
-                volunteer.business_lat = form.business_lat
-                volunteer.business_lng = form.business_lng
             volunteer.save()
-            add_message(request, messages.SUCCESS, "Changes saved successfully.")
+        formset = availability_formset(request.POST, instance=volunteer)
+        VolunteerAvailability.objects.filter(volunteer=volunteer).delete()
+        formset.is_valid()
+        for f in formset:
+            if f.cleaned_data.get('address'):  # Check if there is a provided address
+                address = get_address_map_google(f.cleaned_data['address'])
+                if address is None:
+                    raise forms.ValidationError("Address is invalid")
+                if not f.cleaned_data.get('time_from') or not f.cleaned_data.get('time_to'):
+                    raise forms.ValidationError("Time inputted is invalid")
+                else:
+                    # Create new windows of availabilities for a volunteer
+                    availability = VolunteerAvailability(volunteer=volunteer, address=f.cleaned_data.get('address'),
+                                                         address_lat=address['lat'], address_lng=address['lng'],
+                                                         time_from=f.cleaned_data['time_from'],
+                                                         time_to=f.cleaned_data['time_to'])
+                    availability.save()
+
+        add_message(request, messages.SUCCESS, "Changes saved successfully.")
         request.context['next'] = next
     else:
         request.context['next'] = request.GET.get('next', reverse("index"))
         form = VolunteerForm(instance=profile.volunteer)
+
     request.context['form'] = form
+    request.context['formset'] = item_forms
     return render(request, 'dashboard/profile/volunteer_edit.html', request.context)
 
 
@@ -137,7 +157,9 @@ def vulnerable_history_view(request, hash):
     wkt_w = WKTWriter()  # wkt string object format is recognisable for mapping coordinates
 
     # get activity details from 'Location' activities for this person
-    loc_activities = Activity.objects.prefetch_related('location', 'person').filter(person__hash=vulnerable_hash,category="Location").order_by('time')
+    loc_activities = Activity.objects.prefetch_related('location', 'person').filter(person__hash=vulnerable_hash,
+                                                                                    category="Location").order_by(
+        'time')
     j = 0
 
     processed = []  # for the table summary. Group all similar location activities in order
@@ -181,7 +203,8 @@ def vulnerable_history_view(request, hash):
             if str(l.location.name):  # if has name then at known geofence
 
                 # went from location to location
-                if (prior['act_type'] == "geo_fence" or prior['act_type'] == "exit place") and prior['name'] != l.location.name:
+                if (prior['act_type'] == "geo_fence" or prior['act_type'] == "exit place") and prior[
+                    'name'] != l.location.name:
                     # use centroids as point to point reference
                     a = prior['feature'].lstrip('b')
                     prior['feature'] = a[1:-1]
@@ -301,7 +324,7 @@ def vulnerable_add_view(request):
             vulnerable.save()
         formset = address_formset(request.POST, queryset=VulnerableAddress.objects.all())
         if formset.is_valid():
-            for k,v in formset.data.items():
+            for k, v in formset.data.items():
                 if k.endswith("-address") and k != "addresses-0-address" and v != "":
                     create_address(vulnerable, v)
             for address in formset.save(commit=False):
@@ -364,7 +387,7 @@ def vulnerable_edit_view(request, hash):
 
         formset = address_formset(request.POST, instance=vulnerable)
         VulnerableAddress.objects.filter(vulnerable=vulnerable).delete()
-        for k,v in formset.data.items():
+        for k, v in formset.data.items():
             if k.endswith("-address") and v != "":
                 create_address(vulnerable, v)
         add_message(request, messages.SUCCESS, "Changes saved successfully.")
