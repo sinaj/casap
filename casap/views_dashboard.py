@@ -330,7 +330,6 @@ def vulnerable_add_view(request):
             for address in formset.save(commit=False):
                 address.vulnerable = vulnerable
                 address.save()
-            a = 10 / 0
             add_message(request, messages.SUCCESS, "Vulnerable added successfully.")
             return HttpResponseRedirect(next)
         else:
