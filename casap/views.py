@@ -38,9 +38,8 @@ def location_view(request):
 def admin_view(request):
     address = []
     for each in VolunteerAvailability.objects.all():
-        personallocation = [each.personal_lat,each.personal_lng]
-        businesslocation = [each.business_lat,each.business_lng]
-        address.append(businesslocation)
+        personallocation = [each.address_lat,each.address_lng]
+
         address.append(personallocation)
 
     request.context['volunteeraddress'] = address

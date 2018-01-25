@@ -146,6 +146,9 @@ class LostPersonRecord(models.Model):
     description = models.TextField(blank=True)
     hash = models.CharField(max_length=30, unique=True, blank=True)
 
+    def get_link(self):
+        return "%s%s" % (settings.DOMAIN, reverse("track_missing", kwargs=dict(hash=self.hash)))
+
     def get_sighting_records(self):
         return self.sighting_records.order_by("time").all()
 

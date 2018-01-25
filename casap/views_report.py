@@ -12,11 +12,11 @@ from django.contrib.gis.geos import Point
 
 from casap.forms_report import LostPersonRecordForm, SightingRecordForm, FindRecordForm
 
+
 from casap.models import Vulnerable, LostPersonRecord, Volunteer,Activity,Location,VolunteerAvailability
 
 from casap.utils import get_user_time, send_sms, get_standard_phone,SimpleMailHelper
 from django.utils.html import strip_tags
-
 
 def time_in_range(start, end, x):
     """Return true if x is in the range [start, end]"""
@@ -24,6 +24,37 @@ def time_in_range(start, end, x):
         return start <= x <= end
     else:
         return start <= x or x <= end
+
+def lost_notification(notify_record, vol):
+    if notify_record.description:
+        sms_text = "Dear %s,\nClient: %s has been lost near you with description:\n%s\n\n" % (vol.full_name,
+                                                                                              notify_record.vulnerable.full_name,
+                                                                                              notify_record.description) + \
+                   "Please report when seen or found by following the link below:\n%s" % notify_record.get_link()
+    else:
+        sms_text = "Dear %s,\nClient: %s has been lost near you.\n" % (vol.full_name,
+                                                                       notify_record.vulnerable.full_name) + \
+                   "Please report when seen or found by following the link below:\n%s" % notify_record.get_link()
+
+    mail_subject = "C-ASAP Client: %s has been lost near you " % notify_record.vulnerable.full_name
+    send_sms(get_standard_phone(vol.phone), sms_text)
+    SimpleMailHelper(mail_subject, sms_text, sms_text, vol.email).send_email()
+
+
+def seen_notification(notify_record, vol):
+    if notify_record.description:
+        sms_text = "Dear %s,\nLost client: %s has been seen near you with description:\n%s\n\n" % (vol.full_name,
+                                                                                                   notify_record.lost_record.vulnerable.full_name,
+                                                                                                   notify_record.description) + \
+                   "Please report to use when seen or found byfollowing the link below:\n%s" % notify_record.get_link()
+    else:
+        sms_text = "Dear %s,\nLost client: %s has been seen near you.\n" % (vol.full_name,
+                                                                            notify_record.lost_record.vulnerable.full_name) + \
+                   "Please report when seen or found by following the link below:\n%s" % notify_record.get_link()
+    send_sms(get_standard_phone(vol.phone), sms_text)
+    mail_subject = "C-ASAP Lost Client: %s has been seen near you" % notify_record.lost_record.vulnerable.full_name
+    SimpleMailHelper(mail_subject, sms_text, sms_text, vol.email).send_email()
+
 
 @login_required
 def report_lost_view(request):
@@ -33,7 +64,12 @@ def report_lost_view(request):
         if form.is_valid():
             vulnerable = Vulnerable.objects.filter(hash=request.POST.get("vulnerable")).first()
             if vulnerable:
-                form.save(request.user, vulnerable)
+                lost_record = form.save(request.user, vulnerable)
+                time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime("%H:%M")
+                flag = 1
+                notify_volunteers(lost_record, time_seen, flag)
+                success_msg = "Success! %s has been reported lost." % vulnerable.full_name
+                add_message(request, messages.SUCCESS, success_msg)
                 return HttpResponseRedirect(request.POST.get("next", reverse("index")))
             else:
                 form.add_error("vulnerable", ValidationError("Vulnerable person not found"))
@@ -58,6 +94,7 @@ def report_sighting_view(request, hash):
         request.context['next'] = request.POST.get("next", reverse("index"))
         if form.is_valid():
             time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime("%H:%M")
+            flag = 2
             sighting_record = form.save(request.user, lost_record)
             activity = Activity()
             activity.locLat = sighting_record.address_lat
@@ -73,8 +110,10 @@ def report_sighting_view(request, hash):
 
             lost_record.state = "sighted"
             lost_record.save()
-            notify_sighting(sighting_record, time_seen)
+            notify_volunteers(sighting_record, time_seen, flag)
             add_message(request, messages.SUCCESS, "Thank you! Our records are updated.")
+            success_msg = "Success! %s has been reported lost." % lost_record.vulnerable.full_name
+            add_message(request, messages.SUCCESS, success_msg)
             return HttpResponseRedirect(request.POST.get("next", reverse("index")))
 
     else:
@@ -87,10 +126,10 @@ def report_sighting_view(request, hash):
     return render(request, "report/report_sighting.html", request.context)
 
 
-def notify_sighting(sighting_record, time_seen, max_distance=None):
+def notify_volunteers(notify_record, time_seen, flag, max_distance=None):
     if max_distance is None:
         max_distance = 5
-    lat, lng = sighting_record.address_lat, sighting_record.address_lng
+    lat, lng = notify_record.address_lat, notify_record.address_lng
     close_volunteers = set()
     for vol in Volunteer.objects.all():
         availability = VolunteerAvailability.objects.filter(volunteer=vol)
@@ -98,20 +137,13 @@ def notify_sighting(sighting_record, time_seen, max_distance=None):
             seen = datetime.datetime.strptime(time_seen, "%H:%M").time()
             if (time_in_range(x.time_from, x.time_to, seen)) and \
                     (vincenty((x.address_lat, x.address_lng), (lat, lng)).kilometers <= max_distance):
-                    close_volunteers.add(vol)
+                close_volunteers.add(vol)
 
     for vol in close_volunteers:
-        if sighting_record.description:
-            sms_text = "Dear %s,\n%s has been lost near you with description:\n%s\n\n" % (vol.full_name,
-                                                                                        sighting_record.lost_record.vulnerable.full_name,
-                                                                                        sighting_record.description) + \
-                       "Please report to use when sighted by following the link below:\n%s" % sighting_record.get_link()
+        if flag == 1:
+            lost_notification(notify_record, vol)
         else:
-            sms_text = "Dear %s,\n%s has been lost near you.\n" % (vol.full_name,
-                                                                   sighting_record.lost_record.vulnerable.full_name) + \
-                       "Please report to use when sighted by following the link below:\n%s" % sighting_record.get_link()
-        send_sms(get_standard_phone(vol.phone), sms_text)
-        SimpleMailHelper("Someone lost near you", sms_text, sighting_record.get_link(), vol.email).send_email()
+            seen_notification(notify_record, vol)
 
 @login_required
 def report_found_view(request, hash):
