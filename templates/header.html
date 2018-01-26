@@ -10,8 +10,6 @@
             <ul class="navbar-nav mr-auto">
             </ul>
             <ul class="navbar-nav">
-
-
                 <li class="nav-item">
                     <a class="nav-link hdr-report-missing" href="{% url "report_lost" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
                         <div class="badge badge-danger">Report missing person</div>
