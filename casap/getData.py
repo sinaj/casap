@@ -1,3 +1,5 @@
+import datetime
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from casap.models import Activity
@@ -6,6 +8,8 @@ from casap.models import SightingRecord
 from django.http import HttpResponseRedirect, JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.gis.geos import GEOSGeometry, Point, WKTWriter, MultiPolygon
+
+from casap.views_dashboard import geofence_record
 
 
 def point_map_record(name, feat, point, activity, act_type):
@@ -47,6 +51,7 @@ def getPath(request):
         currlocation = None
         currentplace = None
         startDate = None
+        processed = []
 
         journeys = [
             []]  # list of lists of separate journey dicts to then add to ordered dict of features for template to draw
