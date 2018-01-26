@@ -55,10 +55,20 @@ class UserEditForm(forms.ModelForm):
 
 
 class VolunteerAvailabilityForm(forms.ModelForm):
-    time_from = TimeField(widget=forms.widgets.DateInput(attrs={'type': 'time'}))
-    time_to = TimeField(widget=forms.widgets.DateInput(attrs={'type': 'time'}))
+    time_from = TimeField(widget=forms.widgets.DateInput(attrs={'type': 'time',
+                                                                'class': 'form-control',
+                                                                }))
+    time_to = TimeField(widget=forms.widgets.DateInput(attrs={'type': 'time',
+                                                              'class': 'form-control',
+                                                              }))
+
     class Meta:
         model = VolunteerAvailability
+        widgets = {
+            'address': forms.TextInput(attrs={'class': 'form-control',
+                                              'placeholder': 'e.g. 12345 74 ST Edmonton AB',
+                                              })
+        }
         exclude = ('address_lat', 'address_lng')
 
     def clean_personal_address(self):
@@ -72,6 +82,7 @@ class VolunteerAvailabilityForm(forms.ModelForm):
             self.lat = map_response['lat']
             self.lng = map_response['lng']
         return address
+
 
 class VolunteerForm(forms.ModelForm):
     def clean_phone(self):
