@@ -8,16 +8,16 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from geopy.distance import vincenty
+from django.contrib.gis.geos import Point
 
 from casap.forms_report import LostPersonRecordForm, SightingRecordForm, FindRecordForm
-from casap.models import Vulnerable, LostPersonRecord, Volunteer, VolunteerAvailability
-from casap.utils import get_user_time, send_sms, get_standard_phone, SimpleMailHelper
+
+
+from casap.models import Vulnerable, LostPersonRecord, Volunteer,Activity,Location,VolunteerAvailability
+
+from casap.utils import get_user_time, send_sms, get_standard_phone,SimpleMailHelper
 from django.utils.html import strip_tags
 
-
-# Taken from https://stackoverflow.com/questions/10747974/how-to-check-if-the-current-time-is-in-range-in-python
-# Date: January 23, 2018
-# Author: Dietrich Epp
 def time_in_range(start, end, x):
     """Return true if x is in the range [start, end]"""
     if start <= end:
@@ -96,6 +96,18 @@ def report_sighting_view(request, hash):
             time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime("%H:%M")
             flag = 2
             sighting_record = form.save(request.user, lost_record)
+            activity = Activity()
+            activity.locLat = sighting_record.address_lat
+            activity.locLon = sighting_record.address_lng
+            activity.person_id = sighting_record.lost_record.vulnerable_id
+            activity.time = sighting_record.time
+            activity.adminPoint = Point(float(activity.locLon), float(activity.locLat), srid=3857)
+            fence_loc = Location.objects.filter(fence__contains=activity.adminPoint)
+            if fence_loc:
+                activity.location = fence_loc[0]
+
+            activity.save()
+
             lost_record.state = "sighted"
             lost_record.save()
             notify_volunteers(sighting_record, time_seen, flag)

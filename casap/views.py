@@ -5,8 +5,10 @@ from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.template import loader, context
 
-from casap.models import LostPersonRecord
+from casap.models import LostPersonRecord,VolunteerAvailability
 from casap.models import SightingRecord
+from casap.models import Volunteer
+from casap.models import Vulnerable
 
 
 def index(request):
@@ -32,3 +34,28 @@ def track_missing_view(request, hash):
 
 def location_view(request):
     return render(request, "LocationView.html", request.context)
+
+def admin_view(request):
+    address = []
+    for each in VolunteerAvailability.objects.all():
+        personallocation = [each.address_lat,each.address_lng]
+
+        address.append(personallocation)
+
+    request.context['volunteeraddress'] = address
+
+    LostPersonName = []
+
+    for each in LostPersonRecord.objects.all():
+        name = each.vulnerable.first_name +' '+each.vulnerable.last_name
+        LostPersonName.append(name)
+
+    request.context['LostPersonName'] = LostPersonName
+    request.context['Vulnerable'] = Vulnerable
+
+    return render(request, "adminView.html", request.context)
+
+def slider_view(request):
+    return render(request, "slider.html", request.context)
+
+

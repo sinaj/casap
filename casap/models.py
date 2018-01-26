@@ -41,7 +41,6 @@ class Profile(models.Model):
     def __str__(self):
         return str(self.user)
 
-
 class EmailConfirmationCode(models.Model):
     user = models.ForeignKey(User)
     code = models.CharField(max_length=120)
@@ -178,6 +177,14 @@ class SightingRecord(models.Model):
     def save(self, *args, **kwargs):
         if not self.hash:
             self.hash = gen_unique_hash(self.__class__, 30)
+
+        inProj = Proj(init='epsg:4326')
+        outProj = Proj(init='epsg:3857')
+        try:
+            self.address_lng, self.address_lat = transform(inProj, outProj, float(self.address_lng), float(self.address_lat))
+        except Exception as e:
+            print(e)  # must be in correct coord system
+
         super(self.__class__, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -204,14 +211,15 @@ class FindRecord(models.Model):
 
 
 class Activity(models.Model):
-    category = models.CharField(max_length=20, default='not specified')
+    category = models.CharField(max_length=20, default='Location')
     person = models.ForeignKey('Vulnerable', null=True, related_name='activities')
     time = models.DateTimeField()
-    activity_type = models.CharField(max_length=100)
+    activity_type = models.CharField(max_length=100, default="Reported seen")
     location = models.ForeignKey('Location', null=True, blank=True, on_delete=models.SET_NULL)
     adminPoint = models.PointField(null=True, srid=3857)
     locLat = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     locLon = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    # sighting_id = models.ForeignKey('SightingRecord', null=True, related_name='activities')
 
     def __str__(self):
         return "%s %s - %s" % (str(self.time), self.person.__str__(), self.activity_type)

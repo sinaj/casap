@@ -8,11 +8,24 @@
             <ul class="navbar-nav mr-auto">
             </ul>
             <ul class="navbar-nav">
+
+
                 <li class="nav-item">
                     <a class="nav-link hdr-report-missing" href="{% url "report_lost" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
                         <div class="badge badge-danger">Report missing person</div>
                     </a>
                 </li>
+
+                {% if user_profile %}
+                {% if request.user.is_superuser %}
+
+                <li class="nav-item">
+                    <div>
+                        <a class="nav-link" href="{% url "adminView" %}">Admin</a>
+                    </div>
+                </li>
+                {% endif %}
+                {% endif %}
                 {% if user_profile %}
                     {% if not user_profile.volunteer %}
                         <li class="nav-item">

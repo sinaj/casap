@@ -49,3 +49,5 @@ wheels/
 # IDE related files
 # PyCharm
 /.idea
+templates/.DS_Store
+

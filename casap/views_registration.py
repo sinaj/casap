@@ -68,10 +68,10 @@ def register_view(request):
 @login_required
 def register_volunteer_view(request):
     profile = request.user.profile
-    availability_formset = inlineformset_factory(Volunteer, VolunteerAvailability,
-                                                 form=VolunteerAvailabilityForm, fk_name="volunteer")
-    item_forms = availability_formset
     if request.method == "POST":
+        availability_formset = inlineformset_factory(Volunteer, VolunteerAvailability,
+                                                     form=VolunteerAvailabilityForm, fk_name="volunteer", extra=3)
+        item_forms = availability_formset(prefix='volunteers')
         next = request.POST.get("next", reverse("index"))
         if Volunteer.objects.filter(profile=profile).exists():
             form = VolunteerForm(request.POST, instance=profile.volunteer)
@@ -81,8 +81,7 @@ def register_volunteer_view(request):
             volunteer = form.save(commit=False)
             volunteer.profile = profile
             volunteer.save()
-        formset = availability_formset(request.POST, request.FILES, prefix='volunteers',
-                                       queryset=VolunteerAvailability.objects.all())
+        formset = availability_formset(request.POST, request.FILES, prefix='volunteers')
         if formset.is_valid():
             for f in formset:
                 if f.cleaned_data.get('address'):  # Check if there is a provided address
@@ -100,6 +99,9 @@ def register_volunteer_view(request):
         add_message(request, messages.SUCCESS, "Registration was successful.")
         return HttpResponseRedirect(request.POST.get("next", reverse("index")))
     else:
+        availability_formset = inlineformset_factory(Volunteer, VolunteerAvailability,
+                                                     form=VolunteerAvailabilityForm, fk_name="volunteer", extra=1)
+        item_forms = availability_formset
         request.context['next'] = request.GET.get('next', reverse("index"))
         if Volunteer.objects.filter(profile=profile).exists():
             form = VolunteerForm(instance=profile.volunteer)

@@ -51,7 +51,7 @@
                                                         <div class="container-fluid p-0 clearfix">
                                                             Last located at: <span class="float-right text-dark">{{ last_sighting.time|timezone:user_tz_name|time }}</span>
                                                         </div>
-                                                        <a href="{% url 'location' %}?lat={{ last_sighting.address_lat}}&{{ last_sighting.address_lng}}}">{{ last_sighting.address}}</a>
+                                                        <a href="{% url 'location' %}?lat={{ last_sighting.address_lat}}&{{ last_sighting.address_lng}}">{{ last_sighting.address}}</a>
                                                         
                                                         {% if last_sighting.description %}
                                                             <div class="container-fluid p-0 text-dark">
