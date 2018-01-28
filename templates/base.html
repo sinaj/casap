@@ -29,7 +29,8 @@
     {% block header_css %}{% endblock %}
 
 
-    {% block header_js_other_origin %}{% endblock %}
+    {% block header_js_other_origin %}
+    {% endblock %}
     {% block import_jquery %}
         <script src="{% static "js/plugins/popper.min.js" %}"></script>
         <script src="{% static "js/plugins/jquery-3.2.1.min.js" %}"></script>
@@ -69,6 +70,44 @@
 </main>
 
 {% block include_footer %}
+            <script>
+
+    var x = document.querySelectorAll(".carousel");
+    var y = document.querySelectorAll(".carousel-control-prev");
+    var z = document.querySelectorAll(".carousel-control-next");
+
+    console.log(y[0]);
+
+    // Set their ids
+    for (var i = 0; i < x.length; i++) {
+        x[i].id = 'myCarousel' + i;
+        y[i].href = '#myCarousel' + i;
+        z[i].href = '#myCarousel' + i;
+    }
+
+    $('[id^="myCarousel"]').on("slide.bs.carousel", function (e) {
+        var $e = $(e.relatedTarget);
+        var idx = $e.index();
+        var itemsPerSlide = 3;
+        var totalItems = $(".carousel-item").length;
+
+        if (idx >= totalItems - (itemsPerSlide - 1)) {
+            var it = itemsPerSlide - (totalItems - idx);
+            for (var i = 0; i < it; i++) {
+                // append slides to end
+                if (e.direction == "left") {
+                    $(".carousel-item")
+                        .eq(i)
+                        .appendTo(".carousel-inner");
+                } else {
+                    $(".carousel-item")
+                        .eq(0)
+                        .appendTo(".carousel-inner");
+                }
+            }
+        }
+    });
+</script>
     {% if not hide_footer %}
         {% include 'footer.html' %}
     {% endif %}
