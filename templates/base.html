@@ -77,12 +77,19 @@
         var x = document.querySelectorAll(".carousel");
         var y = document.querySelectorAll(".carousel-control-prev");
         var z = document.querySelectorAll(".carousel-control-next");
+        var q = document.querySelectorAll(".carousel-inner");
 
         // Set the carousel id's as well as the control hrefs
         for (var i = 0; i < x.length; i++) {
             x[i].id = 'myCarousel' + i;
             y[i].href = '#myCarousel' + i;
             z[i].href = '#myCarousel' + i;
+        }
+
+        // Set the first carousel item to be active to allow sliding action
+        for(var k = 0; k < q.length; k++) {
+            var a = q[k].querySelectorAll(".carousel-item");
+            a[0].className = "carousel-item col-md-4 active";
         }
 
         $('[id^="myCarousel"]').on("slide.bs.carousel", function (e) {
