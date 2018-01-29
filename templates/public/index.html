@@ -9,7 +9,7 @@
             <div class="container-fluid">
                 <h3 style="text-align:center">Missing Clients on {{ day }}</h3>
                 <hr>
-                <div class="carousel slide" data-ride="carousel" data-interval="2500">
+                <div class="carousel slide" data-ride="carousel">
                     <div class="carousel-inner row w-100 mx-auto">
                         {% for record in day_records %}
                             {% with record.vulnerable as vul %}
