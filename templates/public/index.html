@@ -7,8 +7,9 @@
     {% if missing_people %}
         {% for day, day_records in missing_people %}
             <div class="container-fluid">
-                <h3 style="text-align:center">Missing Clients on {{ day }}</h3>
-                <hr>
+                <div class="container-fluid">
+                    <h4 style="text-align:center">Missing Clients on {{ day }}</h4>
+                </div>
                 <div class="carousel slide " data-interval="false">
                     <div class="carousel-inner row w-100 mx-auto">
                         {% for record in day_records %}
@@ -39,8 +40,7 @@
                             {% endwith %}
                         {% endfor %}
                     </div>
-                    <br>
-                    <br>
+                <hr>
                     <a class="carousel-control-prev" role="button" data-slide="prev">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                         <span class="sr-only">Previous</span>
