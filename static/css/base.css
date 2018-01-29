@@ -31,6 +31,11 @@ html {
 body {
     /* Margin bottom by footer height */
     margin-bottom: 60px;
+    background-color: #f7f7f7;
+}
+
+a {
+    color: #2d4471;
 }
 
 #main-container {
@@ -83,12 +88,12 @@ body {
 }
 
 .row-buffer {
-    margin-top:20px;
+    margin-top: 20px;
     margin-bottom: 20px;
 }
 
 h3, h4 {
-     color: #2d4471;
+    color: #2d4471;
 }
 
 div.card {
@@ -149,4 +154,32 @@ div.card {
         display: block;
         visibility: visible;
     }
+
 }
+
+.card {
+    transition: transform 0.5s;
+}
+
+.card::after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity 2s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: 0 8px 17px 0 rgba(0, 0, 0, .2), 0 6px 20px 0 rgba(0, 0, 0, .15);
+    content: '';
+    opacity: 0;
+    z-index: -1;
+}
+
+.card:hover, .card__one:focus {
+    transform: scale3d(1.03, 1.03, 1);
+}
+
+.card:hover::after, .card__one:focus::after {
+    opacity: 1;
+}
+
+
