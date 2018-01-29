@@ -11,16 +11,6 @@
                 <hr>
                 <div class="carousel slide" data-ride="carousel" data-interval="2500">
                     <div class="carousel-inner row w-100 mx-auto">
-                        <div class="carousel-item col-md-4 active">
-                            <div class="card">
-                                <img class="card-img-top img-fit" src="http://placehold.it/800x600/f44242/fff">
-                                <div class="card-body">
-                                    <div class="container-fluid p-0 clearfix">
-                                        <h5 class="card-title d-inline"> Missing Clients </h5>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         {% for record in day_records %}
                             {% with record.vulnerable as vul %}
                                 <div class="carousel-item col-md-4">
