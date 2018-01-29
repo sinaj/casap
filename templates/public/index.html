@@ -9,26 +9,30 @@
             <div class="container-fluid">
                 <h3 style="text-align:center">Missing Clients on {{ day }}</h3>
                 <hr>
-                <div class="carousel slide" data-ride="carousel">
+                <div class="carousel slide " data-interval="false">
                     <div class="carousel-inner row w-100 mx-auto">
                         {% for record in day_records %}
                             {% with record.vulnerable as vul %}
                                 <div class="carousel-item col-md-4">
                                     <a href="{% url "show_missing" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
-                                        <div class="card">
-                                            <img class="card-img-top img-fit" src="{{ vul.picture.url }}">
-                                            <div class="card-body">
-                                                <div class="container-fluid p-0 clearfix">
-                                                    <h5 class="card-title d-inline">{{ vul.full_name }}</h5>
-                                                    {% if record.state == "reported" %}
-                                                        <span class="badge badge-danger float-right">{{ record.get_state_display }}</span>
-                                                    {% elif record.state == "sighted" %}
-                                                        <span class="badge badge-warning float-right">{{ record.get_state_display }}</span>
-                                                    {% else %}
-                                                        <span class="badge badge-success float-right">{{ record.get_state_display }}</span>
-                                                    {% endif %}
-                                                </div>
+                                        {% if record.state == "reported" %}
+                                            <div class="card" style="background-color:rgba(255, 0, 0, 0.1)">
+                                        {% else %}
+                                            <div class="card" style="background-color:rgba(255, 255 , 0, 0.1)">
+                                        {% endif %}
+                                        <img class="card-img-top img-fit" src="{{ vul.picture.url }}">
+                                        <div class="card-body">
+                                            <div class="container-fluid p-0 clearfix">
+                                                <h5 class="card-title d-inline">{{ vul.full_name }}</h5>
+                                                {% if record.state == "reported" %}
+                                                    <span class="badge badge-danger float-right">Missing</span>
+                                                {% elif record.state == "sighted" %}
+                                                    <span class="badge badge-warning float-right">Seen</span>
+                                                {% else %}
+                                                    <span class="badge badge-success float-right">Found</span>
+                                                {% endif %}
                                             </div>
+                                        </div>
                                         </div>
                                     </a>
                                 </div>
