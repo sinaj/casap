@@ -18,7 +18,7 @@ def index(request):
         if date not in missing_people:
             missing_people[date] = list()
         missing_people[date].append(record)
-    request.context['missing_people'] = missing_people.items()
+    request.context['missing_people'] = sorted(missing_people.items(), reverse=True)
     return render(request, "public/index.html", request.context)
 
 
