@@ -149,15 +149,6 @@ function onPopupClose(feat) {
 }
 
 function clickNotice(feat) {
-    console.log("clickNotice");
-    // if (feat.layer.name == "Activities path") {
-    //     feat.attributes.highlight = "0.8";
-    //     point_vectors.redraw();
-
-    // } else {
-    //     feat.attributes.color = "black";
-    //     other_locs.redraw();
-    // }
     if (feat.geometry.x == null) { // then we have a polygon or linestring
         if (feat.geometry.components.length > 1) return; // skip linestring
         var poplon = feat.geometry.bounds.right - (feat.geometry.bounds.right - feat.geometry.bounds.left) / 2;
@@ -205,7 +196,7 @@ function init() {
         },
         defaultValues: {
             min: new Date(2015, 0, 1),
-            max: new Date(2018, 0, 1)
+            max: new Date()
         },
         step: {
             days: 1
@@ -241,7 +232,6 @@ function init() {
             formData.append('csrfmiddlewaretoken', "{{ csrf_token }}");
             formData.append("name", name);
 
-            console.log(name);
 
             $.ajax({
                 type: "GET",
@@ -251,8 +241,6 @@ function init() {
                 contentType: false,
                 processData: false,
                 success: function(response) {
-                    console.log(response);
-                    console.log(name);
                     show_vectors(Personlayer, response, data.values.min, data.values.max); 
                 }
             });

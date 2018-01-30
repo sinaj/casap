@@ -100,7 +100,6 @@ def getPath(request):
                     a = str(wkt_feat)
                     b = a.lstrip('b')
                     wkt_feat = b[1:-1]
-                    print(wkt_feat)
                     to_add = point_map_record(str(l.location.name), wkt_feat, last_cnt, l, "exit place")
                     journeys[j].append(to_add)
                     # start next journey
