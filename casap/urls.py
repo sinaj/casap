@@ -57,6 +57,7 @@ urlpatterns = [
     url(r'^adminView/',views.admin_view,name="adminView"),
     url(r'^slider/',views.slider_view,name="sliderView"),
     url(r'^getPath/',getData.getPath),
+    # (?P<name>[\w]+)/$
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

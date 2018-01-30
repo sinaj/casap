@@ -12,7 +12,9 @@
 <script type="text/javascript" src="/static/js/jQAllRangeSliders-min.js"></script>
 <script type="text/javascript" src="/static/js/moment.min.js"></script>
 <script type="text/javascript">
-function show_vectors(layer, data,datemin, datemax) {
+var feature;
+var geom;
+function show_vectors(layer, data, datemin, datemax) {
     var wkt_f = new OpenLayers.Format.WKT();
     var last_exit = null;
     var _MS_PER_HOUR = 1000 * 60 * 60;
@@ -32,14 +34,14 @@ function show_vectors(layer, data,datemin, datemax) {
 
             else var time = '';
 
-            if (place.time != null) {         
-                    var time = place.time; 
-                    time_compare = moment(time, 'YYYY-MM-DD, hh:mm:ss ').startOf('day').toDate();
-                    // skip all activities not within the date range
-                    if (time_compare < datemin  || time_compare > datemax){
-                        return
-                    }
+            if (place.time != null) {
+                var time = place.time;
+                time_compare = moment(time, 'YYYY-MM-DD, hh:mm:ss ').startOf('day').toDate();
+                // skip all activities not within the date range
+                if (time_compare < datemin || time_compare > datemax) {
+                    return
                 }
+            }
 
             if (i == 0 && last_exit != null && pointList.length == 0) {
                 pointList.push(last_exit); // keep track of exit point to draw line from THIS IS BUGGY
@@ -47,7 +49,7 @@ function show_vectors(layer, data,datemin, datemax) {
             }
 
             var shape_type = place.feature.substr(0, place.feature.indexOf(" "));
-            var geom = wkt_f.read(place.feature);
+            geom = wkt_f.read(place.feature);
 
             if (shape_type == 'MULTIPOLYGON' && seen_ids.indexOf(place.id) == -1) var title = place.name;
             else var title = place.name + " " + place.act_type;
@@ -119,7 +121,7 @@ function show_vectors(layer, data,datemin, datemax) {
 
             if (pointList.length > 1) {
                 line = new OpenLayers.Geometry.LineString(pointList);
-                var feature = new OpenLayers.Feature.Vector(line);
+                feature = new OpenLayers.Feature.Vector(line);
                 feature.attributes = {
                     'label': '',
                     'dash': "solid",
@@ -140,55 +142,124 @@ function show_vectors(layer, data,datemin, datemax) {
 var map, vectors, controls;
 
 
+function onPopupClose(feat) {
+    map.removePopup(feat.popup);
+    feat.popup.destroy();
+
+}
+
+function clickNotice(feat) {
+    console.log("clickNotice");
+    // if (feat.layer.name == "Activities path") {
+    //     feat.attributes.highlight = "0.8";
+    //     point_vectors.redraw();
+
+    // } else {
+    //     feat.attributes.color = "black";
+    //     other_locs.redraw();
+    // }
+    if (feat.geometry.x == null) { // then we have a polygon or linestring
+        if (feat.geometry.components.length > 1) return; // skip linestring
+        var poplon = feat.geometry.bounds.right - (feat.geometry.bounds.right - feat.geometry.bounds.left) / 2;
+        var poplat = feat.geometry.bounds.top - (feat.geometry.bounds.top - feat.geometry.bounds.bottom) / 2;
+
+        var time_string = formatTime(feat.attributes.time);
+        var message = "<center><span class='editable'>" + feat.attributes.title + "</span>" +
+            "<button data-id=" + feat.attributes.title + " id='editLocation'><img class='icon' src='/static/Edit.png'></button>" +
+            "</center>" +
+            "</br> Person: " +
+            feat.attributes.owner + "</br>Category: " + feat.attributes.category +
+            "</br>Total time spent here: " + time_string;
+    } else { // we have a point   
+        var poplon = feat.geometry.x;
+        var poplat = feat.geometry.y;
+        var time = new Date(feat.attributes.time).toLocaleString();
+        var message = "<center>" + time + "</center>";
+    }
+
+    var popup = new OpenLayers.Popup.FramedCloud(
+        "popup",
+        new OpenLayers.LonLat(poplon, poplat),
+        new OpenLayers.Size(50, 100),
+        message,
+        null, true,
+        function() {
+            onPopupClose(feat);
+        });
+    popup.maxSize = new OpenLayers.Size(400, 350);
+    popup.minSize = new OpenLayers.Size(50, 50);
+    feat.popup = popup;
+    map.addPopup(popup);
+    var clickedLocation = null;
+}
+
+
 function init() {
+
+    var layers = [];
 
     $("#slider").dateRangeSlider({
         bounds: {
             min: new Date(2012, 0, 1),
             max: new Date(2018, 11, 31)
         },
-        defaultValues:{
-             min: new Date(2015, 0, 1), //new Date(2016, 12, 25, 0, 0, 0),
-             max: new Date(2018, 0, 1)//new Date(2017, 02, 01, 0, 0, 0)
-         },
-         step:{
-             days: 1
-         }
+        defaultValues: {
+            min: new Date(2015, 0, 1),
+            max: new Date(2018, 0, 1)
+        },
+        step: {
+            days: 1
+        }
     });
 
-     $("#slider").bind("valuesChanged", function(e, data){
+    $("#slider").bind("valuesChanged", function(e, data) {
+        // layers = [];
 
         for (each in LostPersonName) {
-        var path_layer = map.getLayersByName(LostPersonName[each])[0];
-        while( map.popups.length ){
-            path_layer.removeAllFeatures();
-        }
-        if (path_layer) {
-        window.map.removeLayer(path_layer);
-        }
-        var Personlayer = new OpenLayers.Layer.Vector(LostPersonName[each], { styleMap: path_style });
-        map.addLayer(Personlayer);
-        var name = LostPersonName[each];
-        formData.append('csrfmiddlewaretoken', "{{ csrf_token }}");
-        formData.append("name", name);
-
-        $.ajax({
-            type: "POST",
-            url: "/getPath/",
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function(response) {
-                show_vectors(Personlayer, response,data.values.min, data.values.max);
+            var path_layer = map.getLayersByName(LostPersonName[each])[0];
+            layers.push(path_layer);
+            while (map.popups.length) {
+                map.removePopup(map.popups[0]);
+                path_layer.removeFeatures([feature]);
             }
-        });
 
-    }
+            selectFeature.unselectAll(); 
+
+
+            path_layer.removeAllFeatures();
+
+            window.map.removeLayer(path_layer);
+            
+            var Personlayer = new OpenLayers.Layer.Vector(LostPersonName[each], { styleMap: path_style });
+            layers.push(Personlayer);
+            map.addControl(selectFeature);
+            selectFeature.activate();
+            
+            map.addLayer(Personlayer);
+            
+            var name = LostPersonName[each];
+            formData.append('csrfmiddlewaretoken', "{{ csrf_token }}");
+            formData.append("name", name);
+
+            console.log(name);
+
+            $.ajax({
+                type: "GET",
+                url: "/getPath/",
+                data: name,
+                async:false,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    console.log(response);
+                    console.log(name);
+                    show_vectors(Personlayer, response, data.values.min, data.values.max); 
+                }
+            });
+
+        }
     });
 
-    // $("#slider").editRangeSlider({});
-    // var currDateMin = $("#slider").dateRangeSlider("values").min;
-    // var currDateMax = $("#slider").dateRangeSlider("values").max;
     var pointStyle = {
         strokeColor: '#0000ff',
         fillColor: "#70a1ef",
@@ -254,29 +325,43 @@ function init() {
 
     var path_style = new OpenLayers.StyleMap(s);
 
+
     for (each in LostPersonName) {
         var Personlayer = new OpenLayers.Layer.Vector(LostPersonName[each], { styleMap: path_style });
         map.addLayer(Personlayer);
+        layers.push(Personlayer);
         var name = LostPersonName[each];
         formData.append('csrfmiddlewaretoken', "{{ csrf_token }}");
         formData.append("name", name);
 
         $.ajax({
-            type: "POST",
+            type: "GET",
             url: "/getPath/",
-            data: formData,
+            data: name,
             contentType: false,
             processData: false,
             success: function(response) {
                 show_vectors(Personlayer, response);
             }
+
         });
 
     }
-   
+
 
     volunteer.addFeatures(Points);
     volunteerCircle.addFeatures(Circles);
+
+    selectFeature = new OpenLayers.Control.SelectFeature(
+        layers, {
+            onSelect: clickNotice,
+            click: true,
+            autoActivate: true,
+            multiple: true
+        }
+    );
+    map.addControl(selectFeature);
+    selectFeature.activate();
 
     var position = new OpenLayers.LonLat(Edmonton_LonLat[0], Edmonton_LonLat[1])
     var zoom = 13;
@@ -294,15 +379,13 @@ function init() {
     map.addControl(new OpenLayers.Control.LayerSwitcher());
     map.addControl(new OpenLayers.Control.Attribution());
 }
-
-
 </script>
 {% endblock %} {% block content %}
 
 <body onload="init()">
     <span style="font-size: 3vh;padding-left: 0.5%;">Map View for administrator</span>
     <div id="map" class="smallmap"></div>
-    <div id="slider" style="margin-top: 40%">
+    <div id="slider" style="margin-top: 46%">
     </div>
 </body>
 {% endblock %}
