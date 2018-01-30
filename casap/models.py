@@ -95,9 +95,10 @@ class VolunteerAvailability(models.Model):
     address_lng = models.FloatField()
     time_from = models.TimeField()
     time_to = models.TimeField()
+    km_radius = models.IntegerField(default=5)
 
     def __str__(self):
-        return u"%s - %s from %s to %s" % (self.volunteer, self.address, self.time_from, self.time_to)
+        return u"%s - %s from %s to %s km %s" % (self.volunteer, self.address, self.time_from, self.time_to, self.km_radius)
 
 
 class Vulnerable(models.Model):

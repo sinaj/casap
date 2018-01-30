@@ -126,9 +126,7 @@ def report_sighting_view(request, hash):
     return render(request, "report/report_sighting.html", request.context)
 
 
-def notify_volunteers(notify_record, time_seen, flag, max_distance=None):
-    if max_distance is None:
-        max_distance = 5
+def notify_volunteers(notify_record, time_seen, flag):
     lat, lng = notify_record.address_lat, notify_record.address_lng
     close_volunteers = set()
     for vol in Volunteer.objects.all():
@@ -136,7 +134,7 @@ def notify_volunteers(notify_record, time_seen, flag, max_distance=None):
         for x in availability:
             seen = datetime.datetime.strptime(time_seen, "%H:%M").time()
             if (time_in_range(x.time_from, x.time_to, seen)) and \
-                    (vincenty((x.address_lat, x.address_lng), (lat, lng)).kilometers <= max_distance):
+                    (vincenty((x.address_lat, x.address_lng), (lat, lng)).kilometers <= x.km_radius):
                 close_volunteers.add(vol)
 
     for vol in close_volunteers:
