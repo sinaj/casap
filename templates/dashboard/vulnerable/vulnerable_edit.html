@@ -11,11 +11,17 @@
 {% block header_css %}
 {% endblock %}
 
+{% block header_js %}
+    <script type="text/javascript" src="/static/js/plugins/angular.min.js"></script>
+{% endblock %}
+
+{% block body_attributes %}ng-app="App" ng-controller="Ctrl"{% endblock %}
+
 {% block content %}
 
     <div class="container p-0">
         <div class="row justify-content-center">
-            <div class="col-sm-8 col-md-6 col-lg-4">
+            <div class="col-sm-12 col-md-8 col-lg-12">
                 <div class="card mr-auto mb-4">
                     <div class="card-body">
                         <h4 class="card-title">
@@ -44,3 +50,13 @@
     </div>
 
 {% endblock %}
+
+{% block scripts %}
+    <script>
+        {% autoescape off %}
+            $.addresses = {{ addresses }};
+        {% endautoescape %}
+    </script>
+    <script type="text/javascript" src="/static/js/dashboard/vulnerable/vulnerable_add.js"></script>
+{% endblock %}
+
