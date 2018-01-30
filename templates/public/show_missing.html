@@ -57,7 +57,7 @@
                                 <div class="btn btn-primary">Report Sighting</div>
                             </a>
                             <a href="{% url "report_found" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
-                                <div class="btn btn-link float-right">Report Found</div>
+                                <div class="btn btn-success float-right">Report Found</div>
                             </a>
                         </div>
                     {% endif %}
