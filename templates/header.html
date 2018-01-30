@@ -1,5 +1,7 @@
+<link rel="stylesheet" type="text/css" href="/static/css/header.css">
+
 <header>
-    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <nav class="navbar navbar-default navbar-expand-md fixed-top ">
         <a class="navbar-brand" href="{% url "index" %}">C-ASAP</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -8,8 +10,6 @@
             <ul class="navbar-nav mr-auto">
             </ul>
             <ul class="navbar-nav">
-
-
                 <li class="nav-item">
                     <a class="nav-link hdr-report-missing" href="{% url "report_lost" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
                         <div class="badge badge-danger">Report missing person</div>
