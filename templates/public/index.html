@@ -21,9 +21,34 @@
                                         {% else %}
                                             <div class="card" style="background-color:rgba(255, 255 , 0, 0.1)">
                                         {% endif %}
+                                        {% if record.state == "reported" %}
+                                            <div class="overlay" style="background-color:rgba(255,72,67,0.6)">
+                                        {% else %}
+                                            <div class="overlay" style="background-color:rgba(255, 255, 0, 0.7)">
+                                        {% endif %}
+                                        {% if record.state == "reported" %}
+                                            <div class="container-fluid clearfix"
+                                                 style="background-color: rgba(255, 255, 255, 0.7)">
+                                                <h5>
+                                                    <div style="text-align: center;">Reported missing at:</div>
+                                                </h5>
+                                                <br>
+                                                <div style="text-align: center;">{{ record.address }}</div>
+                                            </div>
+                                        {% else %}
+                                            <div class="container-fluid  clearfix"
+                                                 style="background-color: rgba(255, 255, 255, 0.7)">
+                                                <h5>
+                                                    <div style="text-align: center;">Reported last seen at:</div>
+                                                </h5>
+                                                <br>
+                                                <div style="text-align: center;">{{ record.sighting_records.last.address }}</div>
+                                            </div>
+                                        {% endif %}
+                                        </div>
                                         <img class="card-img-top img-fit" src="{{ vul.picture.url }}">
                                         <div class="card-body">
-                                            <div class="container-fluid p-0 clearfix">
+                                            <div class="container-fluid p-1 clearfix">
                                                 <h5 class="card-title d-inline">{{ vul.full_name }}</h5>
                                                 {% if record.state == "reported" %}
                                                     <span class="badge badge-danger float-right">Missing</span>
@@ -40,7 +65,7 @@
                             {% endwith %}
                         {% endfor %}
                     </div>
-                <hr>
+                    <hr>
                     <a class="carousel-control-prev" role="button" data-slide="prev">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                         <span class="sr-only">Previous</span>
