@@ -9,11 +9,11 @@
             {% for vul in missing_people %}
                 <a href="{% url "show_missing" hash=vul.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
                     {% if vul.time|timezone:user_tz_name > two_days_ago|timezone:user_tz_name and vul.time|timezone:user_tz_name < time_now|timezone:user_tz_name %}
-                        <div class="card" style="background-color:rgba(255, 255 , 0, 0.1); border: 1px solid red">
+                        <div class="card" style="background-color:rgba(255, 0, 0, 0.1); border: 1px solid red">
                     {% elif vul.time|timezone:user_tz_name > week_ago|timezone:user_tz_name and vul.time|timezone:user_tz_name < time_now|timezone:user_tz_name %}
-                        <div class="card" style="background-color:rgba(255, 255 , 0, 0.1); border: 1px solid green">
+                        <div class="card" style="background-color:rgba(255, 0, 0, 0.1); border: 1px solid green">
                     {% else %}
-                        <div class="card" style="background-color:rgba(255, 255 , 0, 0.1); border: 1px solid blue">
+                        <div class="card" style="background-color:rgba(255, 0, 0, 0.1); border: 1px solid blue">
                     {% endif %}
                     <div class="overlay" style="background-color:rgba(255,72,67,0.6)">
                         <div class="container-fluid clearfix"
