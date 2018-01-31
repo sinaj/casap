@@ -4,7 +4,7 @@
 
 {% block content %}
     <div class="content">
-        <h4 style="text-align:center">Missing as of {{ current_date|timezone:user_tz_name }}</h4>
+        <h4 style="text-align:center">Missing as of {{ current_date }}</h4>
         <div class="missing_people">
             {% for vul in missing_people %}
                 <a href="{% url "show_missing" hash=vul.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
