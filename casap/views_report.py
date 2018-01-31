@@ -76,9 +76,11 @@ def report_lost_view(request):
     else:
         form = LostPersonRecordForm(initial=dict(time=get_user_time(request)))
         request.context['next'] = request.GET.get("next", reverse("index"))
+
+    profile = request.context['user_profile']
     request.context['form'] = form
     request.context['all_timezones'] = pytz.all_timezones
-    request.context['vulnerable_people'] = [dict(hash=vul.hash, name=vul.full_name) for vul in Vulnerable.objects.all()]
+    request.context['vulnerable_people'] = [dict(hash=vul.hash, name=vul.full_name) for vul in profile.vulnerable_people.all()]
     return render(request, "report/report_lost.html", request.context)
 
 
