@@ -3,95 +3,61 @@
 {% load tz %}
 
 {% block content %}
-
-    {% if missing_people %}
-        {% for day, day_records in missing_people %}
-            <div class="container-fluid">
-                <div class="container-fluid">
-                    <h4 style="text-align:center">Missing Clients on {{ day }}</h4>
-                </div>
-                <div class="carousel slide " data-interval="false">
-                    <div class="carousel-inner row w-100 mx-auto">
-                        {% for record in day_records %}
-                            {% with record.vulnerable as vul %}
-                                <div class="carousel-item col-md-4">
-                                    <a href="{% url "show_missing" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
-                                        {% if record.state == "reported" %}
-                                            <div class="card" style="background-color:rgba(255, 0, 0, 0.1)">
-                                        {% else %}
-                                            <div class="card" style="background-color:rgba(255, 255 , 0, 0.1)">
-                                        {% endif %}
-                                        {% if record.state == "reported" %}
-                                            <div class="overlay" style="background-color:rgba(255,72,67,0.6)">
-                                        {% else %}
-                                            <div class="overlay" style="background-color:rgba(255, 255, 0, 0.7)">
-                                        {% endif %}
-                                        {% if record.state == "reported" %}
-                                            <div class="container-fluid clearfix"
-                                                 style="background-color: rgba(255, 255, 255, 0.7)">
-                                                <h5>
-                                                    <div style="text-align: center;">Reported missing at:</div>
-                                                </h5>
-                                                <br>
-                                                <div style="text-align: center;">{{ record.address }}</div>
-                                            </div>
-                                        {% else %}
-                                            <div class="container-fluid  clearfix"
-                                                 style="background-color: rgba(255, 255, 255, 0.7)">
-                                                <h5>
-                                                    <div style="text-align: center;">Reported last seen at:</div>
-                                                </h5>
-                                                <br>
-                                                <div style="text-align: center;">{{ record.sighting_records.last.address }}</div>
-                                            </div>
-                                        {% endif %}
-                                        </div>
-                                        <img class="card-img-top img-fit" src="{{ vul.picture.url }}">
-                                        <div class="card-body">
-                                            <div class="container-fluid p-1 clearfix">
-                                                <h5 class="card-title d-inline">{{ vul.full_name }}</h5>
-                                                {% if record.state == "reported" %}
-                                                    <span class="badge badge-danger float-right">Missing</span>
-                                                {% elif record.state == "sighted" %}
-                                                    <span class="badge badge-warning float-right">Seen</span>
-                                                {% else %}
-                                                    <span class="badge badge-success float-right">Found</span>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            {% endwith %}
-                        {% endfor %}
+    <div class="content">
+        <h4 style="text-align:center">Missing as of {{ current_date }}</h4>
+        <div class="missing_people">
+            {% for vul in missing_people %}
+                <a href="{% url "show_missing" hash=vul.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                    <div class="card" style="background-color:rgba(255, 0, 0, 0.1)">
+                        <div class="overlay" style="background-color:rgba(255,72,67,0.6)">
+                            <div class="container-fluid clearfix"
+                                 style="background-color: rgba(255, 255, 255, 0.7)">
+                                <h5>
+                                    <div style="text-align: center;">Reported missing at:</div>
+                                </h5>
+                                <br>
+                                <div style="text-align: center;">{{ vul.address }}</div>
+                            </div>
+                        </div>
+                        <img class="card-img-top img-fit" src="{{ vul.vulnerable.picture.url }}">
+                        <div class="card-body">
+                            <div class="container-fluid p-1 clearfix">
+                                <h5 class="card-title d-inline">{{ vul.vulnerable.full_name }}</h5>
+                                <span class="badge badge-danger float-right">Missing</span>
+                            </div>
+                        </div>
                     </div>
-                    <hr>
-                    <a class="carousel-control-prev" role="button" data-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Previous</span>
-                    </a>
-                    <a class="carousel-control-next" role="button" data-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Next</span>
-                    </a>
-                </div>
-            </div>
-        {% endfor %}
-    {% else %}
-        <h4 class="card-title text-center pt-2">
-            Nobody is lost at the time!
-        </h4>
-        <div class="container-fluid p-4 text-center">
-            <div class="container-fluid p-0">
-                <a href="{% url "report_lost" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
-                    <div class="btn btn-lg btn-danger">Report missing person</div>
                 </a>
-            </div>
+            {% endfor %}
         </div>
-    {% endif %}
+    </div>
+    <div class="content">
+        <h4 style="text-align:center">Recently seen</h4>
+        <div class="seen_people">
+            {% for vul in seen_people %}
+                <a href="{% url "show_missing" hash=vul.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                    <div class="card" style="background-color:rgba(255, 255 , 0, 0.1)">
+                        <div class="overlay" style="background-color:rgba(255, 255, 0, 0.7)">
+                            <div class="container-fluid clearfix"
+                                 style="background-color: rgba(255, 255, 0, 0.7)">
+                                <h5>
+                                    <div style="text-align: center;">Reported missing at:</div>
+                                </h5>
+                                <br>
+                                <div style="text-align: center;">{{ vul.address }}</div>
+                            </div>
+                        </div>
+                        <img class="card-img-top img-fit" src="{{ vul.vulnerable.picture.url }}">
+                        <div class="card-body">
+                            <div class="container-fluid p-1 clearfix">
+                                <h5 class="card-title d-inline">{{ vul.vulnerable.full_name }}</h5>
+                                <span class="badge badge-warning float-right">Seen</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
 
 {% endblock %}
-
-
-
-
