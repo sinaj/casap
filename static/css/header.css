@@ -20,8 +20,8 @@
 .navbar .navbar-nav .nav-link:not(.disabled):focus {
   color: #2d4471;
     background-color: #7c9ad5;
-    border-style: outset;
-    border-width: thin;
+    /*border-style: outset;*/
+    /*border-width: thin;*/
 }
 .navbar .navbar-nav .dropdown-menu {
   background-color: #2d4471;

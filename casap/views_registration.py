@@ -93,7 +93,7 @@ def register_volunteer_view(request):
                         availability = VolunteerAvailability(volunteer=volunteer, address=f.cleaned_data.get('address'),
                                                              address_lat=address['lat'], address_lng=address['lng'],
                                                              time_from=f.cleaned_data['time_from'],
-                                                             time_to=f.cleaned_data['time_to'])
+                                                             time_to=f.cleaned_data['time_to'], km_radius=f.cleaned_data['km_radius'])
                         availability.save()
 
         add_message(request, messages.SUCCESS, "Registration was successful.")

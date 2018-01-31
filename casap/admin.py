@@ -72,5 +72,5 @@ class LocationAdmin(admin.OSMGeoAdmin):
 @admin.register(VolunteerAvailability)
 class VolunteerAvailabilityAdmin(admin.ModelAdmin):
     model = VolunteerAvailability
-    list_display = ("volunteer", "address", "address_lat", "address_lng", "time_from", "time_to")
+    list_display = ("volunteer", "address", "address_lat", "address_lng", "time_from", "time_to", "km_radius")
 
