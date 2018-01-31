@@ -18,7 +18,7 @@ def index(request):
     two_days_ago = datetime.datetime.now() - datetime.timedelta(hours=48)
     week_ago = datetime.datetime.now() - datetime.timedelta(days=7)
     missing_people = list(LostPersonRecord.objects.filter(state="reported").order_by("-time").all())
-    seen_people = list(LostPersonRecord.objects.filter(state="sighted").order_by("-time").all())
+    seen_people = list(SightingRecord.objects.order_by("-time").all())
     request.context['current_date'] = current_date
     request.context['time_now'] = time_now
     request.context['two_days_ago'] = two_days_ago
