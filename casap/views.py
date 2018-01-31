@@ -2,22 +2,27 @@ import datetime
 
 from django.contrib import messages
 from django.contrib.messages import add_message
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
-from django.template import loader, context
+
 
 from casap.models import LostPersonRecord, VolunteerAvailability
 from casap.models import SightingRecord
-from casap.models import Volunteer
 from casap.models import Vulnerable
 
 
 def index(request):
     current_date = datetime.date.today()
+    time_now = datetime.datetime.now()
+    two_days_ago = datetime.datetime.now() - datetime.timedelta(hours=48)
+    week_ago = datetime.datetime.now() - datetime.timedelta(days=7)
     missing_people = list(LostPersonRecord.objects.filter(state="reported").order_by("-time").all())
     seen_people = list(LostPersonRecord.objects.filter(state="sighted").order_by("-time").all())
     request.context['current_date'] = current_date
+    request.context['time_now'] = time_now
+    request.context['two_days_ago'] = two_days_ago
+    request.context['week_ago'] = week_ago
     request.context['missing_people'] = missing_people
     request.context['seen_people'] = seen_people
     return render(request, "public/index.html", request.context)
