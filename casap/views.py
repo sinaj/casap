@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib import messages
 from django.contrib.messages import add_message
 from django.http import HttpResponseRedirect, JsonResponse
@@ -12,13 +14,12 @@ from casap.models import Vulnerable
 
 
 def index(request):
-    missing_people = dict()
-    for record in LostPersonRecord.objects.exclude(state="found").order_by("-time").all():
-        date = record.time.date()
-        if date not in missing_people:
-            missing_people[date] = list()
-        missing_people[date].append(record)
-    request.context['missing_people'] = sorted(missing_people.items(), reverse=True)
+    current_date = datetime.date.today()
+    missing_people = list(LostPersonRecord.objects.filter(state="reported").order_by("-time").all())
+    seen_people = list(LostPersonRecord.objects.filter(state="sighted").order_by("-time").all())
+    request.context['current_date'] = current_date
+    request.context['missing_people'] = missing_people
+    request.context['seen_people'] = seen_people
     return render(request, "public/index.html", request.context)
 
 
