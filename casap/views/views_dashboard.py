@@ -1,16 +1,14 @@
 import datetime
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.contrib.messages import add_message
-from django.forms import modelformset_factory, inlineformset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.core.urlresolvers import reverse
 from django.utils import timezone
-from django.contrib.gis.geos import GEOSGeometry, Point, WKTWriter, MultiPolygon
+from django.contrib.gis.geos import GEOSGeometry, WKTWriter
 
-from casap.forms import *
+from casap.forms.forms import *
 
 
 def create_address(vulnerable, v):
