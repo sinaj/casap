@@ -7,7 +7,9 @@
         <h4 style="text-align:center">Missing as of {{ current_date }}</h4>
         <div class="missing_people">
             {% for vul in missing_people %}
-                <a href="{% url "show_missing" hash=vul.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                {% if request.user.is_authenticated %}
+                    <a href="{% url "show_missing" hash=vul.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                {% endif %}
                     {% if vul.time|timezone:user_tz_name > two_days_ago|timezone:user_tz_name and vul.time|timezone:user_tz_name < time_now|timezone:user_tz_name %}
                         <div class="card" style="background-color:rgba(255, 0, 0, 0.1); border: 2px solid red">
                     {% elif vul.time|timezone:user_tz_name > week_ago|timezone:user_tz_name and vul.time|timezone:user_tz_name < time_now|timezone:user_tz_name %}
@@ -37,7 +39,9 @@
                         </div>
                     </div>
                     </div>
+                {% if request.user.is_authenticated %}
                 </a>
+                {% endif %}
             {% endfor %}
         </div>
     </div>
