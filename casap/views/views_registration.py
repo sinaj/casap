@@ -1,5 +1,3 @@
-import urllib
-
 from django.contrib import messages
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.decorators import login_required
@@ -16,9 +14,9 @@ from django.utils.html import strip_tags
 from django.forms import inlineformset_factory, forms
 
 from casap import settings
-from casap.forms import UserLoginForm, UserCreateForm, VolunteerForm, Volunteer, VolunteerAvailabilityForm
+from casap.forms.forms import UserLoginForm, UserCreateForm, VolunteerForm, Volunteer, VolunteerAvailabilityForm
 from casap.models import EmailConfirmationCode, Profile, PasswordResetCode, VolunteerAvailability
-from casap.utils import url_with_params, unquote_redirect_url, SimpleMailHelper, get_address_map_google
+from casap.utilities.utils import url_with_params, unquote_redirect_url, SimpleMailHelper, get_address_map_google
 
 
 @login_required
