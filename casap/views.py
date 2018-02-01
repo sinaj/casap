@@ -5,8 +5,10 @@ from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.template import loader, context
 
-from casap.models import LostPersonRecord
+from casap.models import LostPersonRecord, VolunteerAvailability
 from casap.models import SightingRecord
+from casap.models import Volunteer
+from casap.models import Vulnerable
 
 
 def index(request):
@@ -16,7 +18,7 @@ def index(request):
         if date not in missing_people:
             missing_people[date] = list()
         missing_people[date].append(record)
-    request.context['missing_people'] = missing_people.items()
+    request.context['missing_people'] = sorted(missing_people.items(), reverse=True)
     return render(request, "public/index.html", request.context)
 
 
@@ -30,5 +32,41 @@ def track_missing_view(request, hash):
     request.context['vulnerable'] = lost_record.vulnerable
     return render(request, "public/track_missing.html", request.context)
 
+
+def show_missing_view(request, hash):
+    lost_record = LostPersonRecord.objects.filter(hash=hash).first()
+    if not lost_record:
+        add_message(request, messages.WARNING, "Record not found")
+        return HttpResponseRedirect(reverse("index"))
+    request.context['record'] = lost_record
+    request.context['vulnerable'] = lost_record.vulnerable
+    return render(request, "public/show_missing.html", request.context)
+
+
 def location_view(request):
     return render(request, "LocationView.html", request.context)
+
+
+def admin_view(request):
+    address = []
+    for each in VolunteerAvailability.objects.all():
+        personallocation = [each.address_lat, each.address_lng]
+
+        address.append(personallocation)
+
+    request.context['volunteeraddress'] = address
+
+    LostPersonName = []
+
+    for each in LostPersonRecord.objects.all():
+        name = each.vulnerable.first_name + ' ' + each.vulnerable.last_name
+        LostPersonName.append(name)
+
+    request.context['LostPersonName'] = LostPersonName
+    request.context['Vulnerable'] = Vulnerable
+
+    return render(request, "adminView.html", request.context)
+
+
+def slider_view(request):
+    return render(request, "slider.html", request.context)

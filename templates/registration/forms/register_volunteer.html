@@ -13,24 +13,31 @@
            value="{{ form.email.value|default:"" }}" autofocus>
 </div>
 
-<div class="form-group">
-    {{ formset.management_form }}
-    {% for form in formset %}
-        {{ form.as_p }}
+{{ formset.management_form }}
+{% for form in formset.forms %}
+        <div class="table">
+            <table class="no_error">
+                {{ form.as_p }}
+            </table>
+        </div>
     {% endfor %}
-<input type="button" value="Add More" id="add_more">
+<button class="btn btn-primary" id="add_more">Add Address</button>
+<hr>
+{#<input type="button" value="Add More" id="add_more">#}
+<script>
+    // language=JQuery-CSS
+    $('#add_more').click(function() {
+        cloneMore('div.table:last', 'volunteers');
+    });
+</script>
 
-</div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/static/css/time.css">
 <script src="{% static 'js/jquery.formset.js' %}"></script>
 <script type="text/javascript" src="scripts/bootstrap.min.js"></script>
 
-<script type="text/javascript">
-    $('#add_more').click(function() {
-        cloneMore('div.table:last', 'service');
-    });
+<script>
 function cloneMore(selector, type) {
     var newElement = $(selector).clone(true);
     var total = $('#id_' + type + '-TOTAL_FORMS').val();

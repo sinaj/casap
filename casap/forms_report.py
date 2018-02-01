@@ -72,6 +72,16 @@ class SightingRecordForm(forms.ModelForm):
         fields = ('address', 'time', 'description')
 
 
+class SightingActivityForm(forms.ModelForm):
+    def save(self, reporter, lost_record, commit=True):
+        instance = super(self.__class__, self).save(commit=False)
+        instance.reporter = reporter
+        instance.lost_record = lost_record
+        if commit:
+            instance.save()
+        return instance
+
+
 class FindRecordForm(forms.ModelForm):
     time = forms.DateTimeField(input_formats=['%Y-%m-%d %H:%M'])
 
@@ -82,6 +92,7 @@ class FindRecordForm(forms.ModelForm):
         map_response = get_address_map_google(address)
         if map_response is None:
             raise forms.ValidationError("Address is invalid")
+
         self.address_lat = map_response['lat']
         self.address_lng = map_response['lng']
         return address

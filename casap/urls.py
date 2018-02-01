@@ -17,7 +17,7 @@ from django.conf.urls import url, include
 from django.conf.urls.static import static
 from django.contrib import admin
 
-from casap import views, views_registration, views_dashboard, settings, views_report
+from casap import views, views_registration, views_dashboard, settings, views_report,getData
 
 dashboard_patterns = [
     url(r'^profile/edit/$', views_dashboard.profile_edit_view, name="profile_edit"),
@@ -50,10 +50,14 @@ urlpatterns = [
     url(r'^home/$', views.index, name="index"),
     url(r'^report/', include(report_patterns)),
     url(r'^track/(?P<hash>[\w\d]+)/$', views.track_missing_view, name="track_missing"),
+    url(r'^show/(?P<hash>[\w\d]+)/$', views.show_missing_view, name="show_missing"),
     url(r'^accounts/', include(register_patterns)),
     url(r'^dashboard/', include(dashboard_patterns)),
     url(r'^admin/', admin.site.urls),
     url(r'^location/',views.location_view,name="location"),
+    url(r'^adminView/',views.admin_view,name="adminView"),
+    url(r'^slider/',views.slider_view,name="sliderView"),
+    url(r'^getPath/',getData.getPath),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
