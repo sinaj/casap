@@ -15,7 +15,8 @@
                         </h4>
                         <hr>
                         <div class="media mb-2">
-                            <img class="mr-3 w-50" src="{{ vulnerable.picture.url }}" alt="{{ vulnerable.full_name }}'s picture">
+                            <img class="mr-3 w-50" src="{{ vulnerable.picture.url }}"
+                                 alt="{{ vulnerable.full_name }}'s picture">
                             <div class="media-body">
                                 <h5 class="mt-0 d-inline">{{ vulnerable.full_name }}</h5>
                                 {% if record.state == "reported" %}
@@ -40,17 +41,24 @@
                                 <label for="id_tz_name">Timezone</label>
                                 <select id="id_tz_name" name="tz_name" class="form-control">
                                     {% for tz in all_timezones %}
-                                        <option value="{{ tz }}" {% if user_tz_name == tz %}selected{% endif %}>{{ tz }}</option>
+                                        <option value="{{ tz }}"
+                                                {% if user_tz_name == tz %}selected{% endif %}>{{ tz }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label for="id_address">Address</label>
-                                <input id="id_address" name="address" class="form-control" value="{{ form.address.value|default:"" }}" required>
+                                <input id="id_address" name="address" class="form-control"
+                                       value="{{ form.address.value|default:"" }}" required>
                             </div>
                             <div class="form-group">
-                                <label for="id_description">Description</label>
-                                <textarea id="id_description" class="form-control" name="description">{{ form.description.value|default:"" }}</textarea>
+                                <label for="id_description">Description
+                                    <i class="fa fa-info-circle" data-toggle="popover" title="Optional Description"
+                                       data-content="Any description or notes about this seen client can be added.
+                                       For example: 'Wearing a black coat, walking with a brown cane, whistling to himself'."></i>
+                                </label>
+                                <textarea id="id_description" class="form-control"
+                                          name="description">{{ form.description.value|default:"" }}</textarea>
                             </div>
                             <div class="form-group text-center clearfix">
                                 <input id="id_next" type="hidden" name="next" value="{{ next|default:"" }}">
@@ -67,5 +75,12 @@
 
             </div>
         </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="popover"]').popover({});
+        });
+    </script>
 
 {% endblock %}
