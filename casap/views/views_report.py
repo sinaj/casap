@@ -10,13 +10,13 @@ from django.core.urlresolvers import reverse
 from geopy.distance import vincenty
 from django.contrib.gis.geos import Point
 
-from casap.forms_report import LostPersonRecordForm, SightingRecordForm, FindRecordForm
+from casap.forms.forms_report import LostPersonRecordForm, SightingRecordForm, FindRecordForm
 
 
 from casap.models import Vulnerable, LostPersonRecord, Volunteer,Activity,Location,VolunteerAvailability
 
-from casap.utils import get_user_time, send_sms, get_standard_phone,SimpleMailHelper
-from django.utils.html import strip_tags
+from casap.utilities.utils import get_user_time, send_sms, get_standard_phone,SimpleMailHelper
+
 
 def time_in_range(start, end, x):
     """Return true if x is in the range [start, end]"""

@@ -1,9 +1,8 @@
 import pytz
 from django import forms
-from django.utils import timezone
 
 from casap.models import *
-from casap.utils import get_address_map_google
+from casap.utilities.utils import get_address_map_google
 
 
 class LostPersonRecordForm(forms.ModelForm):

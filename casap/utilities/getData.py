@@ -4,12 +4,9 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from casap.models import Activity
 from casap.models import Vulnerable,Location
-from casap.models import SightingRecord
-from django.http import HttpResponseRedirect, JsonResponse
-from django.core.urlresolvers import reverse
-from django.contrib.gis.geos import GEOSGeometry, Point, WKTWriter, MultiPolygon
+from django.contrib.gis.geos import GEOSGeometry, Point, WKTWriter
 
-from casap.views_dashboard import geofence_record
+from casap.views.views_dashboard import geofence_record
 
 
 def point_map_record(name, feat, point, activity, act_type):
