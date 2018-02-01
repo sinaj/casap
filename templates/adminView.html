@@ -13,7 +13,10 @@
 <script type="text/javascript" src="/static/js/moment.min.js"></script>
 <script type="text/javascript">
 var feature;
+var layers = [];
 var geom;
+
+
 function show_vectors(layer, data, datemin, datemax) {
     var wkt_f = new OpenLayers.Format.WKT();
     var last_exit = null;
@@ -134,7 +137,6 @@ function show_vectors(layer, data, datemin, datemax) {
                 layer.addFeatures([feature]);
                 layer.drawFeature(feature);
             }
-
         });
     });
 }
@@ -148,7 +150,17 @@ function onPopupClose(feat) {
 
 }
 
+function getRandomColor() {
+  var letters = '0123456789ABCDEF';
+  var color = '#';
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
 function clickNotice(feat) {
+    console.log("clicking");
     if (feat.geometry.x == null) { // then we have a polygon or linestring
         if (feat.geometry.components.length > 1) return; // skip linestring
         var poplon = feat.geometry.bounds.right - (feat.geometry.bounds.right - feat.geometry.bounds.left) / 2;
@@ -181,13 +193,22 @@ function clickNotice(feat) {
     popup.minSize = new OpenLayers.Size(50, 50);
     feat.popup = popup;
     map.addPopup(popup);
-    var clickedLocation = null;
 }
 
 
 function init() {
 
-    var layers = [];
+    layers = [];
+
+    var selectFeature = new OpenLayers.Control.SelectFeature(
+         layers, 
+         {
+             onSelect: clickNotice,
+             click: true,
+             autoActivate: true,
+             multiple: true
+         }
+     );
 
     $("#slider").dateRangeSlider({
         bounds: {
@@ -204,11 +225,11 @@ function init() {
     });
 
     $("#slider").bind("valuesChanged", function(e, data) {
-        // layers = [];
+        layers = [];
 
         for (each in LostPersonName) {
             var path_layer = map.getLayersByName(LostPersonName[each])[0];
-            layers.push(path_layer);
+            
             while (map.popups.length) {
                 map.removePopup(map.popups[0]);
                 path_layer.removeFeatures([feature]);
@@ -216,21 +237,16 @@ function init() {
 
             selectFeature.unselectAll(); 
 
-
             path_layer.removeAllFeatures();
 
             window.map.removeLayer(path_layer);
             
             var Personlayer = new OpenLayers.Layer.Vector(LostPersonName[each], { styleMap: path_style });
             layers.push(Personlayer);
-            map.addControl(selectFeature);
-            selectFeature.activate();
-            
+
             map.addLayer(Personlayer);
             
             var name = LostPersonName[each];
-            formData.append('csrfmiddlewaretoken', "{{ csrf_token }}");
-            formData.append("name", name);
 
 
             $.ajax({
@@ -259,7 +275,7 @@ function init() {
     var point_style = new OpenLayers.StyleMap(pointStyle);
     var circle_style = new OpenLayers.StyleMap(pointStyle);
 
-    var Edmonton_LonLat = [-12637731.108363, 7081028.6705168];
+    var Edmonton_LonLat = [-12695999.604179, 6631346.342173];
     var a = location.href;
     var b = a.substring(a.indexOf("?") + 1);
     var locationData = b.substring(b.indexOf("=") + 1).split("&");
@@ -290,7 +306,8 @@ function init() {
         Circles.push(suncircle);
     }
 
-    var formData = new FormData();
+
+
 
     var s = new OpenLayers.Style({
         'strokeColor': "green",
@@ -313,19 +330,19 @@ function init() {
 
     var path_style = new OpenLayers.StyleMap(s);
 
+    
 
     for (each in LostPersonName) {
         var Personlayer = new OpenLayers.Layer.Vector(LostPersonName[each], { styleMap: path_style });
         map.addLayer(Personlayer);
         layers.push(Personlayer);
         var name = LostPersonName[each];
-        formData.append('csrfmiddlewaretoken', "{{ csrf_token }}");
-        formData.append("name", name);
-
+        
         $.ajax({
             type: "GET",
             url: "/getPath/",
             data: name,
+            async: false,
             contentType: false,
             processData: false,
             success: function(response) {
@@ -333,26 +350,14 @@ function init() {
             }
 
         });
-
     }
 
 
-    volunteer.addFeatures(Points);
-    volunteerCircle.addFeatures(Circles);
 
-    selectFeature = new OpenLayers.Control.SelectFeature(
-        layers, {
-            onSelect: clickNotice,
-            click: true,
-            autoActivate: true,
-            multiple: true
-        }
-    );
-    map.addControl(selectFeature);
-    selectFeature.activate();
+    
 
     var position = new OpenLayers.LonLat(Edmonton_LonLat[0], Edmonton_LonLat[1])
-    var zoom = 13;
+    var zoom = 12;
 
     var size = new OpenLayers.Size(21, 25);
     var offset = new OpenLayers.Pixel(-(size.w / 2), -size.h);
@@ -362,10 +367,22 @@ function init() {
     var markers = new OpenLayers.Layer.Markers("Markers");
     markers.addMarker(new OpenLayers.Marker(position, icon));
 
+
     map.setCenter(position, zoom);
+
+
+     map.addControl(selectFeature);
+     selectFeature.activate();
+
+
+
+    volunteer.addFeatures(Points);
+    volunteerCircle.addFeatures(Circles);
+    
     map.addLayers([markers, volunteer, volunteerCircle]);
     map.addControl(new OpenLayers.Control.LayerSwitcher());
     map.addControl(new OpenLayers.Control.Attribution());
+    
 }
 </script>
 {% endblock %} {% block content %}
@@ -373,7 +390,7 @@ function init() {
 <body onload="init()">
     <span style="font-size: 3vh;padding-left: 0.5%;">Map View for administrator</span>
     <div id="map" class="smallmap"></div>
-    <div id="slider" style="margin-top: 46%">
+    <div id="slider" style="margin-top: 45%">
     </div>
 </body>
 {% endblock %}
