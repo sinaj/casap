@@ -10,13 +10,13 @@ from django.core.urlresolvers import reverse
 from geopy.distance import vincenty
 from django.contrib.gis.geos import Point
 
-from casap.forms_report import LostPersonRecordForm, SightingRecordForm, FindRecordForm
+from casap.forms.forms_report import LostPersonRecordForm, SightingRecordForm, FindRecordForm
 
 
 from casap.models import Vulnerable, LostPersonRecord, Volunteer,Activity,Location,VolunteerAvailability
 
-from casap.utils import get_user_time, send_sms, get_standard_phone,SimpleMailHelper
-from django.utils.html import strip_tags
+from casap.utilities.utils import get_user_time, send_sms, get_standard_phone,SimpleMailHelper
+
 
 def time_in_range(start, end, x):
     """Return true if x is in the range [start, end]"""
@@ -76,9 +76,11 @@ def report_lost_view(request):
     else:
         form = LostPersonRecordForm(initial=dict(time=get_user_time(request)))
         request.context['next'] = request.GET.get("next", reverse("index"))
+
+    profile = request.context['user_profile']
     request.context['form'] = form
     request.context['all_timezones'] = pytz.all_timezones
-    request.context['vulnerable_people'] = [dict(hash=vul.hash, name=vul.full_name) for vul in Vulnerable.objects.all()]
+    request.context['vulnerable_people'] = [dict(hash=vul.hash, name=vul.full_name) for vul in profile.vulnerable_people.all()]
     return render(request, "report/report_lost.html", request.context)
 
 

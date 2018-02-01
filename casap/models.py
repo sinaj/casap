@@ -1,10 +1,8 @@
 import os
 from django.contrib.auth.models import User
-from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.urlresolvers import reverse
-from django.core.validators import RegexValidator
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
 
@@ -12,10 +10,9 @@ from multiselectfield import MultiSelectField
 from pyproj import Proj, transform
 from django.db import IntegrityError
 from django.db import transaction
-from random import randint
 
 from casap import settings
-from casap.utils import gen_unique_hash
+from casap.utilities.utils import gen_unique_hash
 
 
 def get_vulnerable_picture_path(instance, filename=None):
