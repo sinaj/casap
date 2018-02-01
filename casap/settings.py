@@ -28,9 +28,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
     'casap',
+    'rest_framework',
 ]
 
+# REST_FRAMEWORK = {
+#     'FORM_METHOD_OVERRIDE': None,
+#     'FORM_CONTENT_OVERRIDE': None,
+#     'FORM_CONTENTTYPE_OVERRIDE': None
+# }
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -109,4 +116,7 @@ MESSAGE_TAGS = {
     messages.DEBUG: 'default',
     messages.ERROR: 'danger',
 }
+
+GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH')
+GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH')
 
