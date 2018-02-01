@@ -51,4 +51,3 @@ wheels/
 /.idea
 templates/.DS_Store
 
-settings_server.py

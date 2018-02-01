@@ -30,14 +30,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'casap',
-    'rest_framework',
 ]
 
-# REST_FRAMEWORK = {
-#     'FORM_METHOD_OVERRIDE': None,
-#     'FORM_CONTENT_OVERRIDE': None,
-#     'FORM_CONTENTTYPE_OVERRIDE': None
-# }
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
