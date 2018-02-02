@@ -200,16 +200,6 @@ function init() {
 
     layers = [];
 
-    var selectFeature = new OpenLayers.Control.SelectFeature(
-         layers, 
-         {
-             onSelect: clickNotice,
-             click: true,
-             autoActivate: true,
-             multiple: true
-         }
-     );
-
     $("#slider").dateRangeSlider({
         bounds: {
             min: new Date(2012, 0, 1),
@@ -232,22 +222,13 @@ function init() {
             
             while (map.popups.length) {
                 map.removePopup(map.popups[0]);
-                path_layer.removeFeatures([feature]);
             }
 
             selectFeature.unselectAll(); 
 
             path_layer.removeAllFeatures();
-
-            window.map.removeLayer(path_layer);
-            
-            var Personlayer = new OpenLayers.Layer.Vector(LostPersonName[each], { styleMap: path_style });
-            layers.push(Personlayer);
-
-            map.addLayer(Personlayer);
             
             var name = LostPersonName[each];
-
 
             $.ajax({
                 type: "GET",
@@ -257,10 +238,9 @@ function init() {
                 contentType: false,
                 processData: false,
                 success: function(response) {
-                    show_vectors(Personlayer, response, data.values.min, data.values.max); 
+                    show_vectors(path_layer, response, data.values.min, data.values.max); 
                 }
             });
-
         }
     });
 
@@ -305,8 +285,6 @@ function init() {
         var suncircle = new OpenLayers.Feature.Vector(sunpoly, null, null);
         Circles.push(suncircle);
     }
-
-
 
 
     var s = new OpenLayers.Style({
@@ -370,10 +348,19 @@ function init() {
 
     map.setCenter(position, zoom);
 
+    selectFeature = new OpenLayers.Control.SelectFeature(
+         layers, 
+         {
+             onSelect: clickNotice,
+             click: true,
+             autoActivate: true,
+             multiple: true
+         }
+     );
+
 
      map.addControl(selectFeature);
      selectFeature.activate();
-
 
 
     volunteer.addFeatures(Points);
