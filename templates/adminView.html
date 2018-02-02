@@ -163,28 +163,9 @@ function clickNotice(feat) {
     var lonlat = map.getLonLatFromViewPortPx(feat.xy);
     var poplon = feat.geometry.bounds.right - (feat.geometry.bounds.right - feat.geometry.bounds.left) / 2;
     var poplat = feat.geometry.bounds.top - (feat.geometry.bounds.top - feat.geometry.bounds.bottom) / 2;
-    // if (feat.geometry.x == null) { // then we have a polygon or linestring
-    //     if (feat.geometry.components.length > 1) return; // skip linestring
-        // var poplon = feat.geometry.bounds.right - (feat.geometry.bounds.right - feat.geometry.bounds.left) / 2;
-        // var poplat = feat.geometry.bounds.top - (feat.geometry.bounds.top - feat.geometry.bounds.bottom) / 2;
-
-    //     var time_string = formatTime(feat.attributes.time);
-    //     var message = "<center><span class='editable'>" + feat.attributes.title + "</span>" +
-    //         "<button data-id=" + feat.attributes.title + " id='editLocation'><img class='icon' src='/static/Edit.png'></button>" +
-    //         "</center>" +
-    //         "</br> Person: " +
-    //         feat.attributes.owner + "</br>Category: " + feat.attributes.category +
-    //         "</br>Total time spent here: " + time_string;
-    // } else { // we have a point   
-    //     var poplon = feat.geometry.x;
-    //     var poplat = feat.geometry.y;
     var time = new Date(feat.attributes.time).toLocaleString();
-    //     var message = "<center>" + time + "</center>";
-    // }
 
     var point = new OpenLayers.LonLat(poplon, poplat).transform('EPSG:3857','EPSG:4326');
-    console.log(feat.attributes.owner)
-    console.log(point);
     fetch('http://nominatim.openstreetmap.org/reverse?format=json&lon=' + point["lon"] + '&lat=' + point["lat"]).then(function(response) {
           return response.json();
         }).then(function(json) {
