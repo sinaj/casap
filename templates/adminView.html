@@ -160,39 +160,45 @@ function getRandomColor() {
 }
 
 function clickNotice(feat) {
-    console.log("clicking");
-    if (feat.geometry.x == null) { // then we have a polygon or linestring
-        if (feat.geometry.components.length > 1) return; // skip linestring
-        var poplon = feat.geometry.bounds.right - (feat.geometry.bounds.right - feat.geometry.bounds.left) / 2;
-        var poplat = feat.geometry.bounds.top - (feat.geometry.bounds.top - feat.geometry.bounds.bottom) / 2;
+    var lonlat = map.getLonLatFromViewPortPx(feat.xy);
+    var poplon = feat.geometry.bounds.right - (feat.geometry.bounds.right - feat.geometry.bounds.left) / 2;
+    var poplat = feat.geometry.bounds.top - (feat.geometry.bounds.top - feat.geometry.bounds.bottom) / 2;
+    // if (feat.geometry.x == null) { // then we have a polygon or linestring
+    //     if (feat.geometry.components.length > 1) return; // skip linestring
+        // var poplon = feat.geometry.bounds.right - (feat.geometry.bounds.right - feat.geometry.bounds.left) / 2;
+        // var poplat = feat.geometry.bounds.top - (feat.geometry.bounds.top - feat.geometry.bounds.bottom) / 2;
 
-        var time_string = formatTime(feat.attributes.time);
-        var message = "<center><span class='editable'>" + feat.attributes.title + "</span>" +
-            "<button data-id=" + feat.attributes.title + " id='editLocation'><img class='icon' src='/static/Edit.png'></button>" +
-            "</center>" +
-            "</br> Person: " +
-            feat.attributes.owner + "</br>Category: " + feat.attributes.category +
-            "</br>Total time spent here: " + time_string;
-    } else { // we have a point   
-        var poplon = feat.geometry.x;
-        var poplat = feat.geometry.y;
-        var time = new Date(feat.attributes.time).toLocaleString();
-        var message = "<center>" + time + "</center>";
-    }
+    //     var time_string = formatTime(feat.attributes.time);
+    //     var message = "<center><span class='editable'>" + feat.attributes.title + "</span>" +
+    //         "<button data-id=" + feat.attributes.title + " id='editLocation'><img class='icon' src='/static/Edit.png'></button>" +
+    //         "</center>" +
+    //         "</br> Person: " +
+    //         feat.attributes.owner + "</br>Category: " + feat.attributes.category +
+    //         "</br>Total time spent here: " + time_string;
+    // } else { // we have a point   
+    //     var poplon = feat.geometry.x;
+    //     var poplat = feat.geometry.y;
+    var time = new Date(feat.attributes.time).toLocaleString();
+    //     var message = "<center>" + time + "</center>";
+    // }
 
-    var popup = new OpenLayers.Popup.FramedCloud(
-        "popup",
-        new OpenLayers.LonLat(poplon, poplat),
-        new OpenLayers.Size(50, 100),
-        message,
-        null, true,
-        function() {
-            onPopupClose(feat);
-        });
-    popup.maxSize = new OpenLayers.Size(400, 350);
-    popup.minSize = new OpenLayers.Size(50, 50);
-    feat.popup = popup;
-    map.addPopup(popup);
+    var point = new OpenLayers.LonLat(poplon, poplat).transform('EPSG:3857','EPSG:4326');
+    console.log(feat.attributes.owner)
+    console.log(point);
+    fetch('http://nominatim.openstreetmap.org/reverse?format=json&lon=' + point["lon"] + '&lat=' + point["lat"]).then(function(response) {
+          return response.json();
+        }).then(function(json) {
+            var name = feat.attributes.owner.split("[")[0];
+            var message = "<center><b>"+name+"</b></center>"+"<center>"+"<div><b>Location:</b>"+json.display_name+"</div>"+"</center>"+"<center><b>Time:</b>"+time+"</center>"
+
+          var popup = new OpenLayers.Popup.FramedCloud( "popup", new OpenLayers.LonLat(poplon, poplat), new OpenLayers.Size(50, 100), message, null, true, function() { onPopupClose(feat); });
+        popup.maxSize = new OpenLayers.Size(300, 150);
+        popup.minSize = new OpenLayers.Size(50, 50);
+        feat.popup = popup;
+        map.addPopup(popup);
+        })
+    
+    
 }
 
 
@@ -373,11 +379,18 @@ function init() {
 }
 </script>
 {% endblock %} {% block content %}
-
+<style>
+#slider{
+   position:absolute;
+   bottom:0;
+   width: 100%;
+   height:100%;   /* Height of the footer */
+}
+</style>
 <body onload="init()">
     <span style="font-size: 3vh;padding-left: 0.5%;">Map View for administrator</span>
     <div id="map" class="smallmap"></div>
-    <div id="slider" style="margin-top: 45%">
+    <div id="slider" >
     </div>
 </body>
 {% endblock %}
