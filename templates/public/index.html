@@ -11,11 +11,11 @@
                     <a href="{% url "show_missing" hash=vul.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
                 {% endif %}
                     {% if vul.time|timezone:user_tz_name > two_days_ago|timezone:user_tz_name and vul.time|timezone:user_tz_name < time_now|timezone:user_tz_name %}
-                        <div class="card" style="background-color:rgba(255, 0, 0, 0.1); border: 2px solid red">
+                        <div class="card" id="card_id" style="background-color:rgba(255, 0, 0, 0.1); border: 2px solid red">
                     {% elif vul.time|timezone:user_tz_name > week_ago|timezone:user_tz_name and vul.time|timezone:user_tz_name < time_now|timezone:user_tz_name %}
-                        <div class="card" style="background-color:rgba(255, 0, 0, 0.1); border: 2px solid green">
+                        <div class="card" id="card_id" style="background-color:rgba(255, 0, 0, 0.1); border: 2px solid green">
                     {% else %}
-                        <div class="card" style="background-color:rgba(255, 0, 0, 0.1); border: 2px solid blue">
+                        <div class="card" id="card_id" style="background-color:rgba(255, 0, 0, 0.1); border: 2px solid blue">
                     {% endif %}
                     <div class="overlay" style="background-color:rgba(255,72,67,0.6)">
                         <div class="container-fluid clearfix"
@@ -53,13 +53,13 @@
                     <a href="{% url "show_missing" hash=vul.lost_record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
                 {% endif %}
                     {% if vul.time|timezone:user_tz_name > two_days_ago|timezone:user_tz_name and vul.time|timezone:user_tz_name < time_now|timezone:user_tz_name %}
-                        <div class="card" style="background-color:rgba(255, 255 , 0, 0.1); border: 2px solid red">
+                        <div class="card" id="card_id" style="background-color:rgba(255, 255 , 0, 0.1); border: 2px solid red">
                     {% elif vul.time|timezone:user_tz_name > week_ago|timezone:user_tz_name and vul.time|timezone:user_tz_name < time_now|timezone:user_tz_name %}
-                        <div class="card" style="background-color:rgba(255, 255 , 0, 0.1); border: 2px solid green">
+                        <div class="card" id="card_id" style="background-color:rgba(255, 255 , 0, 0.1); border: 2px solid green">
                     {% else %}
-                        <div class="card" style="background-color:rgba(255, 255 , 0, 0.1); border: 2px solid blue">
+                        <div class="card" id="card_id" style="background-color:rgba(255, 255 , 0, 0.1); border: 2px solid blue">
                     {% endif %}
-                    <div class="overlay" style="background-color:rgba(255, 255, 0, 0.7)">
+                    <div class="overlay" id="card_id" style="background-color:rgba(255, 255, 0, 0.7)">
                         <div class="container-fluid clearfix"
                              style="background-color: rgba(255, 255, 0, 0.7)">
                             <h6>
