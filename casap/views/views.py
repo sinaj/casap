@@ -18,13 +18,22 @@ def index(request):
     two_days_ago = datetime.datetime.now() - datetime.timedelta(hours=48)
     week_ago = datetime.datetime.now() - datetime.timedelta(days=7)
     missing_people = list(LostPersonRecord.objects.filter(state="reported").order_by("-time").all())
-    seen_people = list(SightingRecord.objects.order_by("-time").all())
+    seen_people = list(SightingRecord.objects.order_by("-time").all().filter(lost_record__state__exact='sighted'))
+
+    # Remove all duplicates but keep the most recently updated seen record
+    seen_id = []
+    seen_list = []
+    for i in seen_people:
+        if i.lost_record_id not in seen_id:
+            seen_id.append(i.lost_record_id)
+            seen_list.append(i)
+
     request.context['current_date'] = current_date
     request.context['time_now'] = time_now
     request.context['two_days_ago'] = two_days_ago
     request.context['week_ago'] = week_ago
     request.context['missing_people'] = missing_people
-    request.context['seen_people'] = seen_people
+    request.context['seen_people'] = seen_list
     return render(request, "public/index.html", request.context)
 
 
