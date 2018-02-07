@@ -38,6 +38,7 @@ class Profile(models.Model):
     def __str__(self):
         return str(self.user)
 
+
 class EmailConfirmationCode(models.Model):
     user = models.ForeignKey(User)
     code = models.CharField(max_length=120)
@@ -95,7 +96,8 @@ class VolunteerAvailability(models.Model):
     km_radius = models.IntegerField(default=5)
 
     def __str__(self):
-        return u"%s - %s from %s to %s km %s" % (self.volunteer, self.address, self.time_from, self.time_to, self.km_radius)
+        return u"%s - %s from %s to %s km %s" % (
+            self.volunteer, self.address, self.time_from, self.time_to, self.km_radius)
 
 
 class Vulnerable(models.Model):
@@ -153,6 +155,15 @@ class LostPersonRecord(models.Model):
     def save(self, *args, **kwargs):
         if not self.hash:
             self.hash = gen_unique_hash(self.__class__, 30)
+
+        inProj = Proj(init='epsg:4326')
+        outProj = Proj(init='epsg:3857')
+        try:
+            self.address_lng, self.address_lat = transform(inProj, outProj, float(self.address_lng),
+                                                           float(self.address_lat))
+        except Exception as e:
+            print(e)  # must be in correct coord system
+
         super(self.__class__, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -179,7 +190,8 @@ class SightingRecord(models.Model):
         inProj = Proj(init='epsg:4326')
         outProj = Proj(init='epsg:3857')
         try:
-            self.address_lng, self.address_lat = transform(inProj, outProj, float(self.address_lng), float(self.address_lat))
+            self.address_lng, self.address_lat = transform(inProj, outProj, float(self.address_lng),
+                                                           float(self.address_lat))
         except Exception as e:
             print(e)  # must be in correct coord system
 
@@ -217,6 +229,7 @@ class Activity(models.Model):
     adminPoint = models.PointField(null=True, srid=3857)
     locLat = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     locLon = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+
     # sighting_id = models.ForeignKey('SightingRecord', null=True, related_name='activities')
 
     def __str__(self):
@@ -250,6 +263,49 @@ class Activity(models.Model):
     class Meta:
         verbose_name = 'Activity'
         verbose_name_plural = 'Activities'
+
+
+class LostActivity(models.Model):
+    category = models.CharField(max_length=20, default='Location')
+    person = models.ForeignKey('Vulnerable', null=True, related_name='lostactivities')
+    time = models.DateTimeField()
+    activity_type = models.CharField(max_length=100, default="Reported lost")
+    location = models.ForeignKey('Location', null=True, blank=True, on_delete=models.SET_NULL)
+    adminPoint = models.PointField(null=True, srid=3857)
+    locLat = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    locLon = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+
+    def __str__(self):
+        return "%s %s - %s" % (str(self.time), self.person.__str__(), self.activity_type)
+
+    def save(self, *args, **kwargs):
+
+        if self.adminPoint:
+            self.locLat = self.adminPoint.y
+            self.locLon = self.adminPoint.x
+
+        else:
+            inProj = Proj(init='epsg:4326')
+            outProj = Proj(init='epsg:3857')
+            try:
+                self.locLon, self.locLat = transform(inProj, outProj, float(self.locLon), float(self.locLat))
+                pnt = Point(self.locLon, self.locLat, srid=3857)
+                # see if in geofence
+                if not self.location:
+                    fence_loc = Location.objects.filter(fence__contains=pnt)
+                    if fence_loc:
+                        self.location = fence_loc[0]
+            except Exception as e:
+                print(e)  # must be in correct coord system
+
+        super(LostActivity, self).save(*args, **kwargs)
+
+    def update(self, *args, **kwargs):
+        super(LostActivity, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = 'LostActivity'
+        verbose_name_plural = 'LostActivities'
 
 
 class Location(models.Model):
