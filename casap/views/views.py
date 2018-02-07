@@ -6,7 +6,6 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 
-
 from casap.models import LostPersonRecord, VolunteerAvailability
 from casap.models import SightingRecord
 from casap.models import Vulnerable
@@ -34,6 +33,7 @@ def index(request):
     request.context['week_ago'] = week_ago
     request.context['missing_people'] = missing_people
     request.context['seen_people'] = seen_list
+    request.context['user_tz_name'] = 'Canada/Mountain'  # This needs to be changed when multiple timezones will be used
     return render(request, "public/index.html", request.context)
 
 
