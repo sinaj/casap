@@ -54,7 +54,7 @@
 
                     // MoodAlert was written in Python2 and when integration with the C-ASAP project was done,
                     // C-ASAP was already written in Python3. String formatting errors were happening everywhere,
-                    // So some data manipulation had to be done in this Javascript file. 
+                    // So some data manipulation had to be done in this Javascript file.
 
                     var shape_type = place.feature.substr(0, place.feature.indexOf(" "));
 
@@ -281,10 +281,12 @@
             Points = []
             Circles = []
             for (each in volunteeraddress) {
+                var radius = (volunteeraddress[each][2]) *1000
+                console.log(radius);
                 var point = new OpenLayers.Geometry.Point(volunteeraddress[each][1], volunteeraddress[each][0]).transform('EPSG:4326', 'EPSG:3857');
                 var sunpoly = OpenLayers.Geometry.Polygon.createRegularPolygon(
                     point,
-                    5000,
+                    radius,
                     36,
                     0
                 );

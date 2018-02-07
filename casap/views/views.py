@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse
 from casap.models import LostPersonRecord, VolunteerAvailability
 from casap.models import SightingRecord
 from casap.models import Vulnerable
+from casap.utilities.utils import get_user_time
 
 
 def index(request):
@@ -63,13 +64,13 @@ def location_view(request):
 
 
 def admin_view(request):
-    address = []
+    avail = list()
     for each in VolunteerAvailability.objects.all():
-        personallocation = [each.address_lat, each.address_lng]
+        vol_details = [each.address_lat, each.address_lng, each.km_radius]
 
-        address.append(personallocation)
+        avail.append(vol_details)
 
-    request.context['volunteeraddress'] = address
+    request.context['volunteeraddress'] = avail
 
     LostPersonName = []
 
