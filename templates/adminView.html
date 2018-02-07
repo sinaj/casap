@@ -50,8 +50,28 @@
                         last_exit = null;
                     }
 
+                    //----------------------------------------------------------------------//
+
+                    // MoodAlert was written in Python2 and when integration with the C-ASAP project was done,
+                    // C-ASAP was already written in Python3. String formatting errors were happening everywhere,
+                    // So some data manipulation had to be done in this Javascript file. 
+
                     var shape_type = place.feature.substr(0, place.feature.indexOf(" "));
+
+                    if (shape_type.startsWith("b'")) {
+                        shape_type = shape_type.substring(2);
+                    }
+
+                    if (place.feature.startsWith("b'")) {
+                        var test = place.feature.substring(2);
+                        test = test.slice(0, -1);
+                        place.feature = test;
+                    }
+
                     geom = wkt_f.read(place.feature);
+
+                    //----------------------------------------------------------------------//
+
 
                     if (shape_type == 'MULTIPOLYGON' && seen_ids.indexOf(place.id) == -1) var title = place.name;
                     else var title = place.name + " " + place.act_type;
@@ -79,8 +99,6 @@
                         }
 
                     }
-                    console.log(place);
-
 
                     geom.attributes = {
                         'label': '',
