@@ -38,7 +38,7 @@ def point_map_record(name, feat, point, activity, act_type):
         time = activity.time
 
     if activity.location:
-        person = str(activity.location.person)
+        person = str(activity.person)
     else:
         person = str(activity.person)
     point_record = {
@@ -57,14 +57,14 @@ def point_map_record(name, feat, point, activity, act_type):
 def geofence_record(activity, fence, an_activity, time='', person=''):
     if an_activity:
         time = activity.time
-        person = str(activity.location.person)
+        person = str(activity.person)
         category = str([str(cat) for cat in activity.location.category])[1:-1]
         location = activity.location
 
     else:
         location = activity
         category = str([str(cat) for cat in location.category])[1:-1]
-        person = str(location.person)
+        person = str(activity.person)
 
     record = {
         'name': str(location.name),
