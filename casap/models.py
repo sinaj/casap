@@ -214,6 +214,15 @@ class FindRecord(models.Model):
     def save(self, *args, **kwargs):
         if not self.hash:
             self.hash = gen_unique_hash(self.__class__, 30)
+
+        inProj = Proj(init='epsg:4326')
+        outProj = Proj(init='epsg:3857')
+        try:
+            self.address_lng, self.address_lat = transform(inProj, outProj, float(self.address_lng),
+                                                           float(self.address_lat))
+        except Exception as e:
+            print(e)  # must be in correct coord system
+
         super(self.__class__, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -306,6 +315,49 @@ class LostActivity(models.Model):
     class Meta:
         verbose_name = 'LostActivity'
         verbose_name_plural = 'LostActivities'
+
+
+class FoundActivity(models.Model):
+    category = models.CharField(max_length=20, default='Location')
+    person = models.ForeignKey('Vulnerable', null=True, related_name='foundactivities')
+    time = models.DateTimeField()
+    activity_type = models.CharField(max_length=100, default="Reported found")
+    location = models.ForeignKey('Location', null=True, blank=True, on_delete=models.SET_NULL)
+    adminPoint = models.PointField(null=True, srid=3857)
+    locLat = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    locLon = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+
+    def __str__(self):
+        return "%s %s - %s" % (str(self.time), self.person.__str__(), self.activity_type)
+
+    def save(self, *args, **kwargs):
+
+        if self.adminPoint:
+            self.locLat = self.adminPoint.y
+            self.locLon = self.adminPoint.x
+
+        else:
+            inProj = Proj(init='epsg:4326')
+            outProj = Proj(init='epsg:3857')
+            try:
+                self.locLon, self.locLat = transform(inProj, outProj, float(self.locLon), float(self.locLat))
+                pnt = Point(self.locLon, self.locLat, srid=3857)
+                # see if in geofence
+                if not self.location:
+                    fence_loc = Location.objects.filter(fence__contains=pnt)
+                    if fence_loc:
+                        self.location = fence_loc[0]
+            except Exception as e:
+                print(e)  # must be in correct coord system
+
+        super(FoundActivity, self).save(*args, **kwargs)
+
+    def update(self, *args, **kwargs):
+        super(FoundActivity, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = 'FoundActivity'
+        verbose_name_plural = 'FoundActivities'
 
 
 class Location(models.Model):

@@ -74,6 +74,16 @@ class LostActivityAdmin(admin.OSMGeoAdmin):
     readonly_fields = ('locLat', 'locLon')
 
 
+@admin.register(FoundActivity)
+class FoundActivityAdmin(admin.OSMGeoAdmin):
+    search_fields = ['category', 'person__name', 'time', 'activity_type']
+    raw_id_fields = ('location',)
+    default_lon = -12636243
+    default_lat = 7075850
+    default_zoom = 12
+    readonly_fields = ('locLat', 'locLon')
+
+
 @admin.register(Location)
 class LocationAdmin(admin.OSMGeoAdmin):
     search_fields = ['name', 'description', 'addit_info']

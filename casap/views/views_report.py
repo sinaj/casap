@@ -14,7 +14,7 @@ from casap.forms.forms_report import LostPersonRecordForm, SightingRecordForm, F
 
 
 from casap.models import Vulnerable, LostPersonRecord, Volunteer, Activity, Location, VolunteerAvailability, \
-    LostActivity
+    LostActivity, FoundActivity
 
 from casap.utilities.utils import get_user_time, send_sms, get_standard_phone,SimpleMailHelper
 
@@ -171,6 +171,16 @@ def report_found_view(request, hash):
             form.save(request.user, lost_record)
             lost_record.state = "found"
             lost_record.save()
+            found_activity = FoundActivity()
+            found_activity.locLat = lost_record.address_lat
+            found_activity.locLon = lost_record.address_lng
+            found_activity.person_id = lost_record.vulnerable_id
+            found_activity.time = lost_record.time
+            found_activity.adminPoint = Point(float(found_activity.locLon), float(found_activity.locLat), srid=3857)
+            fence_loc = Location.objects.filter(fence__contains=found_activity.adminPoint)
+            if fence_loc:
+                found_activity.location = fence_loc[0]
+            found_activity.save()
             add_message(request, messages.SUCCESS, "Thank you! Our records are updated.")
             return HttpResponseRedirect(request.POST.get("next", reverse("index")))
     else:
