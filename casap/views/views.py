@@ -84,7 +84,3 @@ def admin_view(request):
     request.context['Vulnerable'] = Vulnerable
 
     return render(request, "adminView.html", request.context)
-
-
-def slider_view(request):
-    return render(request, "slider.html", request.context)
