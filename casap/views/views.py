@@ -66,7 +66,9 @@ def location_view(request):
 def admin_view(request):
     avail = list()
     for each in VolunteerAvailability.objects.all():
-        vol_details = [each.address_lat, each.address_lng, each.km_radius]
+
+        vol_details = [each.address_lat, each.address_lng, each.km_radius, each.address, each.volunteer.full_name,
+                       each.time_to.strftime('%H:%M'), each.time_from.strftime('%H:%M')]
 
         avail.append(vol_details)
 
@@ -78,7 +80,7 @@ def admin_view(request):
         name = each.vulnerable.first_name + ' ' + each.vulnerable.last_name
         LostPersonName.append(name)
 
-    request.context['LostPersonName'] = LostPersonName
+    request.context['LostPersonName'] = list(set(LostPersonName))
     request.context['Vulnerable'] = Vulnerable
 
     return render(request, "adminView.html", request.context)
