@@ -168,12 +168,12 @@ def report_found_view(request, hash):
         form = FindRecordForm(request.POST)
         request.context['next'] = request.POST.get("next", reverse("index"))
         if form.is_valid():
-            form.save(request.user, lost_record)
+            v = form.save(request.user, lost_record)
             lost_record.state = "found"
             lost_record.save()
             found_activity = FoundActivity()
-            found_activity.locLat = lost_record.address_lat
-            found_activity.locLon = lost_record.address_lng
+            found_activity.locLat = v.address_lat
+            found_activity.locLon = v.address_lng
             found_activity.person_id = lost_record.vulnerable_id
             found_activity.time = lost_record.time
             found_activity.adminPoint = Point(float(found_activity.locLon), float(found_activity.locLat), srid=3857)

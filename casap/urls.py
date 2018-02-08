@@ -18,7 +18,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 
 from casap import settings
-from casap.utilities.map_data import getData, get_lost_data
+from casap.utilities.map_data import getData, get_lost_data, get_found_data
 from casap.views import views_report, views_dashboard, views, views_registration
 
 dashboard_patterns = [
@@ -61,6 +61,8 @@ urlpatterns = [
     url(r'^slider/', views.slider_view, name="sliderView"),
     url(r'^getPath/', getData.getPath),
     url(r'^get-lost-path/', get_lost_data.getPath),
+    url(r'^get-found-path/', get_found_data.getPath),
+
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -12,6 +12,7 @@
     <script type="text/javascript" src="/static/js/moment.min.js"></script>
     <script type="text/javascript" src="/static/js/maps/missing.js"></script>
     <script type="text/javascript" src="/static/js/maps/seen.js"></script>
+    <script type="text/javascript" src="/static/js/maps/found.js"></script>
     <script type="text/javascript">
         var feature;
         var layers = [];
@@ -84,6 +85,7 @@
                     var mLayers = map.layers;
                     var layer = mLayers[1];
                     var layer2 = mLayers[2];
+                    var layer3 = mLayers[3];
 
                     while (map.popups.length) {
                         map.removePopup(map.popups[0]);
@@ -93,6 +95,7 @@
 
                     layer.removeAllFeatures();
                     layer2.removeAllFeatures();
+                    layer3.removeAllFeatures();
 
                     var name = LostPersonName[each];
 
@@ -116,14 +119,26 @@
                         contentType: false,
                         processData: false,
                         success: function (response) {
-                            show_missing(layer2, response, data.values.min, data.values.max);
+                            show_seen(layer2, response, data.values.min, data.values.max);
+                        }
+                    });
+
+                    $.ajax({
+                        type: "GET",
+                        url: "/get-found-path/",
+                        data: name,
+                        async: false,
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            show_found(layer3, response, data.values.min, data.values.max);
                         }
                     });
                 }
             });
 
             var pointStyle = {
-                strokeColor: '#0000ff',
+                strokeColor: '#f700ff',
                 fillColor: "#70a1ef",
                 strokeOpacity: 10,
                 strokeWidth: 2,
@@ -244,6 +259,48 @@
                     processData: false,
                     success: function (response) {
                         show_seen(MissingLayer2, response);
+                    }
+
+                });
+            }
+
+            var f = new OpenLayers.Style({
+                'strokeColor': "green",
+                'pointRadius': 4,
+                'strokeWidth': "${strokeWidth}",
+                'fillColor': "${color}",
+                'fillOpacity': "${highlight}",
+                'label': "${label}",
+                'fontColor': "white",
+                'fontSize': "12px",
+                'fontFamily': "Courier New, monospace",
+                'fontWeight': "bold",
+                'labelAlign': "cm",
+                'strokeDashstyle': "${dash}",
+                'labelOutlineColor': "black",
+                'labelOutlineWidth': 3,
+                'labelXOffset': "${xOffset}",
+                'labelYOffset': "${yOffset}"
+            });
+
+            var path_style3 = new OpenLayers.StyleMap(f);
+            var MissingLayer3 = new OpenLayers.Layer.Vector('Found Client Locations', {styleMap: path_style3});
+            map.addLayer(MissingLayer3);
+            layers.push(MissingLayer3);
+
+            for (each in LostPersonName) {
+
+                var name = LostPersonName[each];
+
+                $.ajax({
+                    type: "GET",
+                    url: "/get-found-path/",
+                    data: name,
+                    async: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        show_seen(MissingLayer3, response);
                     }
 
                 });
