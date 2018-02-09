@@ -6,34 +6,11 @@ from casap.models import LostActivity
 from casap.models import Vulnerable, Location
 from django.contrib.gis.geos import GEOSGeometry, Point, WKTWriter
 
-from casap.views.views_dashboard import geofence_record
-
-
-def point_map_record(name, feat, point, activity, act_type):
-    if act_type == "exit place":
-        time = activity.time - datetime.timedelta(0, 1)
-    else:
-        time = activity.time
-
-    if activity.location:
-        person = str(activity.person)
-    else:
-        person = str(activity.person)
-    point_record = {
-        'name': str(name),
-        'feature': str(feat),
-        'time': str(time),
-        'locLat': str(point.y),
-        'locLon': str(point.x),
-        'category': str(activity.category),
-        'act_type': str(act_type),
-        'person': person}
-    return point_record
+from casap.views.views_dashboard import geofence_record, point_map_record
 
 
 @api_view(['GET'])
 def getPath(request):
-    print("the path" + request.get_full_path())
     data = request.get_full_path().split('?')[1]
     result = data.replace("%20", " ")
 
@@ -44,10 +21,9 @@ def getPath(request):
     person = Vulnerable.objects.filter(first_name=firstName, last_name=lastName).first()
     wkt_w = WKTWriter()
     loc_activities = LostActivity.objects.prefetch_related('location', 'person').filter(person=person,
-                                                                                    category="Location").order_by(
+                                                                                        category="Location").order_by(
         'time')
 
-    print(loc_activities)
     j = 0
     # for the table summary. Group all similar location activities in order
     currlocation = None
@@ -172,9 +148,5 @@ def getPath(request):
         wkt_fence = wkt_w.write(f.fence)
         to_add = geofence_record(f, wkt_fence, False)
         feature_fences.append([to_add])
-
-    print(journeys)
-
-
 
     return Response(journeys)
