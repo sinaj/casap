@@ -58,7 +58,6 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^location/', views.location_view, name="location"),
     url(r'^adminView/', views.admin_view, name="adminView"),
-    url(r'^slider/', views.slider_view, name="sliderView"),
     url(r'^getPath/', getData.getPath),
     url(r'^get-lost-path/', get_lost_data.getPath),
     url(r'^get-found-path/', get_found_data.getPath),
