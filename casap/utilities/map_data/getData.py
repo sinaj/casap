@@ -3,49 +3,28 @@ import datetime
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from casap.models import Activity
-from casap.models import Vulnerable,Location
+from casap.models import Vulnerable, Location
 from django.contrib.gis.geos import GEOSGeometry, Point, WKTWriter
 
-from casap.views.views_dashboard import geofence_record
+from casap.views.views_dashboard import geofence_record, point_map_record
 
-
-def point_map_record(name, feat, point, activity, act_type):
-    if act_type == "exit place":
-        time = activity.time - datetime.timedelta(0,1)
-    else:
-        time = activity.time
-
-    if activity.location:
-        person = str(activity.location.person)
-    else:
-        person = str(activity.person)
-    point_record = {
-        'name' : str(name),
-        'feature': str(feat),
-        'time': str(time),
-        'locLat': str(point.y),
-        'locLon': str(point.x),
-        'category': str(activity.category),
-        'act_type': str(act_type),
-        'person': person}
-    return point_record
 
 @api_view(['GET'])
 def getPath(request):
-    print("the path"+request.get_full_path())
     data = request.get_full_path().split('?')[1]
-    result = data.replace("%20"," ")
+    result = data.replace("%20", " ")
 
-   
     namePair = result.split(" ")
     firstName = namePair[0]
     lastName = namePair[1]
 
-    person = Vulnerable.objects.filter(first_name=firstName,last_name=lastName).first()
+    person = Vulnerable.objects.filter(first_name=firstName, last_name=lastName).first()
     wkt_w = WKTWriter()
-    loc_activities = Activity.objects.prefetch_related('location', 'person').filter(person=person,category="Location").order_by('time')
+    loc_activities = Activity.objects.prefetch_related('location', 'person').filter(person=person,
+                                                                                    category="Location").order_by(
+        'time')
     j = 0
-# for the table summary. Group all similar location activities in order
+    # for the table summary. Group all similar location activities in order
     currlocation = None
     currentplace = None
     startDate = None
@@ -87,7 +66,8 @@ def getPath(request):
             if str(l.location.name):  # if has name then at known geofence
 
                 # went from location to location
-                if (prior['act_type'] == "geo_fence" or prior['act_type'] == "exit place") and prior['name'] != l.location.name:
+                if (prior['act_type'] == "geo_fence" or prior['act_type'] == "exit place") and prior[
+                    'name'] != l.location.name:
                     # use centroids as point to point reference
                     a = prior['feature'].lstrip('b')
                     prior['feature'] = a[1:-1]
@@ -168,6 +148,4 @@ def getPath(request):
         to_add = geofence_record(f, wkt_fence, False)
         feature_fences.append([to_add])
 
-
-    return Response(journeys) 
-    
+    return Response(journeys)
