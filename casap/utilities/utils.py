@@ -9,7 +9,11 @@ from random import randint
 import sys
 
 import re
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
 
+import twitter
+from requests import HTTPError
 from twilio.rest import Client
 import phonenumbers as phonenumbers
 import pytz
@@ -72,7 +76,6 @@ def gen_unique_hash(model_class, length, all_caps=None, field_name=None):
     return unique_hash.upper() if all_caps else unique_hash
 
 
-
 def get_standard_phone(raw_phone, ignore_error=None):
     try:
         non_decimal = re.compile(r'[^\d]+')
@@ -100,9 +103,14 @@ def get_address_map_google(address):
         latlng = results[0]['geometry']['location']
         ans['lat'] = str(latlng['lat'])
         ans['lng'] = str(latlng['lng'])
-        postal_code = [item for item in json.loads(resp.text)['results'][0]['address_components'] if "postal_code" in item['types']][0]['short_name']
-        city = [item for item in json.loads(resp.text)['results'][0]['address_components'] if "administrative_area_level_3" in item['types'] or "locality" in item['types']][0]['short_name']
-        province = [item for item in json.loads(resp.text)['results'][0]['address_components'] if "administrative_area_level_1" in item['types']][0]['short_name']
+        postal_code = \
+            [item for item in json.loads(resp.text)['results'][0]['address_components'] if
+             "postal_code" in item['types']][
+                0]['short_name']
+        city = [item for item in json.loads(resp.text)['results'][0]['address_components'] if
+                "administrative_area_level_3" in item['types'] or "locality" in item['types']][0]['short_name']
+        province = [item for item in json.loads(resp.text)['results'][0]['address_components'] if
+                    "administrative_area_level_1" in item['types']][0]['short_name']
         ans['postal_code'] = postal_code
         ans['city'] = city
         ans['province'] = province
@@ -176,3 +184,24 @@ class SimpleMailHelper(BaseMailHelper):
             [self.recipient],
             html_message=self.mail_html,
         )
+
+
+def send_tweet(tweet):
+    api = twitter.Api(consumer_key=settings.TWITTER_CONSUMER_KEY, consumer_secret=settings.TWITTER_CONSUMER_SECRET,
+                      access_token_key=settings.TWITTER_ACCESS_KEY, access_token_secret=settings.TWITTER_ACCESS_SECRET)
+
+    api.PostUpdate(tweet)
+
+
+def shorten_url(url):
+    try:
+        params = urlencode(
+            {'longUrl': url, 'login': settings.BITLY_API_USER, 'apiKey': settings.BITLY_API_KEY, 'format': 'json'})
+        req = Request("http://api.bit.ly/v3/shorten?%s" % params)
+        response = urlopen(req)
+        j = json.loads(response.read().decode('utf-8'))
+        if j['status_code'] == 200:
+            return j['data']['url']
+        raise Exception('%s' % j['status_txt'])
+    except HTTPError as e:
+        raise ('HTTP error%s' % e.read())
