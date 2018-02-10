@@ -56,7 +56,7 @@ urlpatterns = [
     url(r'^accounts/', include(register_patterns)),
     url(r'^dashboard/', include(dashboard_patterns)),
     url(r'^admin/', admin.site.urls),
-    url(r'^location/(?P<hash>[\w\d]+)/$', views.location_view, name="location"),
+    url(r'^location/', views.location_view, name="location"),
     url(r'^adminView/', views.admin_view, name="adminView"),
     url(r'^getPath/', getData.getPath),
     url(r'^get-lost-path/', get_lost_data.getPath),

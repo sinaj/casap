@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block page_title %}
-    C-ASAP | Location
+    C-ASAP | History
 {% endblock %}
 
 
@@ -17,21 +17,22 @@
     <link rel="stylesheet" type="text/css" href="/static/css/mapview.css" />
     <script src="http://dev.openlayers.org/OpenLayers.js"></script>
     <script type="text/javascript">
-    var map
+    var map, vectors, controls;
 
     function init() {
-
-        var address = {{ address }}
-
+        var a = location.href;
+        var b = a.substring(a.indexOf("?") + 1);
+        var locationData = b.substring(b.indexOf("=") + 1).split("&");
         map = new OpenLayers.Map('map');
         var OSM_layer = new OpenLayers.Layer.OSM("OpenStreet Map");
         map.addLayer(OSM_layer);
 
-        var position = new OpenLayers.LonLat(address[0], address[1]);
+
+        var position = new OpenLayers.LonLat(locationData[1], locationData[0]).transform('EPSG:4326', 'EPSG:3857');
 
         var zoom = 13;
 
-        var size = new OpenLayers.Size(60, 65);
+        var size = new OpenLayers.Size(21, 25);
         var offset = new OpenLayers.Pixel(-(size.w / 2), -size.h);
 
         var icon = new OpenLayers.Icon("http://pluspng.com/img-png/png-location-file-location-icon-png-287.png", size, offset);
@@ -42,7 +43,10 @@
        
         map.setCenter(position, zoom);
         map.addLayer(markers);
+        // map.addLayers(markers);
+       
         map.addControl(new OpenLayers.Control.LayerSwitcher());
+
         map.addControl(new OpenLayers.Control.Attribution());
 
     }
