@@ -35,7 +35,7 @@
                             <div class="container-fluid p-0 clearfix">
                                 Reported missing at: <span class="float-right text-dark">{{ record.time|timezone:user_tz_name|time }}</span>
                             </div>
-                            <a href="{% url 'location' %}?lat={{ record.address_lat}}&{{ record.address_lng}}">{{ record.address}}</a>
+                            <a href="{% url "location" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">{{ record.address }}</a>
                         </div>
                         {% for sighting in record.get_sighting_records %}
                             <div class="list-group-item list-group-item-warning">

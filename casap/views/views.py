@@ -59,7 +59,15 @@ def show_missing_view(request, hash):
     return render(request, "public/show_missing.html", request.context)
 
 
-def location_view(request):
+def location_view(request, hash):
+    lost_record = LostPersonRecord.objects.filter(hash=hash).first()
+    if not lost_record:
+        add_message(request, messages.WARNING, "Record not found")
+        return HttpResponseRedirect(reverse("index"))
+    address = list()
+    address.append(lost_record.address_lng)
+    address.append(lost_record.address_lat)
+    request.context['address'] = address
     return render(request, "LocationView.html", request.context)
 
 
