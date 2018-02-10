@@ -28,11 +28,11 @@
         map.addLayer(OSM_layer);
 
 
-        var position = new OpenLayers.LonLat(locationData[1], locationData[0]).transform('EPSG:4326', 'EPSG:3857');
+        var position = new OpenLayers.LonLat(locationData[1], locationData[0]);
 
         var zoom = 13;
 
-        var size = new OpenLayers.Size(21, 25);
+        var size = new OpenLayers.Size(55, 60);
         var offset = new OpenLayers.Pixel(-(size.w / 2), -size.h);
 
         var icon = new OpenLayers.Icon("http://pluspng.com/img-png/png-location-file-location-icon-png-287.png", size, offset);
