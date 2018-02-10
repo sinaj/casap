@@ -55,7 +55,7 @@
 .navbar .navbar-toggle:focus {
   background-color: #7c9ad5;
 }
-.navbar .navbar-toggle .navbar-toggler-icon {
+.navbar .navbar-toggle {
   color: #ecf0f1;
 }
 .navbar .navbar-collapse,
@@ -76,6 +76,7 @@
   .navbar-expand-sm .navbar-nav .show .dropdown-menu .dropdown-item:hover,
   .navbar-expand-sm .navbar-nav .show .dropdown-menu .dropdown-item:focus {
     color: #2d4471;
+    background-color: #7c9ad5;
   }
   .navbar-expand-sm .navbar-nav .show .dropdown-menu .dropdown-item.active {
     color: #2d4471;

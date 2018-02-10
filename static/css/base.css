@@ -98,43 +98,244 @@ h3, h4 {
 
 div.card {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    overflow: auto;
 }
 
 .card-img-top {
     width: 100%;
-    height: 15vw;
+    min-height: 200px;
+    max-height: 200px;
     object-fit: cover;
 }
 
 .overlay {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 100%;
-  width: 100%;
-  opacity: 0;
-  transition: .5s ease;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    opacity: 0;
+    transition: .5s ease;
 }
 
 .card:hover .overlay {
-  opacity: 1;
+    opacity: 1;
 }
+
 .content {
     margin: auto;
-    padding: 10px;
+    padding-left: 6%;
+    padding-right: 6%;
     width: 98%;
 }
-    /* the slides */
-  .slick-slide {
+
+/* the slides */
+.slick-slide {
     margin: 0 10px;
-  }
-  /* the parent */
-  .slick-list {
+}
+
+/* the parent */
+.slick-list {
     margin: 0 -10px;
-  }
+}
 
 .slick-prev:before, .slick-next:before {
     color: #2d4471 !important;
+}
+
+#card_id {
+    min-height: 250px;
+}
+
+/*
+  ##Device = Desktops
+  ##Screen = 1281px to higher resolution desktops
+*/
+
+@media (min-width: 1281px) {
+
+    #mapContainer {
+        width: 100%;
+        height: 500px;
+
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+
+}
+
+/*
+  ##Device = Laptops, Desktops
+  ##Screen = B/w 1025px to 1280px
+*/
+
+@media (min-width: 1025px) and (max-width: 1280px) {
+
+    #mapContainer {
+        width: 100%;
+        height: 500px;
+
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+
+}
+
+/*
+  ##Device = Tablets, Ipads (portrait)
+  ##Screen = B/w 768px to 1024px
+*/
+
+@media (min-width: 768px) and (max-width: 1024px) {
+
+    #mapContainer {
+        width: 100%;
+        height: 1000px;
+
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+
+}
+
+/*
+  ##Device = Tablets, Ipads (landscape)
+  ##Screen = B/w 768px to 1024px
+*/
+
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+
+    #mapContainer {
+        width: 100%;
+        height: 400px;
+
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+
+}
+
+/*
+  ##Device = Low Resolution Tablets, Mobiles (Landscape)
+  ##Screen = B/w 481px to 767px
+*/
+
+@media (min-width: 481px) and (max-width: 767px) {
+
+    #mapContainer {
+        width: 100%;
+        height: 200px;
+
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+
+}
+
+/*
+  ##Device = Most of the Smartphones Mobiles (Portrait)
+  ##Screen = B/w 320px to 479px
+*/
+
+@media (min-width: 320px) and (max-width: 480px) {
+
+    #mapContainer {
+        width: 100%;
+        height: 400px;
+
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+
+}
+
+/* iPhone map media queries*/
+
+/*iPhone < 5:*/
+@media screen and (device-aspect-ratio: 2/3) {
+        #mapContainer {
+        width: 100%;
+        height: 200px;
+
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+/*iPhone 5:*/
+@media screen and (device-aspect-ratio: 40/71) {
+        #mapContainer {
+        width: 100%;
+        height: 300px;
+
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+/*iPhone 6:*/
+@media screen and (device-aspect-ratio: 375/667) {
+    #mapContainer {
+        width: 100%;
+        height: 400px;
+
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }}
+
+/*iPhone 6 Plus:*/
+@media screen and (device-aspect-ratio: 16/9) {
+        #mapContainer {
+        width: 100%;
+        height: 400px;
+
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+/*iPad:*/
+@media screen and (device-aspect-ratio: 3/4) {
+        #mapContainer {
+        width: 100%;
+        height: 600px;
+
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }
 }

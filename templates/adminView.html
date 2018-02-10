@@ -1,308 +1,361 @@
 {% extends "base.html" %} {% load static %} {% block header_js %}
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>Location</title>
-<link rel="stylesheet" href="/static/css/iThing.css" type="text/css" />
-<link rel="stylesheet" type="text/css" href="/static/css/mapview.css" />
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
-<script type="text/javascript" src="/static/js/jquery-ui.js"></script>
-<script src="http://dev.openlayers.org/OpenLayers.js"></script>
-<script type="text/javascript" src="/static/js/jQAllRangeSliders-min.js"></script>
-<script type="text/javascript" src="/static/js/moment.min.js"></script>
-<script type="text/javascript">
-function show_vectors(layer, data,datemin, datemax) {
-    var wkt_f = new OpenLayers.Format.WKT();
-    var last_exit = null;
-    var _MS_PER_HOUR = 1000 * 60 * 60;
-    var _MS_PER_MIN = 1000 * 60;
-    var seen_ids = [];
-    // iterate through each journey
-    data.forEach(function(journey) {
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Location</title>
+    <link rel="stylesheet" href="/static/css/iThing.css" type="text/css"/>
+    <link rel="stylesheet" type="text/css" href="/static/css/mapview.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-ui.js"></script>
+    <script type="text/javascript" src="/static/js/jQAllRangeSliders-min.js"></script>
+    <script type="text/javascript" src="/static/js/moment.min.js"></script>
+    <script type="text/javascript" src="/static/js/maps/missing.js"></script>
+    <script type="text/javascript" src="/static/js/maps/seen.js"></script>
+    <script type="text/javascript" src="/static/js/maps/found.js"></script>
+    <script type="text/javascript">
+        var feature;
+        var layers = [];
+        var geom;
 
-        var pointList = [];
-        var time_spent = { enter: null, exit: null };
-        // add each path for each journey separately
-        journey.forEach(function(place, i) {
 
-            var color = "orange";
-            if (layer.name == "Activities path") color = "green";
-            if (place.category == "Harmful") color = "red";
+        var map, vectors, controls;
 
-            else var time = '';
 
-            if (place.time != null) {         
-                    var time = place.time; 
-                    time_compare = moment(time, 'YYYY-MM-DD, hh:mm:ss ').startOf('day').toDate();
-                    // skip all activities not within the date range
-                    if (time_compare < datemin  || time_compare > datemax){
-                        return
-                    }
-                }
+        function onPopupClose(feat) {
+            map.removePopup(feat.popup);
+            feat.popup.destroy();
 
-            if (i == 0 && last_exit != null && pointList.length == 0) {
-                pointList.push(last_exit); // keep track of exit point to draw line from THIS IS BUGGY
-                last_exit = null;
+        }
+
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
             }
+            return color;
+        }
 
-            var shape_type = place.feature.substr(0, place.feature.indexOf(" "));
-            var geom = wkt_f.read(place.feature);
+        function clickNotice(feat) {
+            var lonlat = map.getLonLatFromViewPortPx(feat.xy);
+            var poplon = feat.geometry.bounds.right - (feat.geometry.bounds.right - feat.geometry.bounds.left) / 2;
+            var poplat = feat.geometry.bounds.top - (feat.geometry.bounds.top - feat.geometry.bounds.bottom) / 2;
+            var time = new Date(feat.attributes.time).toLocaleString();
 
-            if (shape_type == 'MULTIPOLYGON' && seen_ids.indexOf(place.id) == -1) var title = place.name;
-            else var title = place.name + " " + place.act_type;
+            var point = new OpenLayers.LonLat(poplon, poplat).transform('EPSG:3857', 'EPSG:4326');
+            fetch('http://nominatim.openstreetmap.org/reverse?format=json&lon=' + point["lon"] + '&lat=' + point["lat"]).then(function (response) {
+                return response.json();
+            }).then(function (json) {
+                var name = feat.attributes.owner.split("[")[0];
+                var message = "<center><b>" + name + "</b></center>" + "<center>" + "<div><b>Location:</b>" + json.display_name + "</div>" + "</center>" + "<center><b>Time:</b>" + time + "</center>"
 
-            if (place.act_type == 'enter location') time_spent.enter = new Date(place.time);
+                var popup = new OpenLayers.Popup.FramedCloud("popup", new OpenLayers.LonLat(poplon, poplat), new OpenLayers.Size(50, 100), message, null, true, function () {
+                    onPopupClose(feat);
+                });
+                popup.maxSize = new OpenLayers.Size(300, 150);
+                popup.minSize = new OpenLayers.Size(50, 50);
+                feat.popup = popup;
+                map.addPopup(popup);
+            })
+        }
 
-            if (place.act_type == 'exit place') {
-                time_spent.exit = new Date(place.time);
-                // keep track of total time spent there in millis
-                var place_update = layer.getFeaturesByAttribute('title', place.name);
-                if (place_update.length != 0) {
-                    // add total time spent there all together
-                    if (place_update[0].attributes.time != '' && typeof place_update[0].attributes.time === 'number') {
-                        place_update[0].attributes.time = place_update[0].attributes.time + (time_spent.exit.getTime() - time_spent.enter.getTime());
-                    } else {
-                        place_update[0].attributes.time = time_spent.exit.getTime() - time_spent.enter.getTime();
+        function init() {
+
+            layers = [];
+
+            $("#slider").dateRangeSlider({
+                bounds: {
+                    min: new Date(2017, 0, 1),
+                    max: new Date()
+                },
+                defaultValues: {
+                    min: new Date(2017, 0, 1),
+                    max: new Date()
+                },
+                step: {
+                    days: 1
+                }
+            });
+
+            $("#slider").bind("valuesChanged", function (e, data) {
+                layers = [];
+
+                for (each in LostPersonName) {
+                    var mLayers = map.layers;
+                    var layer = mLayers[1];
+                    var layer2 = mLayers[2];
+                    var layer3 = mLayers[3];
+
+                    while (map.popups.length) {
+                        map.removePopup(map.popups[0]);
                     }
-                    layer.drawFeature(place_update[0]);
 
-                    // update table
-                    var curr_entry = $("table#listevent tbody tr > th:first-child").filter(function() {
-                        return ($(this).text() == moment(time_spent.enter, "YYYY-MM-DD, hh:mm:ss").format('LLL'));
+                    selectFeature.unselectAll();
+
+                    layer.removeAllFeatures();
+                    layer2.removeAllFeatures();
+                    layer3.removeAllFeatures();
+
+                    var name = LostPersonName[each];
+
+                    $.ajax({
+                        type: "GET",
+                        url: "/get-lost-path/",
+                        data: name,
+                        async: false,
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            show_missing(layer, response, data.values.min, data.values.max);
+                        }
                     });
-                    curr_entry.next().text(moment(time_spent.exit, "YYYY-MM-DD, hh:mm:ss").format('LLL'));
-                }
 
-            }
-            geom.attributes = {
-                'label': '',
-                'color': color,
-                'fillcolor': color,
-                'highlight': "0.4",
-                'xOffset': 0,
-                'yOffset': -15,
-                'strokeWidth': 2,
-                'title': title,
-                'time': time,
-                'owner': place.person,
-                'category': place.category,
+                    $.ajax({
+                        type: "GET",
+                        url: "/getPath/",
+                        data: name,
+                        async: false,
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            show_seen(layer2, response, data.values.min, data.values.max);
+                        }
+                    });
+
+                    $.ajax({
+                        type: "GET",
+                        url: "/get-found-path/",
+                        data: name,
+                        async: false,
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            show_found(layer3, response, data.values.min, data.values.max);
+                        }
+                    });
+                }
+            });
+
+            var pointStyle = {
+                strokeColor: '#f700ff',
+                fillColor: "#70a1ef",
+                strokeOpacity: 10,
+                strokeWidth: 2,
+                pointRadius: 3,
             };
-            if (shape_type == 'MULTIPOLYGON') {
 
-                if (seen_ids.indexOf(place.id) == -1) {
-                    if (time_spent.enter == null) {
-                        time_spent.enter = new Date(place.time);
+            var point_style = new OpenLayers.StyleMap(pointStyle);
+            var circle_style = new OpenLayers.StyleMap(pointStyle);
+
+            var Edmonton_LonLat = [-12695999.604179, 6631346.342173];
+            var a = location.href;
+            var b = a.substring(a.indexOf("?") + 1);
+            var locationData = b.substring(b.indexOf("=") + 1).split("&");
+            map = new OpenLayers.Map('map');
+            var OSM_layer = new OpenLayers.Layer.OSM("OpenStreet Map");
+            map.addLayer(OSM_layer);
+
+            var volunteer = new OpenLayers.Layer.Vector("Volunteers", {styleMap: point_style});
+            var volunteerCircle = new OpenLayers.Layer.Vector("Volunteer Area of Availability");
+
+            var volunteeraddress = {{ volunteeraddress | safe}};
+            var LostPersonName = {{ LostPersonName | safe }};
+
+
+            Points = [];
+            Circles = [];
+            for (var each in volunteeraddress) {
+                var radius = (volunteeraddress[each][2]) * 1000;
+                var point = new OpenLayers.Geometry.Point(volunteeraddress[each][1], volunteeraddress[each][0]).transform('EPSG:4326', 'EPSG:3857');
+                var sunpoly = OpenLayers.Geometry.Polygon.createRegularPolygon(
+                    point,
+                    radius,
+                    36,
+                    0
+                );
+
+                var pointFeature = new OpenLayers.Feature.Vector(point, null, null);
+                Points.push(pointFeature);
+                var suncircle = new OpenLayers.Feature.Vector(sunpoly, null, null);
+                Circles.push(suncircle);
+            }
+
+            var m = new OpenLayers.Style({
+                'strokeColor': "red",
+                'pointRadius': 4,
+                'strokeWidth': "${strokeWidth}",
+                'fillColor': "${color}",
+                'fillOpacity': "${highlight}",
+                'label': "${label}",
+                'fontColor': "white",
+                'fontSize': "12px",
+                'fontFamily': "Courier New, monospace",
+                'fontWeight': "bold",
+                'labelAlign': "cm",
+                'strokeDashstyle': "${dash}",
+                'labelOutlineColor': "black",
+                'labelOutlineWidth': 3,
+                'labelXOffset': "${xOffset}",
+                'labelYOffset': "${yOffset}"
+            });
+
+            var path_style = new OpenLayers.StyleMap(m);
+            var MissingLayer = new OpenLayers.Layer.Vector('Missing Client Locations', {styleMap: path_style});
+            map.addLayer(MissingLayer);
+            layers.push(MissingLayer);
+
+            for (each in LostPersonName) {
+
+                var name = LostPersonName[each];
+
+                $.ajax({
+                    type: "GET",
+                    url: "/get-lost-path",
+                    data: name,
+                    async: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        show_missing(MissingLayer, response);
                     }
-                    layer.addFeatures([geom]);
-                    layer.drawFeature(geom);
-                    seen_ids.push(place.id);
+                });
+            }
+
+            var s = new OpenLayers.Style({
+                'strokeColor': "blue",
+                'pointRadius': 4,
+                'strokeWidth': "${strokeWidth}",
+                'fillColor': "${color}",
+                'fillOpacity': "${highlight}",
+                'label': "${label}",
+                'fontColor': "white",
+                'fontSize': "12px",
+                'fontFamily': "Courier New, monospace",
+                'fontWeight': "bold",
+                'labelAlign': "cm",
+                'strokeDashstyle': "${dash}",
+                'labelOutlineColor': "black",
+                'labelOutlineWidth': 3,
+                'labelXOffset': "${xOffset}",
+                'labelYOffset': "${yOffset}"
+            });
+
+            var path_style2 = new OpenLayers.StyleMap(s);
+            var MissingLayer2 = new OpenLayers.Layer.Vector('Seen Client Locations', {styleMap: path_style2});
+            map.addLayer(MissingLayer2);
+            layers.push(MissingLayer2);
+
+            for (each in LostPersonName) {
+
+                var name = LostPersonName[each];
+
+                $.ajax({
+                    type: "GET",
+                    url: "/getPath/",
+                    data: name,
+                    async: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        show_seen(MissingLayer2, response);
+                    }
+
+                });
+            }
+
+            var f = new OpenLayers.Style({
+                'strokeColor': "green",
+                'pointRadius': 4,
+                'strokeWidth': "${strokeWidth}",
+                'fillColor': "${color}",
+                'fillOpacity': "${highlight}",
+                'label': "${label}",
+                'fontColor': "white",
+                'fontSize': "12px",
+                'fontFamily': "Courier New, monospace",
+                'fontWeight': "bold",
+                'labelAlign': "cm",
+                'strokeDashstyle': "${dash}",
+                'labelOutlineColor': "black",
+                'labelOutlineWidth': 3,
+                'labelXOffset': "${xOffset}",
+                'labelYOffset': "${yOffset}"
+            });
+
+            var path_style3 = new OpenLayers.StyleMap(f);
+            var MissingLayer3 = new OpenLayers.Layer.Vector('Found Client Locations', {styleMap: path_style3});
+            map.addLayer(MissingLayer3);
+            layers.push(MissingLayer3);
+
+            for (each in LostPersonName) {
+
+                var name = LostPersonName[each];
+
+                $.ajax({
+                    type: "GET",
+                    url: "/get-found-path/",
+                    data: name,
+                    async: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        show_seen(MissingLayer3, response);
+                    }
+
+                });
+            }
+
+            var position = new OpenLayers.LonLat(Edmonton_LonLat[0], Edmonton_LonLat[1])
+            var zoom = 12;
+
+            var size = new OpenLayers.Size(21, 25);
+            var offset = new OpenLayers.Pixel(-(size.w / 2), -size.h);
+
+            var icon = new OpenLayers.Icon("http://pluspng.com/img-png/png-location-file-location-icon-png-287.png", size, offset);
+
+            map.setCenter(position, zoom);
+
+            selectFeature = new OpenLayers.Control.SelectFeature(
+                layers,
+                {
+                    onSelect: clickNotice,
+                    click: true,
+                    autoActivate: true,
+                    multiple: true
                 }
-            }
+            );
 
-            if (shape_type == 'POINT') {
-                layer.addFeatures([geom]);
-                layer.drawFeature(geom);
-                var coords = place.feature.replace(/[`~!@#$%^&*()_|+\=?;:'",<>\{\}\[\]\\\/]/gi, '').split(' ');
-                var path_pnt = new OpenLayers.Geometry.Point(coords[1], coords[2]);
+            map.addControl(selectFeature);
+            selectFeature.activate();
 
+            volunteer.addFeatures(Points);
+            volunteerCircle.addFeatures(Circles);
 
-                // if at last point in journey update last exit
-                if (place.act_type == 'exit place') {
-                    last_exit = path_pnt;
+            map.addLayers([volunteer, volunteerCircle]);
+            map.addControl(new OpenLayers.Control.LayerSwitcher());
+            map.addControl(new OpenLayers.Control.Attribution());
 
-                } else {
-                    pointList.push(path_pnt);
-                }
-            }
-            // after two points
-
-            if (pointList.length > 1) {
-                line = new OpenLayers.Geometry.LineString(pointList);
-                var feature = new OpenLayers.Feature.Vector(line);
-                feature.attributes = {
-                    'label': '',
-                    'dash': "solid",
-                    'strokeWidth': 2,
-                };
-                last = pointList[1];
-                pointList = [];
-                pointList.push(last);
-
-                layer.addFeatures([feature]);
-                layer.drawFeature(feature);
-            }
-
-        });
-    });
-}
-
-var map, vectors, controls;
-
-
-function init() {
-
-    $("#slider").dateRangeSlider({
-        bounds: {
-            min: new Date(2012, 0, 1),
-            max: new Date(2018, 11, 31)
-        },
-        defaultValues:{
-             min: new Date(2015, 0, 1), //new Date(2016, 12, 25, 0, 0, 0),
-             max: new Date(2018, 0, 1)//new Date(2017, 02, 01, 0, 0, 0)
-         },
-         step:{
-             days: 1
-         }
-    });
-
-     $("#slider").bind("valuesChanged", function(e, data){
-
-        for (each in LostPersonName) {
-        var path_layer = map.getLayersByName(LostPersonName[each])[0];
-        while( map.popups.length ){
-            path_layer.removeAllFeatures();
         }
-        if (path_layer) {
-        window.map.removeLayer(path_layer);
-        }
-        var Personlayer = new OpenLayers.Layer.Vector(LostPersonName[each], { styleMap: path_style });
-        map.addLayer(Personlayer);
-        var name = LostPersonName[each];
-        formData.append('csrfmiddlewaretoken', "{{ csrf_token }}");
-        formData.append("name", name);
 
-        $.ajax({
-            type: "POST",
-            url: "/getPath/",
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function(response) {
-                show_vectors(Personlayer, response,data.values.min, data.values.max);
-            }
-        });
+    </script>
+{% endblock %}
 
-    }
-    });
+{% block content %}
 
-    // $("#slider").editRangeSlider({});
-    // var currDateMin = $("#slider").dateRangeSlider("values").min;
-    // var currDateMax = $("#slider").dateRangeSlider("values").max;
-    var pointStyle = {
-        strokeColor: '#0000ff',
-        fillColor: "#70a1ef",
-        strokeOpacity: 10,
-        strokeWidth: 2,
-        pointRadius: 3,
-    }
-
-    var point_style = new OpenLayers.StyleMap(pointStyle);
-    var circle_style = new OpenLayers.StyleMap(pointStyle);
-
-    var Edmonton_LonLat = [-12637731.108363, 7081028.6705168];
-    var a = location.href;
-    var b = a.substring(a.indexOf("?") + 1);
-    var locationData = b.substring(b.indexOf("=") + 1).split("&");
-    map = new OpenLayers.Map('map');
-    var OSM_layer = new OpenLayers.Layer.OSM("OpenStreet Map");
-    map.addLayer(OSM_layer);
-
-    var volunteer = new OpenLayers.Layer.Vector("Volunteer", { styleMap: point_style });
-    var volunteerCircle = new OpenLayers.Layer.Vector("VolunteerCircle(5km)");
-
-    var volunteeraddress = {{ volunteeraddress }};
-    var LostPersonName = {{ LostPersonName | safe }};
-
-    Points = []
-    Circles = []
-    for (each in volunteeraddress) {
-        var point = new OpenLayers.Geometry.Point(volunteeraddress[each][1], volunteeraddress[each][0]).transform('EPSG:4326', 'EPSG:3857');
-        var sunpoly = OpenLayers.Geometry.Polygon.createRegularPolygon(
-            point,
-            5000,
-            36,
-            0
-        );
-
-        var pointFeature = new OpenLayers.Feature.Vector(point, null, null);
-        Points.push(pointFeature);
-        var suncircle = new OpenLayers.Feature.Vector(sunpoly, null, null);
-        Circles.push(suncircle);
-    }
-
-    var formData = new FormData();
-
-    var s = new OpenLayers.Style({
-        'strokeColor': "green",
-        'pointRadius': 4,
-        'strokeWidth': "${strokeWidth}",
-        'fillColor': "${color}",
-        'fillOpacity': "${highlight}",
-        'label': "${label}",
-        'fontColor': "white",
-        'fontSize': "12px",
-        'fontFamily': "Courier New, monospace",
-        'fontWeight': "bold",
-        'labelAlign': "cm",
-        'strokeDashstyle': "${dash}",
-        'labelOutlineColor': "black",
-        'labelOutlineWidth': 3,
-        'labelXOffset': "${xOffset}",
-        'labelYOffset': "${yOffset}"
-    });
-
-    var path_style = new OpenLayers.StyleMap(s);
-
-    for (each in LostPersonName) {
-        var Personlayer = new OpenLayers.Layer.Vector(LostPersonName[each], { styleMap: path_style });
-        map.addLayer(Personlayer);
-        var name = LostPersonName[each];
-        formData.append('csrfmiddlewaretoken', "{{ csrf_token }}");
-        formData.append("name", name);
-
-        $.ajax({
-            type: "POST",
-            url: "/getPath/",
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function(response) {
-                show_vectors(Personlayer, response);
-            }
-        });
-
-    }
-   
-
-    volunteer.addFeatures(Points);
-    volunteerCircle.addFeatures(Circles);
-
-    var position = new OpenLayers.LonLat(Edmonton_LonLat[0], Edmonton_LonLat[1])
-    var zoom = 13;
-
-    var size = new OpenLayers.Size(21, 25);
-    var offset = new OpenLayers.Pixel(-(size.w / 2), -size.h);
-
-    var icon = new OpenLayers.Icon("http://pluspng.com/img-png/png-location-file-location-icon-png-287.png", size, offset);
-    //base layer
-    var markers = new OpenLayers.Layer.Markers("Markers");
-    markers.addMarker(new OpenLayers.Marker(position, icon));
-
-    map.setCenter(position, zoom);
-    map.addLayers([markers, volunteer, volunteerCircle]);
-    map.addControl(new OpenLayers.Control.LayerSwitcher());
-    map.addControl(new OpenLayers.Control.Attribution());
-}
-
-
-</script>
-{% endblock %} {% block content %}
-
-<body onload="init()">
-    <span style="font-size: 3vh;padding-left: 0.5%;">Map View for administrator</span>
-    <div id="map" class="smallmap"></div>
-    <div id="slider" style="margin-top: 40%">
+    <div id="mapContainer">
+        <div id="map"></div>
     </div>
-</body>
+    <div class="container-fluid" style="padding-left:45px; padding-right:45px">
+        <div id="slider" style="position:fixed"></div>
+    </div>
+
+
+
+    <script type="text/javascript" language="javascript">
+        window.onload = function () {
+            init();
+        };
+    </script>
+
 {% endblock %}

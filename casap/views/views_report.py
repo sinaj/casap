@@ -12,10 +12,19 @@ from django.contrib.gis.geos import Point
 
 from casap.forms.forms_report import LostPersonRecordForm, SightingRecordForm, FindRecordForm
 
+from casap.models import Vulnerable, LostPersonRecord, Volunteer, Activity, Location, VolunteerAvailability, \
+    LostActivity, FoundActivity
 
-from casap.models import Vulnerable, LostPersonRecord, Volunteer,Activity,Location,VolunteerAvailability
+from casap.utilities.utils import get_user_time, send_sms, get_standard_phone, SimpleMailHelper, send_tweet, shorten_url
 
-from casap.utilities.utils import get_user_time, send_sms, get_standard_phone,SimpleMailHelper
+
+def tweet_helper(name, link, flag):
+    link = shorten_url(link)
+    if flag == 1:
+        txt = "Missing Client {} has been report lost. For more details, visit {}".format(name, link)
+    else:
+        txt = "Missing Client {} has been reported recently seen. For more details, visit {}".format(name, link)
+    return txt
 
 
 def time_in_range(start, end, x):
@@ -24,6 +33,7 @@ def time_in_range(start, end, x):
         return start <= x <= end
     else:
         return start <= x or x <= end
+
 
 def lost_notification(notify_record, vol):
     if notify_record.description:
@@ -66,8 +76,20 @@ def report_lost_view(request):
             if vulnerable:
                 lost_record = form.save(request.user, vulnerable)
                 time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime("%H:%M")
+
+                lost_activity = LostActivity()
+                lost_activity.locLat = lost_record.address_lat
+                lost_activity.locLon = lost_record.address_lng
+                lost_activity.person_id = lost_record.vulnerable_id
+                lost_activity.time = lost_record.time
+                lost_activity.adminPoint = Point(float(lost_activity.locLon), float(lost_activity.locLat), srid=3857)
+                fence_loc = Location.objects.filter(fence__contains=lost_activity.adminPoint)
+                if fence_loc:
+                    lost_activity.location = fence_loc[0]
+                lost_activity.save()
                 flag = 1
                 notify_volunteers(lost_record, time_seen, flag)
+                send_tweet(tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(), flag))
                 success_msg = "Success! %s has been reported lost." % vulnerable.full_name
                 add_message(request, messages.SUCCESS, success_msg)
                 return HttpResponseRedirect(request.POST.get("next", reverse("index")))
@@ -80,7 +102,8 @@ def report_lost_view(request):
     profile = request.context['user_profile']
     request.context['form'] = form
     request.context['all_timezones'] = pytz.all_timezones
-    request.context['vulnerable_people'] = [dict(hash=vul.hash, name=vul.full_name) for vul in profile.vulnerable_people.all()]
+    request.context['vulnerable_people'] = [dict(hash=vul.hash, name=vul.full_name) for vul in
+                                            profile.vulnerable_people.all()]
     return render(request, "report/report_lost.html", request.context)
 
 
@@ -113,6 +136,7 @@ def report_sighting_view(request, hash):
             lost_record.state = "sighted"
             lost_record.save()
             notify_volunteers(sighting_record, time_seen, flag)
+            send_tweet(tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(), flag))
             add_message(request, messages.SUCCESS, "Thank you! Our records are updated.")
             success_msg = "Success! %s has been reported lost." % lost_record.vulnerable.full_name
             add_message(request, messages.SUCCESS, success_msg)
@@ -145,6 +169,7 @@ def notify_volunteers(notify_record, time_seen, flag):
         else:
             seen_notification(notify_record, vol)
 
+
 @login_required
 def report_found_view(request, hash):
     lost_record = LostPersonRecord.objects.filter(hash=hash).first()
@@ -156,9 +181,19 @@ def report_found_view(request, hash):
         form = FindRecordForm(request.POST)
         request.context['next'] = request.POST.get("next", reverse("index"))
         if form.is_valid():
-            form.save(request.user, lost_record)
+            v = form.save(request.user, lost_record)
             lost_record.state = "found"
             lost_record.save()
+            found_activity = FoundActivity()
+            found_activity.locLat = v.address_lat
+            found_activity.locLon = v.address_lng
+            found_activity.person_id = lost_record.vulnerable_id
+            found_activity.time = lost_record.time
+            found_activity.adminPoint = Point(float(found_activity.locLon), float(found_activity.locLat), srid=3857)
+            fence_loc = Location.objects.filter(fence__contains=found_activity.adminPoint)
+            if fence_loc:
+                found_activity.location = fence_loc[0]
+            found_activity.save()
             add_message(request, messages.SUCCESS, "Thank you! Our records are updated.")
             return HttpResponseRedirect(request.POST.get("next", reverse("index")))
     else:

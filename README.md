@@ -100,8 +100,6 @@ DATABASES = {
 ```
 $ pip install -r requirements.txt
 ```
-- If any of the requirements fail, download them via:
-``` pip2 install <module> ```
 
 7. **_Make database migrations and migrate to the database_** 
 ```
@@ -113,6 +111,7 @@ $ python manage.py migrate casap
 
 8. **_Load Open Street Maps location data for Alberta_**
 * Courtesy from **Falon Scheers**
+* Ask for the /OSMdataProcess folder
 * First read comments in and run file '/OSMdataProcess/getMapModelInfo.py' 
 * Then inspect the output file, '/OSMdataProcess/OSMmapModelInfo.txt' and note the desired layer numbers for buildings and POI
 * Then read comments, mend, and run the file 'Load.py' to store OSM locations into your local database    
@@ -122,14 +121,52 @@ $ python manage.py migrate casap
 ```
 $ python manage.py runserver
 ```
+
+## Production server
+The project is deployed on the RAC server:  [C-ASAP Server](http://162.246.156.196)
+
+### Production server pre-requisites
+
+In order to make any changes to the production server, ask[@olivaC](https://github.com/olivaC)for a **.pem** file for access to the server.
+
+### Making changes to the production website
+
+1. Ssh in the server:
+```
+ssh ubuntu@162.246.156.196
+```
+2. Activate the virtual environment:
+```
+source django-env/bin/activate
+```
+3. cd into the casap project
+```
+cd casap
+```
+4. pull changes into either the master/development branch (whichever is being used)
+```
+git pull origin development
+```
+5. Enter your github credentials
+6. If any static files were changed, you will need to serve these. 
+```
+./manage.py collectstatic
+```
+
+
 ## Built With
 
+* [Github](https://www.github.com) - Where the source code lives
 * [Django](https://www.djangoproject.com/download/) - The web framework used
 * [PostgreSQL](https://www.postgresql.org/) - Database
 * [OpenLayers](http://openlayers.org/) - Location based layers
 * [OpenStreetMap](https://www.openstreetmap.org) - Location finder
 * [Google Maps](https://www.google.ca/maps) - Location
 * [Twilio](https://www.twilio.com/) - SMS notifications
+* [Rapid Access Cloud](https://cloud.cybera.ca) - Cybera Server
+* [Nginx](https://www.nginx.com/) - Serve web pages on RAC server
+* [Twitter](https://www.twitter.com) - Tweets
+* [Bitly](https://bitly.com) - URL shortener
 
 ## Authors
 
