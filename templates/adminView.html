@@ -14,13 +14,9 @@
     <script type="text/javascript" src="/static/js/maps/seen.js"></script>
     <script type="text/javascript" src="/static/js/maps/found.js"></script>
     <script type="text/javascript">
-        var feature;
+
         var layers = [];
-        var geom;
-
-
-        var map, vectors, controls;
-
+        var map;
 
         function onPopupClose(feat) {
             map.removePopup(feat.popup);
@@ -28,34 +24,25 @@
 
         }
 
-        function getRandomColor() {
-            var letters = '0123456789ABCDEF';
-            var color = '#';
-            for (var i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-
         function clickNotice(feat) {
-            var lonlat = map.getLonLatFromViewPortPx(feat.xy);
             var poplon = feat.geometry.bounds.right - (feat.geometry.bounds.right - feat.geometry.bounds.left) / 2;
             var poplat = feat.geometry.bounds.top - (feat.geometry.bounds.top - feat.geometry.bounds.bottom) / 2;
-            var time = new Date(feat.attributes.time).toLocaleString();
-
+            var time = moment(feat.attributes.time).toDate();
             var point = new OpenLayers.LonLat(poplon, poplat).transform('EPSG:3857', 'EPSG:4326');
+
             fetch('http://nominatim.openstreetmap.org/reverse?format=json&lon=' + point["lon"] + '&lat=' + point["lat"]).then(function (response) {
                 return response.json();
             }).then(function (json) {
                 var name = feat.attributes.owner.split("[")[0];
-                var message = "<center><b>" + name + "</b></center>" + "<center>" + "<div><b>Location:</b>" + json.display_name + "</div>" + "</center>" + "<center><b>Time:</b>" + time + "</center>"
+                var message = "<center><b>" + name + "</b></center>" + "<center>" + "<div><b>Location: </b>" + json.display_name +"</div>" + "</center>" + "<center><b>Time: </b>" + time + "</center>"
 
                 var popup = new OpenLayers.Popup.FramedCloud("popup", new OpenLayers.LonLat(poplon, poplat), new OpenLayers.Size(50, 100), message, null, true, function () {
                     onPopupClose(feat);
                 });
-                popup.maxSize = new OpenLayers.Size(300, 150);
+                popup.maxSize = new OpenLayers.Size(300, 300);
                 popup.minSize = new OpenLayers.Size(50, 50);
                 feat.popup = popup;
+                popup.panMapIfOutOfView = true;
                 map.addPopup(popup);
             })
         }
@@ -142,16 +129,13 @@
                 fillColor: "#70a1ef",
                 strokeOpacity: 10,
                 strokeWidth: 2,
-                pointRadius: 3,
+                pointRadius: 3
             };
 
             var point_style = new OpenLayers.StyleMap(pointStyle);
-            var circle_style = new OpenLayers.StyleMap(pointStyle);
 
-            var Edmonton_LonLat = [-12695999.604179, 6631346.342173];
-            var a = location.href;
-            var b = a.substring(a.indexOf("?") + 1);
-            var locationData = b.substring(b.indexOf("=") + 1).split("&");
+            var Calgary_LonLat = [-12695999.604179, 6631346.342173];
+
             map = new OpenLayers.Map('map');
             var OSM_layer = new OpenLayers.Layer.OSM("OpenStreet Map");
             map.addLayer(OSM_layer);
@@ -163,8 +147,8 @@
             var LostPersonName = {{ LostPersonName | safe }};
 
 
-            Points = [];
-            Circles = [];
+            var Points = [];
+            var Circles = [];
             for (var each in volunteeraddress) {
                 var radius = (volunteeraddress[each][2]) * 1000;
                 var point = new OpenLayers.Geometry.Point(volunteeraddress[each][1], volunteeraddress[each][0]).transform('EPSG:4326', 'EPSG:3857');
@@ -201,7 +185,7 @@
             });
 
             var path_style = new OpenLayers.StyleMap(m);
-            var MissingLayer = new OpenLayers.Layer.Vector('Missing Client Locations', {styleMap: path_style});
+            var MissingLayer = new OpenLayers.Layer.Vector('Missing Client Locations (Red)', {styleMap: path_style});
             map.addLayer(MissingLayer);
             layers.push(MissingLayer);
 
@@ -242,7 +226,7 @@
             });
 
             var path_style2 = new OpenLayers.StyleMap(s);
-            var MissingLayer2 = new OpenLayers.Layer.Vector('Seen Client Locations', {styleMap: path_style2});
+            var MissingLayer2 = new OpenLayers.Layer.Vector('Seen Client Locations (Blue)', {styleMap: path_style2});
             map.addLayer(MissingLayer2);
             layers.push(MissingLayer2);
 
@@ -284,7 +268,7 @@
             });
 
             var path_style3 = new OpenLayers.StyleMap(f);
-            var MissingLayer3 = new OpenLayers.Layer.Vector('Found Client Locations', {styleMap: path_style3});
+            var MissingLayer3 = new OpenLayers.Layer.Vector('Found Client Locations (Green)', {styleMap: path_style3});
             map.addLayer(MissingLayer3);
             layers.push(MissingLayer3);
 
@@ -306,13 +290,8 @@
                 });
             }
 
-            var position = new OpenLayers.LonLat(Edmonton_LonLat[0], Edmonton_LonLat[1])
-            var zoom = 12;
-
-            var size = new OpenLayers.Size(21, 25);
-            var offset = new OpenLayers.Pixel(-(size.w / 2), -size.h);
-
-            var icon = new OpenLayers.Icon("http://pluspng.com/img-png/png-location-file-location-icon-png-287.png", size, offset);
+            var position = new OpenLayers.LonLat(Calgary_LonLat[0], Calgary_LonLat[1]);
+            var zoom = 10;
 
             map.setCenter(position, zoom);
 
@@ -349,8 +328,6 @@
     <div class="container-fluid" style="padding-left:45px; padding-right:45px">
         <div id="slider" style="position:fixed"></div>
     </div>
-
-
 
     <script type="text/javascript" language="javascript">
         window.onload = function () {
