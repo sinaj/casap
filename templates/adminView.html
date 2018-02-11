@@ -50,15 +50,17 @@
         function init() {
 
             layers = [];
+            var now = new Date();
+            var now_utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),  now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
 
             $("#slider").dateRangeSlider({
                 bounds: {
                     min: new Date(2017, 0, 1),
-                    max: new Date()
+                    max: now_utc
                 },
                 defaultValues: {
                     min: new Date(2017, 0, 1),
-                    max: new Date()
+                    max: now_utc
                 },
                 step: {
                     days: 1
