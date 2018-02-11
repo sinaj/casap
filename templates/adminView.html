@@ -16,7 +16,6 @@
     <script type="text/javascript" src="/static/js/maps/seen.js"></script>
     <script type="text/javascript" src="/static/js/maps/found.js"></script>
     <script type="text/javascript">
-
         var layers = [];
         var map;
 
@@ -36,7 +35,7 @@
                 return response.json();
             }).then(function (json) {
                 var name = feat.attributes.owner.split("[")[0];
-                var message = "<center><b>" + name + "</b></center>" + "<center>" + "<div><b>Location: </b>" + json.display_name +"</div>" + "</center>" + "<center><b>Time: </b>" + time + "</center>"
+                var message = "<center><b>" + name + "</b></center>" + "<center>" + "<div><b>Location: </b>" + json.display_name + "</div>" + "</center>" + "<center><b>Time: </b>" + time + "</center>"
 
                 var popup = new OpenLayers.Popup.FramedCloud("popup", new OpenLayers.LonLat(poplon, poplat), new OpenLayers.Size(50, 100), message, null, true, function () {
                     onPopupClose(feat);
@@ -53,7 +52,7 @@
 
             layers = [];
             var now = new Date();
-            var now_utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),  now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
+            var now_utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
 
             $("#slider").dateRangeSlider({
                 bounds: {
@@ -70,13 +69,16 @@
             });
 
             $("#slider").bind("valuesChanged", function (e, data) {
-                layers = [];
+                var mLayers = map.layers;
+                var layer = mLayers[1];
+                var layer2 = mLayers[2];
+                var layer3 = mLayers[3];
+
+                layer.removeAllFeatures();
+                layer2.removeAllFeatures();
+                layer3.removeAllFeatures();
 
                 for (each in LostPersonName) {
-                    var mLayers = map.layers;
-                    var layer = mLayers[1];
-                    var layer2 = mLayers[2];
-                    var layer3 = mLayers[3];
 
                     while (map.popups.length) {
                         map.removePopup(map.popups[0]);
@@ -84,9 +86,6 @@
 
                     selectFeature.unselectAll();
 
-                    layer.removeAllFeatures();
-                    layer2.removeAllFeatures();
-                    layer3.removeAllFeatures();
 
                     var name = LostPersonName[each];
 
@@ -288,7 +287,7 @@
                     contentType: false,
                     processData: false,
                     success: function (response) {
-                        show_seen(MissingLayer3, response);
+                        show_found(MissingLayer3, response);
                     }
 
                 });
