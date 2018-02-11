@@ -93,6 +93,8 @@ def get_standard_phone(raw_phone, ignore_error=None):
 
 def get_address_map_google(address):
     try:
+        address.replace(",", "")
+        address.replace("'", "")
         endpoint = 'https://maps.googleapis.com/maps/api/geocode/json'
         resp = requests.get(endpoint, params=dict(address=address))
 
@@ -121,6 +123,8 @@ def get_address_map_google(address):
 
 def get_address_map_open_street(address):
     try:
+        address.replace(",", "")
+        address.replace("'", "")
         geocode_url = "http://nominatim.openstreetmap.org/search/%s/" % address
         req = requests.get(geocode_url, params=dict(format="json", addressdetails=1, limit=1, ))
         response_json = req.json()

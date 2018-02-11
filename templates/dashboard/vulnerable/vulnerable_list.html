@@ -57,7 +57,7 @@
                                             <a class="dropdown-item" href="{% url "vulnerable_edit" hash=vul.hash %}">Edit</a>
                                             <span class="dropdown-item">
                                                 <form action="{% url "vulnerable_delete" hash=vul.hash %}" method="post"
-                                                      class="d-inline">
+                                                      class="d-inline" onsubmit="return confirm('Delete vulnerable client?')">
                                             {% csrf_token %}
                                             <input type="hidden" name="hash" value="{{ vul.hash }}">
                                             <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>

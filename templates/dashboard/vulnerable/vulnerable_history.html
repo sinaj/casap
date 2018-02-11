@@ -14,13 +14,9 @@
     <script type="text/javascript" src="/static/js/maps/seen.js"></script>
     <script type="text/javascript" src="/static/js/maps/found.js"></script>
     <script type="text/javascript">
-        var feature;
+
         var layers = [];
-        var geom;
-
-
-        var map, vectors, controls;
-
+        var map;
 
         function onPopupClose(feat) {
             map.removePopup(feat.popup);
@@ -28,17 +24,7 @@
 
         }
 
-        function getRandomColor() {
-            var letters = '0123456789ABCDEF';
-            var color = '#';
-            for (var i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-
         function clickNotice(feat) {
-            var lonlat = map.getLonLatFromViewPortPx(feat.xy);
             var poplon = feat.geometry.bounds.right - (feat.geometry.bounds.right - feat.geometry.bounds.left) / 2;
             var poplat = feat.geometry.bounds.top - (feat.geometry.bounds.top - feat.geometry.bounds.bottom) / 2;
             var time = new Date(feat.attributes.time).toLocaleString();
@@ -53,8 +39,9 @@
                 var popup = new OpenLayers.Popup.FramedCloud("popup", new OpenLayers.LonLat(poplon, poplat), new OpenLayers.Size(50, 100), message, null, true, function () {
                     onPopupClose(feat);
                 });
-                popup.maxSize = new OpenLayers.Size(300, 150);
+                popup.maxSize = new OpenLayers.Size(300, 300);
                 popup.minSize = new OpenLayers.Size(50, 50);
+                popup.panMapIfOutOfView = true;
                 feat.popup = popup;
                 map.addPopup(popup);
             })
@@ -63,15 +50,17 @@
         function init() {
 
             layers = [];
+            var now = new Date();
+            var now_utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
 
             $("#slider").dateRangeSlider({
                 bounds: {
                     min: new Date(2017, 0, 1),
-                    max: new Date()
+                    max: now_utc
                 },
                 defaultValues: {
                     min: new Date(2017, 0, 1),
-                    max: new Date()
+                    max: now_utc
                 },
                 step: {
                     days: 1
@@ -146,12 +135,7 @@
             };
 
             var point_style = new OpenLayers.StyleMap(pointStyle);
-            var circle_style = new OpenLayers.StyleMap(pointStyle);
-
-            var Edmonton_LonLat = [-12695999.604179, 6631346.342173];
-            var a = location.href;
-            var b = a.substring(a.indexOf("?") + 1);
-            var locationData = b.substring(b.indexOf("=") + 1).split("&");
+            var Calgary_LonLat = [-12695999.604179, 6631346.342173];
             map = new OpenLayers.Map('map');
             var OSM_layer = new OpenLayers.Layer.OSM("OpenStreet Map");
             map.addLayer(OSM_layer);
@@ -286,14 +270,8 @@
                 });
             }
 
-            var position = new OpenLayers.LonLat(Edmonton_LonLat[0], Edmonton_LonLat[1])
-            var zoom = 12;
-
-            var size = new OpenLayers.Size(21, 25);
-            var offset = new OpenLayers.Pixel(-(size.w / 2), -size.h);
-
-            var icon = new OpenLayers.Icon("http://pluspng.com/img-png/png-location-file-location-icon-png-287.png", size, offset);
-
+            var position = new OpenLayers.LonLat(Calgary_LonLat[0], Calgary_LonLat[1])
+            var zoom = 10;
             map.setCenter(position, zoom);
 
             selectFeature = new OpenLayers.Control.SelectFeature(
@@ -308,7 +286,7 @@
 
             map.addControl(selectFeature);
             selectFeature.activate();
-            
+
             map.addLayers([volunteer, volunteerCircle]);
             map.addControl(new OpenLayers.Control.LayerSwitcher());
             map.addControl(new OpenLayers.Control.Attribution());
@@ -319,28 +297,12 @@
 {% endblock %}
 
 {% block content %}
-    <style>
-        #mapContainer {
-            width: 100%;
-            height: 500px;
-
-        }
-
-        #map {
-            width: 100%;
-            height: 100%;;
-        }
-    </style>
-
     <div id="mapContainer">
         <div id="map"></div>
     </div>
     <div class="container-fluid" style="padding-left:45px; padding-right:45px">
         <div id="slider" style="position:fixed"></div>
     </div>
-
-
-
     <script type="text/javascript" language="javascript">
         window.onload = function () {
             init();

@@ -18,12 +18,17 @@ from casap.models import Vulnerable, LostPersonRecord, Volunteer, Activity, Loca
 from casap.utilities.utils import get_user_time, send_sms, get_standard_phone, SimpleMailHelper, send_tweet, shorten_url
 
 
-def tweet_helper(name, link, flag):
+def tweet_helper(name, link, flag, time):
     link = shorten_url(link)
     if flag == 1:
-        txt = "Missing Client {} has been report lost. For more details, visit {}".format(name, link)
+        txt = "{} has been reported LOST at {}. For more details, visit {}".format(name,
+                                                                                   time.time().strftime(
+                                                                                       '%H:%M'), link)
     else:
-        txt = "Missing Client {} has been reported recently seen. For more details, visit {}".format(name, link)
+        txt = "{} has been reported SEEN at {}. For more details, visit {}".format(name,
+                                                                                   time.time().strftime(
+                                                                                       '%H:%M'),
+                                                                                   link)
     return txt
 
 
@@ -89,7 +94,8 @@ def report_lost_view(request):
                 lost_activity.save()
                 flag = 1
                 notify_volunteers(lost_record, time_seen, flag)
-                send_tweet(tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(), flag))
+                send_tweet(
+                    tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(), flag, lost_record.time))
                 success_msg = "Success! %s has been reported lost." % vulnerable.full_name
                 add_message(request, messages.SUCCESS, success_msg)
                 return HttpResponseRedirect(request.POST.get("next", reverse("index")))
@@ -136,9 +142,9 @@ def report_sighting_view(request, hash):
             lost_record.state = "sighted"
             lost_record.save()
             notify_volunteers(sighting_record, time_seen, flag)
-            send_tweet(tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(), flag))
-            add_message(request, messages.SUCCESS, "Thank you! Our records are updated.")
-            success_msg = "Success! %s has been reported lost." % lost_record.vulnerable.full_name
+            send_tweet(
+                tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(), flag, sighting_record.time))
+            success_msg = "Success! %s has been reported seen." % lost_record.vulnerable.full_name
             add_message(request, messages.SUCCESS, success_msg)
             return HttpResponseRedirect(request.POST.get("next", reverse("index")))
 
