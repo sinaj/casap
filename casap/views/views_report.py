@@ -19,6 +19,7 @@ from casap.utilities.utils import get_user_time, send_sms, get_standard_phone, S
 
 
 def tweet_helper(name, link, flag, time):
+    link = "http://{}".format(link)
     link = shorten_url(link)
     if flag == 1:
         txt = "{} has been reported LOST at {}. For more details, visit {}".format(name,
@@ -146,7 +147,7 @@ def report_sighting_view(request, hash):
                 tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(), flag, sighting_record.time))
             success_msg = "Success! %s has been reported seen." % lost_record.vulnerable.full_name
             add_message(request, messages.SUCCESS, success_msg)
-            return HttpResponseRedirect(request.POST.get("next", reverse("index")))
+            return HttpResponseRedirect(reverse('index'))
 
     else:
         form = SightingRecordForm(initial=dict(time=get_user_time(request)))
