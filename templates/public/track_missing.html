@@ -51,16 +51,6 @@
                                 {% endif %}
                             </div>
                         {% endfor %}
-                        {% if record.find_records %}
-                            {% with record.find_records.last as found_record %}
-                                <div class="list-group-item list-group-item-success">
-                                    <div class="container-fluid p-0 clearfix">
-                                        Reported found at: <span class="float-right text-dark">{{ found_record.time|timezone:user_tz_name|time }}</span>
-                                    </div>
-                                    {{ record.address }}
-                                </div>
-                            {% endwith %}
-                        {% endif %}
                     </div>
                     {% if record.state != "found" %}
                         <div class="card-footer clearfix">

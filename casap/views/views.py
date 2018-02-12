@@ -39,8 +39,7 @@ def index(request):
 
 
 def track_missing_view(request, hash):
-    sighting_record = SightingRecord.objects.filter(hash=hash).first()
-    lost_record = sighting_record.lost_record
+    lost_record = LostPersonRecord.objects.filter(hash=hash).first()
     if not lost_record:
         add_message(request, messages.WARNING, "Record not found")
         return HttpResponseRedirect(reverse("index"))
