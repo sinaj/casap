@@ -18,11 +18,11 @@
                             <div class="media-body">
                                 <h5 class="mt-0 d-inline">{{ vulnerable.full_name }}</h5>
                                 {% if record.state == "reported" %}
-                                    <span class="badge badge-danger float-right">{{ record.get_state_display }}</span>
+                                    <span class="badge badge-danger float-right">Missing</span>
                                 {% elif record.state == "sighted" %}
-                                    <span class="badge badge-warning float-right">{{ record.get_state_display }}</span>
+                                    <span class="badge badge-warning float-right">Seen</span>
                                 {% else %}
-                                    <span class="badge badge-success float-right">{{ record.get_state_display }}</span>
+                                    <span class="badge badge-success float-right">Found</span>
                                 {% endif %}
                                 <div class="container-fluid p-0">
                                     {{ vulnerable.description }}
