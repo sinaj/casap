@@ -6,7 +6,7 @@
 
     <div class="container p-0">
         <div class="row justify-content-center">
-            <div class="col-sm-8 col-md-6 col-lg-4">
+            <div class="col-sm-12 col-md-8 col-lg-12">
 
                 <div class="card">
                     <div class="card-body">
@@ -17,11 +17,13 @@
                         <form action="" method="post">
                             {% csrf_token %}
                             <div class="form-group">
-                                <label for="id_vulnerable">Select vulnerable person <span class="text-danger">*</span></label>
+                                <label for="id_vulnerable">Select vulnerable person <span
+                                        class="text-danger">*</span></label>
                                 <select id="id_vulnerable" name="vulnerable" class="form-control" required>
                                     <option selected disabled></option>
                                     {% for vul in vulnerable_people %}
-                                        <option value="{{ vul.hash }}" {% if form.vulnerable.value == vul.hash %}selected{% endif %}>{{ vul.name }}</option>
+                                        <option value="{{ vul.hash }}"
+                                                {% if form.vulnerable.value == vul.hash %}selected{% endif %}>{{ vul.name }}</option>
                                     {% endfor %}
                                 </select>
                                 <small class="form-text text-muted">
@@ -40,7 +42,8 @@
                                 <label for="id_tz_name">Timezone <span class="text-danger">*</span></label>
                                 <select id="id_tz_name" name="tz_name" class="form-control" required>
                                     {% for tz in all_timezones %}
-                                        <option value="{{ tz }}" {% if user_tz_name == tz %}selected{% endif %}>{{ tz }}</option>
+                                        <option value="{{ tz }}"
+                                                {% if user_tz_name == tz %}selected{% endif %}>{{ tz }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -50,7 +53,11 @@
                                        value="{{ form.address.value|default:"" }}" required>
                             </div>
                             <div class="form-group">
-                                <label for="id_description">Description</label>
+                                <label for="id_description">Description
+                                    <i class="fa fa-info-circle" data-toggle="popover" title="Optional Description"
+                                       data-content="Any description or notes about this missing client can be added.
+                                       For example: 'Wearing a black coat, walking with a brown cane, whistling to himself'."></i>
+                                </label>
                                 <textarea id="id_description" class="form-control"
                                           name="description">{{ form.description.value|default:"" }}</textarea>
                             </div>
@@ -69,5 +76,12 @@
 
             </div>
         </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="popover"]').popover({});
+        });
+    </script>
 
 {% endblock %}

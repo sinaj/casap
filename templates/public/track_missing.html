@@ -19,11 +19,11 @@
                             <div class="media-body">
                                 <h5 class="mt-0 d-inline">{{ vulnerable.full_name }}</h5>
                                 {% if record.state == "reported" %}
-                                    <span class="badge badge-danger float-right">{{ record.get_state_display }}</span>
+                                    <span class="badge badge-danger float-right">Missing</span>
                                 {% elif record.state == "sighted" %}
-                                    <span class="badge badge-warning float-right">{{ record.get_state_display }}</span>
+                                    <span class="badge badge-warning float-right">Seen</span>
                                 {% else %}
-                                    <span class="badge badge-success float-right">{{ record.get_state_display }}</span>
+                                    <span class="badge badge-success float-right">Found</span>
                                 {% endif %}
                                 <div class="container-fluid p-0">
                                     {{ vulnerable.description }}
@@ -51,16 +51,6 @@
                                 {% endif %}
                             </div>
                         {% endfor %}
-                        {% if record.find_records %}
-                            {% with record.find_records.last as found_record %}
-                                <div class="list-group-item list-group-item-success">
-                                    <div class="container-fluid p-0 clearfix">
-                                        Reported found at: <span class="float-right text-dark">{{ found_record.time|timezone:user_tz_name|time }}</span>
-                                    </div>
-                                    {{ record.address }}
-                                </div>
-                            {% endwith %}
-                        {% endif %}
                     </div>
                     {% if record.state != "found" %}
                         <div class="card-footer clearfix">

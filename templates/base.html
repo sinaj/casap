@@ -14,30 +14,37 @@
     <meta name="theme-color" content="#e812b9"/>
     <meta name="msapplication-navbutton-color" content="#e812b9">
     <meta name="apple-mobile-web-app-status-bar-style" content="#e812b9">
+    <meta http-equiv="cache-control" content="no-cache"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
 
     <link rel="alternate" hreflang="x-default" lang="en">
     {% block meta_description %}
     {% endblock %}
     {% block header_meta %}{% endblock %}
 
-    {#    <link rel="shortcut icon" href="{% static "media/favicon.png" %}"/>#}
-
     {% block header_css_other_origin %}{% endblock %}
     <link rel="stylesheet" href="{% static "css/plugins/bootstrap.min.css" %}"/>
     <link rel="stylesheet" href="{% static "css/plugins/font-awesome.min.css" %}"/>
     <link rel="stylesheet" href="{% static "css/base.css" %}"/>
+    <link rel="stylesheet" href="{% static "slick-1.8.0/slick/css/slick.css" %}"/>
+    <link rel="stylesheet" href="{% static "slick-1.8.0/slick/css/slick-theme.css" %}"/>
+
     {% block header_css %}{% endblock %}
 
 
-    {% block header_js_other_origin %}{% endblock %}
+    {% block header_js_other_origin %}
+        <script src="{% static "openlayers/OpenLayers.js" %}"></script>
+    {% endblock %}
     {% block import_jquery %}
         <script src="{% static "js/plugins/popper.min.js" %}"></script>
         <script src="{% static "js/plugins/jquery-3.2.1.min.js" %}"></script>
+
     {% endblock %}
     {% block import_bootsrap_js %}
         <script src="{% static "js/plugins/bootstrap.min.js" %}"></script>
     {% endblock %}
-    {% block header_js %}{% endblock %}
+    {% block header_js %}
+    {% endblock %}
 
 </head>
 
@@ -77,10 +84,15 @@
 {% block import_default_scripts %}
     <script type='text/javascript' src="{% static "js/plugins/jquery.cookie.js" %}"></script>
     <script src="{% static "js/base.js" %}"></script>
+    <script src="{% static "slick-1.8.0/slick/slick.min.js" %}"></script>
 {% endblock %}
 
-{% block scripts_other_origin %}{% endblock %}
-{% block scripts %}{% endblock %}
+{% block scripts_other_origin %}
+    <script src="{% static "js/public/index.js" %}"></script>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
 
 </body>
 </html>

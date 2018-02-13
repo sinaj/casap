@@ -1,0 +1,312 @@
+{% extends "base.html" %} {% load static %} {% block header_js %}
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Location</title>
+    <link rel="stylesheet" href="/static/css/iThing.css" type="text/css"/>
+    <link rel="stylesheet" type="text/css" href="/static/css/mapview.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-ui.js"></script>
+    <script type="text/javascript" src="/static/js/jQAllRangeSliders-min.js"></script>
+    <script type="text/javascript" src="/static/js/moment.min.js"></script>
+    <script type="text/javascript" src="/static/js/maps/missing.js"></script>
+    <script type="text/javascript" src="/static/js/maps/seen.js"></script>
+    <script type="text/javascript" src="/static/js/maps/found.js"></script>
+    <script type="text/javascript">
+
+        var layers = [];
+        var map;
+
+        function onPopupClose(feat) {
+            map.removePopup(feat.popup);
+            feat.popup.destroy();
+
+        }
+
+        function clickNotice(feat) {
+            var poplon = feat.geometry.bounds.right - (feat.geometry.bounds.right - feat.geometry.bounds.left) / 2;
+            var poplat = feat.geometry.bounds.top - (feat.geometry.bounds.top - feat.geometry.bounds.bottom) / 2;
+            var time = new Date(feat.attributes.time).toLocaleString();
+
+            var point = new OpenLayers.LonLat(poplon, poplat).transform('EPSG:3857', 'EPSG:4326');
+            fetch('http://nominatim.openstreetmap.org/reverse?format=json&lon=' + point["lon"] + '&lat=' + point["lat"]).then(function (response) {
+                return response.json();
+            }).then(function (json) {
+                var name = feat.attributes.owner.split("[")[0];
+                var message = "<center><b>" + name + "</b></center>" + "<center>" + "<div><b>Location:</b>" + json.display_name + "</div>" + "</center>" + "<center><b>Time:</b>" + time + "</center>"
+
+                var popup = new OpenLayers.Popup.FramedCloud("popup", new OpenLayers.LonLat(poplon, poplat), new OpenLayers.Size(50, 100), message, null, true, function () {
+                    onPopupClose(feat);
+                });
+                popup.maxSize = new OpenLayers.Size(300, 300);
+                popup.minSize = new OpenLayers.Size(50, 50);
+                popup.panMapIfOutOfView = true;
+                feat.popup = popup;
+                map.addPopup(popup);
+            })
+        }
+
+        function init() {
+
+            layers = [];
+            var now = new Date();
+            var now_utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
+
+            $("#slider").dateRangeSlider({
+                bounds: {
+                    min: new Date(2017, 0, 1),
+                    max: now_utc
+                },
+                defaultValues: {
+                    min: new Date(2017, 0, 1),
+                    max: now_utc
+                },
+                step: {
+                    days: 1
+                }
+            });
+
+            $("#slider").bind("valuesChanged", function (e, data) {
+                layers = [];
+
+                for (each in LostPersonName) {
+                    var mLayers = map.layers;
+                    var layer = mLayers[1];
+                    var layer2 = mLayers[2];
+                    var layer3 = mLayers[3];
+
+                    while (map.popups.length) {
+                        map.removePopup(map.popups[0]);
+                    }
+
+                    selectFeature.unselectAll();
+
+                    layer.removeAllFeatures();
+                    layer2.removeAllFeatures();
+                    layer3.removeAllFeatures();
+
+                    var name = LostPersonName[each];
+
+                    $.ajax({
+                        type: "GET",
+                        url: "/get-lost-path/",
+                        data: name,
+                        async: false,
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            show_missing(layer, response, data.values.min, data.values.max);
+                        }
+                    });
+
+                    $.ajax({
+                        type: "GET",
+                        url: "/getPath/",
+                        data: name,
+                        async: false,
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            show_seen(layer2, response, data.values.min, data.values.max);
+                        }
+                    });
+
+                    $.ajax({
+                        type: "GET",
+                        url: "/get-found-path/",
+                        data: name,
+                        async: false,
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            show_found(layer3, response, data.values.min, data.values.max);
+                        }
+                    });
+                }
+            });
+
+            var pointStyle = {
+                strokeColor: '#f700ff',
+                fillColor: "#70a1ef",
+                strokeOpacity: 10,
+                strokeWidth: 2,
+                pointRadius: 3,
+            };
+
+            var point_style = new OpenLayers.StyleMap(pointStyle);
+            var Calgary_LonLat = [-12695999.604179, 6631346.342173];
+            map = new OpenLayers.Map('map');
+            var OSM_layer = new OpenLayers.Layer.OSM("OpenStreet Map");
+            map.addLayer(OSM_layer);
+
+            var volunteer = new OpenLayers.Layer.Vector("Volunteers", {styleMap: point_style});
+            var volunteerCircle = new OpenLayers.Layer.Vector("Volunteer Area of Availability");
+
+            var LostPersonName = {{ LostPersonName | safe }};
+
+            var m = new OpenLayers.Style({
+                'strokeColor': "red",
+                'pointRadius': 4,
+                'strokeWidth': "${strokeWidth}",
+                'fillColor': "${color}",
+                'fillOpacity': "${highlight}",
+                'label': "${label}",
+                'fontColor': "white",
+                'fontSize': "12px",
+                'fontFamily': "Courier New, monospace",
+                'fontWeight': "bold",
+                'labelAlign': "cm",
+                'strokeDashstyle': "${dash}",
+                'labelOutlineColor': "black",
+                'labelOutlineWidth': 3,
+                'labelXOffset': "${xOffset}",
+                'labelYOffset': "${yOffset}"
+            });
+
+            var path_style = new OpenLayers.StyleMap(m);
+            var MissingLayer = new OpenLayers.Layer.Vector('Missing Client Locations', {styleMap: path_style});
+            map.addLayer(MissingLayer);
+            layers.push(MissingLayer);
+
+            for (each in LostPersonName) {
+
+                var name = LostPersonName[each];
+
+                $.ajax({
+                    type: "GET",
+                    url: "/get-lost-path",
+                    data: name,
+                    async: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        show_missing(MissingLayer, response);
+                    }
+                });
+            }
+
+            var s = new OpenLayers.Style({
+                'strokeColor': "blue",
+                'pointRadius': 4,
+                'strokeWidth': "${strokeWidth}",
+                'fillColor': "${color}",
+                'fillOpacity': "${highlight}",
+                'label': "${label}",
+                'fontColor': "white",
+                'fontSize': "12px",
+                'fontFamily': "Courier New, monospace",
+                'fontWeight': "bold",
+                'labelAlign': "cm",
+                'strokeDashstyle': "${dash}",
+                'labelOutlineColor': "black",
+                'labelOutlineWidth': 3,
+                'labelXOffset': "${xOffset}",
+                'labelYOffset': "${yOffset}"
+            });
+
+            var path_style2 = new OpenLayers.StyleMap(s);
+            var MissingLayer2 = new OpenLayers.Layer.Vector('Seen Client Locations', {styleMap: path_style2});
+            map.addLayer(MissingLayer2);
+            layers.push(MissingLayer2);
+
+            for (each in LostPersonName) {
+
+                var name = LostPersonName[each];
+
+                $.ajax({
+                    type: "GET",
+                    url: "/getPath/",
+                    data: name,
+                    async: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        show_seen(MissingLayer2, response);
+                    }
+
+                });
+            }
+
+            var f = new OpenLayers.Style({
+                'strokeColor': "green",
+                'pointRadius': 4,
+                'strokeWidth': "${strokeWidth}",
+                'fillColor': "${color}",
+                'fillOpacity': "${highlight}",
+                'label': "${label}",
+                'fontColor': "white",
+                'fontSize': "12px",
+                'fontFamily': "Courier New, monospace",
+                'fontWeight': "bold",
+                'labelAlign': "cm",
+                'strokeDashstyle': "${dash}",
+                'labelOutlineColor': "black",
+                'labelOutlineWidth': 3,
+                'labelXOffset': "${xOffset}",
+                'labelYOffset': "${yOffset}"
+            });
+
+            var path_style3 = new OpenLayers.StyleMap(f);
+            var MissingLayer3 = new OpenLayers.Layer.Vector('Found Client Locations', {styleMap: path_style3});
+            map.addLayer(MissingLayer3);
+            layers.push(MissingLayer3);
+
+            for (each in LostPersonName) {
+
+                var name = LostPersonName[each];
+
+                $.ajax({
+                    type: "GET",
+                    url: "/get-found-path/",
+                    data: name,
+                    async: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        show_seen(MissingLayer3, response);
+                    }
+
+                });
+            }
+
+            var position = new OpenLayers.LonLat(Calgary_LonLat[0], Calgary_LonLat[1])
+            var zoom = 10;
+            map.setCenter(position, zoom);
+
+            selectFeature = new OpenLayers.Control.SelectFeature(
+                layers,
+                {
+                    onSelect: clickNotice,
+                    click: true,
+                    autoActivate: true,
+                    multiple: true
+                }
+            );
+
+            map.addControl(selectFeature);
+            selectFeature.activate();
+
+            map.addLayers([volunteer, volunteerCircle]);
+            map.addControl(new OpenLayers.Control.LayerSwitcher());
+            map.addControl(new OpenLayers.Control.Attribution());
+
+        }
+
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div id="mapContainer">
+        <div id="map"></div>
+    </div>
+    <div class="container-fluid" style="padding-left:45px; padding-right:45px">
+        <div id="slider" style="position:fixed"></div>
+    </div>
+    <script type="text/javascript" language="javascript">
+        window.onload = function () {
+            init();
+        };
+    </script>
+
+{% endblock %}
