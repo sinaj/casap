@@ -6,7 +6,7 @@
 
     <div class="container p-0">
         <div class="row justify-content-center">
-            <div class="col-sm-12 col-md-8 col-lg-12">
+            <div class="col-sm-8 col-md-12 col-lg-8">
 
                 <div class="card">
                     <div class="card-body">
@@ -14,52 +14,66 @@
                             Report a missing person
                         </h4>
                         <hr>
+
                         <form action="" method="post">
                             {% csrf_token %}
-                            <div class="form-group">
-                                <label for="id_vulnerable">Select vulnerable person <span
+                            <div class="form-group row">
+                                <label for="id_vulnerable" class="col-sm-4 col-form-label" id="first">Select vulnerable person
+                                    <span class="text-danger">*</span></label>
+                                <div class="col-sm-6">
+                                    <select id="id_vulnerable" name="vulnerable" class="form-control" required>
+                                        <option selected disabled></option>
+                                        {% for vul in vulnerable_people %}
+                                            <option value="{{ vul.hash }}"
+                                                    {% if form.vulnerable.value == vul.hash %}selected{% endif %}>{{ vul.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+{#                                <small class="form-text text-muted">#}
+{#                                    Cannot find the person? Create one by clicking#}
+{#                                    <a href="{% url "vulnerable_add" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">#}
+{#                                        here#}
+{#                                    </a>#}
+{#                                </small>#}
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_time" class="col-sm-4 col-form-label">Time <span
                                         class="text-danger">*</span></label>
-                                <select id="id_vulnerable" name="vulnerable" class="form-control" required>
-                                    <option selected disabled></option>
-                                    {% for vul in vulnerable_people %}
-                                        <option value="{{ vul.hash }}"
-                                                {% if form.vulnerable.value == vul.hash %}selected{% endif %}>{{ vul.name }}</option>
-                                    {% endfor %}
-                                </select>
-                                <small class="form-text text-muted">
-                                    Cannot find the person? Create one by clicking
-                                    <a href="{% url "vulnerable_add" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
-                                        here
-                                    </a>
-                                </small>
+                                <div class="col-sm-6">
+                                    <input id="id_time" name="time" class="form-control" required
+                                           value="{{ form.time.value|timezone:user_tz_name|date:"Y-m-d"|default:"" }} {{ form.time.value|timezone:user_tz_name|time:"H:i"|default:"" }}">
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="id_time">Time <span class="text-danger">*</span></label>
-                                <input id="id_time" name="time" class="form-control" required
-                                       value="{{ form.time.value|timezone:user_tz_name|date:"Y-m-d"|default:"" }} {{ form.time.value|timezone:user_tz_name|time:"H:i"|default:"" }}">
+                            <div class="form-group row">
+                                <label for="id_tz_name" class="col-sm-4 col-form-label">Timezone <span
+                                        class="text-danger">*</span></label>
+                                <div class="col-sm-6">
+                                    <select id="id_tz_name" name="tz_name" class="form-control" required>
+                                        {% for tz in all_timezones %}
+                                            <option value="{{ tz }}"
+                                                    {% if user_tz_name == tz %}selected{% endif %}>{{ tz }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="id_tz_name">Timezone <span class="text-danger">*</span></label>
-                                <select id="id_tz_name" name="tz_name" class="form-control" required>
-                                    {% for tz in all_timezones %}
-                                        <option value="{{ tz }}"
-                                                {% if user_tz_name == tz %}selected{% endif %}>{{ tz }}</option>
-                                    {% endfor %}
-                                </select>
+                            <div class="form-group row">
+                                <label for="id_address" class="col-sm-4 col-form-label">Address <span
+                                        class="text-danger">*</span></label>
+                                <div class="col-sm-6">
+                                    <input id="id_address" name="address" class="form-control"
+                                           value="{{ form.address.value|default:"" }}" required>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="id_address">Address <span class="text-danger">*</span></label>
-                                <input id="id_address" name="address" class="form-control"
-                                       value="{{ form.address.value|default:"" }}" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="id_description">Description
+                            <div class="form-group row">
+                                <label for="id_description" class="col-sm-4 col-form-label">Description
                                     <i class="fa fa-info-circle" data-toggle="popover" title="Optional Description"
                                        data-content="Any description or notes about this missing client can be added.
                                        For example: 'Wearing a black coat, walking with a brown cane, whistling to himself'."></i>
                                 </label>
+                                <div class="col-sm-6">
                                 <textarea id="id_description" class="form-control"
                                           name="description">{{ form.description.value|default:"" }}</textarea>
+                                </div>
                             </div>
                             <div class="form-group text-center clearfix">
                                 <input id="id_next" type="hidden" name="next" value="{{ next|default:"" }}">
