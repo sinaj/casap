@@ -6,7 +6,7 @@
 
     <div class="container p-0">
         <div class="row justify-content-center">
-            <div class="col-sm-12 col-md-8 col-lg-6">
+            <div class="col-sm-8 col-md-8 col-lg-8">
 
                 <div class="card">
                     <div class="card-body">
@@ -18,27 +18,32 @@
                             <img class="mr-3 w-50" src="{{ vulnerable.picture.url }}"
                                  alt="{{ vulnerable.full_name }}'s picture">
                             <div class="media-body">
-                                <h5 class="mt-0 d-inline">{{ vulnerable.full_name }}</h5>
+                                <h5><center>{{ vulnerable.full_name }}</center></h5>
                                 {% if record.state == "reported" %}
-                                    <span class="badge badge-danger float-right">{{ record.get_state_display }}</span>
+                                    <center><span class="badge badge-danger float-center">{{ record.get_state_display }}</span></center>
                                 {% else %}
-                                    <span class="badge badge-warning float-right">{{ record.get_state_display }}</span>
+                                    <center><span class="badge badge-warning float-center">{{ record.get_state_display }}</span></center>
                                 {% endif %}
+                            <hr>
                                 <div class="container-fluid p-0">
-                                    {{ vulnerable.description }}
+                                    <center>{{ vulnerable.description }}</center>
                                 </div>
                             </div>
                         </div>
+                    <hr>
                         <form action="" method="post">
                             {% csrf_token %}
-                            <div class="form-group">
+                            <div class="form-group row">
                                 {{ form.time.errors }}
-                                <label for="id_time">Time</label>
+                                <label for="id_time" class="col-sm-4 col-form-label">Time</label>
+                                <div class="col-sm-6">
                                 <input id="id_time" name="time" class="form-control"
                                        value="{{ form.time.value|timezone:user_tz_name|date:"Y-m-d"|default:"" }} {{ form.time.value|timezone:user_tz_name|time:"H:i"|default:"" }}">
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="id_tz_name">Timezone</label>
+                            <div class="form-group row">
+                                <label for="id_tz_name" class="col-sm-4 col-form-label">Timezone</label>
+                            <div class="col-sm-6">
                                 <select id="id_tz_name" name="tz_name" class="form-control">
                                     {% for tz in all_timezones %}
                                         <option value="{{ tz }}"
@@ -46,19 +51,24 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label for="id_address">Address</label>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_address" class="col-sm-4 col-form-label">Address</label>
+                                <div class="col-sm-6">
                                 <input id="id_address" name="address" class="form-control"
                                        value="{{ form.address.value|default:"" }}" required>
                             </div>
-                            <div class="form-group">
-                                <label for="id_description">Description
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_description" class="col-sm-4 col-form-label">Description
                                     <i class="fa fa-info-circle" data-toggle="popover" title="Optional Description"
                                        data-content="Any description or notes about this seen client can be added.
                                        For example: 'Wearing a black coat, walking with a brown cane, whistling to himself'."></i>
                                 </label>
+                                <div class="col-sm-6">
                                 <textarea id="id_description" class="form-control"
                                           name="description">{{ form.description.value|default:"" }}</textarea>
+                                </div>
                             </div>
                             <div class="form-group text-center clearfix">
                                 <input id="id_next" type="hidden" name="next" value="{{ next|default:"" }}">
