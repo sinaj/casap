@@ -49,7 +49,9 @@ def point_map_record(name, feat, point, activity, act_type):
         'locLon': str(point.x),
         'category': str(activity.category),
         'act_type': str(act_type),
-        'person': person}
+        'person': person,
+        'loc': str(activity.activity_type)
+    }
     return point_record
 
 
