@@ -195,7 +195,7 @@ def report_found_view(request, hash):
             found_activity.locLat = v.address_lat
             found_activity.locLon = v.address_lng
             found_activity.person_id = lost_record.vulnerable_id
-            found_activity.time = lost_record.time
+            found_activity.time = v.time
             found_activity.adminPoint = Point(float(found_activity.locLon), float(found_activity.locLat), srid=3857)
             fence_loc = Location.objects.filter(fence__contains=found_activity.adminPoint)
             if fence_loc:
