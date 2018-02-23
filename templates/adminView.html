@@ -35,7 +35,8 @@
                 return response.json();
             }).then(function (json) {
                 var name = feat.attributes.owner.split("[")[0];
-                var message = "<center><b>" + name + "</b></center>" + "<center>" + "<div><b>Location: </b>" + json.display_name + "</div>" + "</center>" + "<center><b>Time: </b>" + time + "</center>"
+                console.log(feat)
+                var message = "<div style='color:"+feat.attributes.color+"'><center><b>" + name + "</b></center>" + "<center>" + "<div><b>Location: </b>" + json.display_name + "</div>" + "</center>" + "<center><b>Time: </b>" + time + "</center></div>"
 
                 var popup = new OpenLayers.Popup.FramedCloud("popup", new OpenLayers.LonLat(poplon, poplat), new OpenLayers.Size(50, 100), message, null, true, function () {
                     onPopupClose(feat);
@@ -204,6 +205,7 @@
                     contentType: false,
                     processData: false,
                     success: function (response) {
+                        console.log(response)
                         show_missing(MissingLayer, response);
                     }
                 });
