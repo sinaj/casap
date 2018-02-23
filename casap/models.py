@@ -70,7 +70,7 @@ class PasswordResetCode(models.Model):
 class Volunteer(models.Model):
     profile = models.OneToOneField(Profile, related_name="volunteer")
     phone = models.CharField(max_length=15)
-    email = models.CharField(max_length=50)
+    email = models.TextField(max_length=50)
     hash = models.CharField(max_length=30, unique=True, blank=True)
 
     @property
