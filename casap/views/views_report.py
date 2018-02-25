@@ -9,27 +9,29 @@ from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from geopy.distance import vincenty
 from django.contrib.gis.geos import Point
+from pyproj import Proj, transform
 
 from casap.forms.forms_report import LostPersonRecordForm, SightingRecordForm, FindRecordForm
 
 from casap.models import Vulnerable, LostPersonRecord, Volunteer, Activity, Location, VolunteerAvailability, \
     LostActivity, FoundActivity
 
-from casap.utilities.utils import get_user_time, send_sms, get_standard_phone, SimpleMailHelper, send_tweet, shorten_url
+from casap.utilities.utils import get_user_time, send_sms, get_standard_phone, SimpleMailHelper, send_tweet, \
+    shorten_url, send_twitter_dm
 
 
 def tweet_helper(name, link, flag, time):
     link = "http://{}".format(link)
     link = shorten_url(link)
     if flag == 1:
-        txt = "{} has been reported LOST at {}. For more details, visit {}".format(name,
-                                                                                   time.time().strftime(
-                                                                                       '%H:%M'), link)
+        txt = "{} has been reported LOST at {}. For more details, visit {} #Missing".format(name,
+                                                                                            time.time().strftime(
+                                                                                                '%H:%M'), link)
     else:
-        txt = "{} has been reported SEEN at {}. For more details, visit {}".format(name,
-                                                                                   time.time().strftime(
-                                                                                       '%H:%M'),
-                                                                                   link)
+        txt = "{} has been reported SEEN at {}. For more details, visit {} #Seen".format(name,
+                                                                                         time.time().strftime(
+                                                                                             '%H:%M'),
+                                                                                         link)
     return txt
 
 
@@ -55,6 +57,8 @@ def lost_notification(notify_record, vol):
     mail_subject = "C-ASAP Client: %s has been lost near you " % notify_record.vulnerable.full_name
     send_sms(get_standard_phone(vol.phone), sms_text)
     SimpleMailHelper(mail_subject, sms_text, sms_text, vol.email).send_email()
+    if vol.twitter_handle:
+        send_twitter_dm(sms_text, vol.twitter_handle)
 
 
 def seen_notification(notify_record, vol):
@@ -70,6 +74,8 @@ def seen_notification(notify_record, vol):
     send_sms(get_standard_phone(vol.phone), sms_text)
     mail_subject = "C-ASAP Lost Client: %s has been seen near you" % notify_record.lost_record.vulnerable.full_name
     SimpleMailHelper(mail_subject, sms_text, sms_text, vol.email).send_email()
+    if vol.twitter_handle:
+        send_twitter_dm(sms_text, vol.twitter_handle)
 
 
 @login_required
@@ -148,6 +154,8 @@ def report_sighting_view(request, hash):
             success_msg = "Success! %s has been reported seen." % lost_record.vulnerable.full_name
             add_message(request, messages.SUCCESS, success_msg)
             return HttpResponseRedirect(reverse('index'))
+        else:
+            pass
 
     else:
         form = SightingRecordForm(initial=dict(time=get_user_time(request)))
@@ -161,6 +169,9 @@ def report_sighting_view(request, hash):
 
 def notify_volunteers(notify_record, time_seen, flag):
     lat, lng = notify_record.address_lat, notify_record.address_lng
+    inProj = Proj(init='epsg:3857')
+    outProj = Proj(init='epsg:4326')
+    lng, lat = transform(inProj, outProj, float(lng), float(lat))
     close_volunteers = set()
     for vol in Volunteer.objects.all():
         availability = VolunteerAvailability.objects.filter(volunteer=vol)
