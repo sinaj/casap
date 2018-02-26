@@ -67,6 +67,15 @@ class PasswordResetCode(models.Model):
         return u'%s - %s' % (self.user.email, self.code)
 
 
+class Notifications(models.Model):
+    phone_notify = models.BooleanField()
+    email_notify = models.BooleanField()
+    twitter_dm_notify = models.BooleanField()
+    twitter_public_notify = models.BooleanField()
+
+    def __str__(self):
+        return u'phone: %s, email: %s, dms: %s, public: %s' % (self.phone_notify, self.email_notify, self.twitter_dm_notify, self.twitter_public_notify)
+
 class Volunteer(models.Model):
     profile = models.OneToOneField(Profile, related_name="volunteer")
     phone = models.CharField(max_length=15)
