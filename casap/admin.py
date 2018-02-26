@@ -96,3 +96,9 @@ class LocationAdmin(admin.OSMGeoAdmin):
 class VolunteerAvailabilityAdmin(admin.ModelAdmin):
     model = VolunteerAvailability
     list_display = ("volunteer", "address", "address_lat", "address_lng", "time_from", "time_to", "km_radius")
+
+
+@admin.register(Notifications)
+class NotificationsAdmin(admin.ModelAdmin):
+    model = Notifications
+    list_display = ("phone_notify", "email_notify", "twitter_dm_notify", "twitter_public_notify")
