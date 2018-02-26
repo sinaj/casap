@@ -28,6 +28,7 @@
 {{ formset.management_form }}
 {% for form in formset.forms %}
     <div class="table">
+        {{ form.non_field_errors }}
         <table class="no_error">
             {{ form.as_p }}
         </table>
