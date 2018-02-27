@@ -46,6 +46,8 @@ report_patterns = [
     url(r'^lost/$', views_report.report_lost_view, name="report_lost"),
     url(r'^sighting/(?P<hash>[\w\d]+)/$', views_report.report_sighting_view, name="report_sighting"),
     url(r'^found/(?P<hash>[\w\d]+)/$', views_report.report_found_view, name="report_found"),
+    url(r'^alert-list', views_report.alert_list_view, name="alert_list"),
+    url(r'^alert/(?P<hash>[\w\d]+)/$', views_report.alert_view, name="report_alert"),
 ]
 
 urlpatterns = [
