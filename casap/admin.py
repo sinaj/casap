@@ -102,3 +102,8 @@ class VolunteerAvailabilityAdmin(admin.ModelAdmin):
 class NotificationsAdmin(admin.ModelAdmin):
     model = Notifications
     list_display = ("phone_notify", "email_notify", "twitter_dm_notify", "twitter_public_notify")
+
+@admin.register(Alerts)
+class AlertsAdmin(admin.ModelAdmin):
+    model = Alerts
+    list_display = ("state", "lost_record", "seen_record", "notifications", "sent")
