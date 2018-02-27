@@ -29,6 +29,7 @@ dashboard_patterns = [
     url(r'^vulnerable/edit/(?P<hash>[\w\d]+)/$', views_dashboard.vulnerable_edit_view, name="vulnerable_edit"),
     url(r'^vulnerable/delete/(?P<hash>[\w\d]+)/$', views_dashboard.vulnerable_delete_view, name="vulnerable_delete"),
     url(r'^vulnerable/history/(?P<hash>[\w\d]+)/$', views_dashboard.vulnerable_history_view, name="vulnerable_history"),
+    url(r'^manage-notifications/', views_dashboard.manage_notifications_view, name="manage_notifications"),
 ]
 
 register_patterns = [
@@ -45,6 +46,8 @@ report_patterns = [
     url(r'^lost/$', views_report.report_lost_view, name="report_lost"),
     url(r'^sighting/(?P<hash>[\w\d]+)/$', views_report.report_sighting_view, name="report_sighting"),
     url(r'^found/(?P<hash>[\w\d]+)/$', views_report.report_found_view, name="report_found"),
+    url(r'^alert-list', views_report.alert_list_view, name="alert_list"),
+    url(r'^alert/(?P<hash>[\w\d]+)/$', views_report.alert_view, name="report_alert"),
 ]
 
 urlpatterns = [

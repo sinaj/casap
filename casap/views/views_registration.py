@@ -79,23 +79,26 @@ def register_volunteer_view(request):
             volunteer = form.save(commit=False)
             volunteer.profile = profile
             volunteer.save()
-        formset = availability_formset(request.POST, request.FILES, prefix='volunteers')
-        if formset.is_valid():
-            for f in formset:
-                if f.cleaned_data.get('address'):  # Check if there is a provided address
-                    address = get_address_map_google(f.cleaned_data['address'])
-                    if address is None:
-                        raise forms.ValidationError("Address is invalid")
-                    else:
-                        # Create new windows of availabilities for a volunteer
-                        availability = VolunteerAvailability(volunteer=volunteer, address=f.cleaned_data.get('address'),
-                                                             address_lat=address['lat'], address_lng=address['lng'],
-                                                             time_from=f.cleaned_data['time_from'],
-                                                             time_to=f.cleaned_data['time_to'], km_radius=f.cleaned_data['km_radius'])
-                        availability.save()
 
-        add_message(request, messages.SUCCESS, "Registration was successful.")
-        return HttpResponseRedirect(request.POST.get("next", reverse("index")))
+            formset = availability_formset(request.POST, request.FILES, prefix='volunteers')
+            if formset.is_valid():
+                for f in formset:
+                    if f.cleaned_data.get('address'):  # Check if there is a provided address
+                        address = get_address_map_google(f.cleaned_data['address'])
+                        if address is None:
+                            raise forms.ValidationError("Address is invalid")
+                        else:
+                            # Create new windows of availabilities for a volunteer
+                            availability = VolunteerAvailability(volunteer=volunteer, address=f.cleaned_data.get('address'),
+                                                                 address_lat=address['lat'], address_lng=address['lng'],
+                                                                 time_from=f.cleaned_data['time_from'],
+                                                                 time_to=f.cleaned_data['time_to'], km_radius=f.cleaned_data['km_radius'])
+                            availability.save()
+
+            add_message(request, messages.SUCCESS, "Registration was successful.")
+            return HttpResponseRedirect(request.POST.get("next", reverse("index")))
+        else:
+            pass
     else:
         availability_formset = inlineformset_factory(Volunteer, VolunteerAvailability,
                                                      form=VolunteerAvailabilityForm, fk_name="volunteer", extra=1)

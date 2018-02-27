@@ -6,7 +6,7 @@
 
     <div class="container p-0">
         <div class="row justify-content-center">
-            <div class="col-sm-12 col-md-8 col-lg-12">
+            <div class="col-sm-10 col-md-10 col-lg-8">
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">
@@ -14,35 +14,36 @@
                         </h4>
                         <hr>
                         <div class="media mb-2">
-                            <img class="mr-3 w-50" src="{{ vulnerable.picture.url }}" alt="{{ vulnerable.full_name }}'s picture">
+                            <img class="mr-3 w-50" src="{{ vulnerable.picture.url }}"
+                                 alt="{{ vulnerable.full_name }}'s picture">
                             <div class="media-body">
-                                <h5 class="mt-0 d-inline">{{ vulnerable.full_name }}</h5>
+                                <h5>
+                                    <center>{{ vulnerable.full_name }}</center>
+                                </h5>
                                 {% if record.state == "reported" %}
-                                    <span class="badge badge-danger float-right">Missing</span>
+                                    <center><span class="badge badge-danger float-center">Reported Missing</span>
+                                    </center>
                                 {% elif record.state == "sighted" %}
-                                    <span class="badge badge-warning float-right">Seen</span>
+                                    <center><span class="badge badge-warning float-center">Reported Seen</span></center>
                                 {% else %}
-                                    <span class="badge badge-success float-right">Found</span>
+                                    <center><span class="badge badge-success float-center">Reported Found</span>
+                                    </center>
                                 {% endif %}
+                                <hr>
                                 <div class="container-fluid p-0">
-                                    {{ vulnerable.description }}
+                                    <center>{{ vulnerable.description }}</center>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="list-group-flush">
-                        <div class="list-group-item list-group-item-danger">
-                            <div class="container-fluid p-0 clearfix">
-                                Reported missing at: <span class="float-right text-dark">{{ record.time|timezone:user_tz_name|time }}</span>
-                            </div>
-                            <a href="{% url 'location' %}?lat={{ record.address_lat}}&{{ record.address_lng}}">{{ record.address}}</a>
-                        </div>
-                        {% for sighting in record.get_sighting_records %}
+                        {% for sighting in record.get_sighting_records reversed %}
                             <div class="list-group-item list-group-item-warning">
                                 <div class="container-fluid p-0 clearfix">
-                                    Reported seen at: <span class="float-right text-dark">{{ sighting.time|timezone:user_tz_name|time }}</span>
+                                    Reported seen at: <span
+                                        class="float-right text-dark">{{ sighting.time|timezone:user_tz_name|time }}</span>
                                 </div>
-                                <a href="{% url 'location' %}?lat={{ sighting.address_lat}}&{{ sighting.address_lng}}">{{ sighting.address}}</a>
+                                <a href="{% url 'location' %}?lat={{ sighting.address_lat }}&{{ sighting.address_lng }}">{{ sighting.address }}</a>
                                 {% if sighting.description %}
                                     <div class="container-fluid p-0 text-dark">
                                         {{ sighting.description }}
@@ -50,6 +51,13 @@
                                 {% endif %}
                             </div>
                         {% endfor %}
+                        <div class="list-group-item list-group-item-danger">
+                            <div class="container-fluid p-0 clearfix">
+                                Reported missing at: <span
+                                    class="float-right text-dark">{{ record.time|timezone:user_tz_name|time }}</span>
+                            </div>
+                            <a href="{% url 'location' %}?lat={{ record.address_lat }}&{{ record.address_lng }}">{{ record.address }}</a>
+                        </div>
                     </div>
                     {% if record.state != "found" %}
                         <div class="card-footer clearfix">

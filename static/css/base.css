@@ -166,6 +166,9 @@ div.card {
         width: 100%;
         height: 100%;
     }
+            .col-form-label {
+            text-align: right;
+        }
 
 }
 
@@ -187,6 +190,11 @@ div.card {
         height: 100%;
     }
 
+            .col-form-label {
+            text-align: right;
+        }
+
+
 }
 
 /*
@@ -206,6 +214,9 @@ div.card {
         width: 100%;
         height: 100%;
     }
+            .col-form-label {
+            text-align: left;
+        }
 
 }
 
@@ -266,6 +277,9 @@ div.card {
         width: 100%;
         height: 100%;
     }
+            .col-form-label {
+            text-align: left;
+        }
 
 }
 

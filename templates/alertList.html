@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+{% load tz %}
+
+{% block page_title %}
+    C-ASAP | Manage Alerts
+{% endblock %}
+
+{% block header_js %}
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap-toggle.min.css"/>
+    <script src="{% static "/js/bootstrap-toggle.min.js" %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="container p-0">
+        <div class="row justify-content-center">
+            <div class="col-sm-10 col-md-10 col-lg-8">
+                <div class="card mr-auto">
+                    <div class="card-body">
+                        <h4 class="card-title">
+                            Admin Alert Notifications
+                        </h4>
+                        <hr>
+                        {% if alerts %}
+                            <center>
+                                <table class="table" style="width:75%" cellpadding="25">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col" style="text-align:justify">State</th>
+                                        <th scope="col" style="text-align:center">Missing Person</th>
+                                        <th scope="col" style="text-align:center">Date</th>
+                                        <th scope="col" style="text-align:center">Alerts</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for alert in alerts %}
+                                        {% if alert.sent == False %}
+                                            <tr>
+                                                <td style="text-align:center">
+                                                    {% if alert.state == 'Lost' %}
+                                                        <span class="badge badge-danger float-center">Missing</span>
+                                                    {% else %}
+                                                        <span class="badge badge-warning float-center">Seen</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td style="text-align:center">
+                                                    {{ alert.lost_record.vulnerable.full_name }}
+                                                </td>
+                                                <td style="text-align:center">
+                                                    {% if alert.seen_record %}
+                                                        {{ alert.seen_record.time | timezone:user_tz_name }}
+                                                    {% else %}
+                                                        {{ alert.lost_record.time | timezone:user_tz_name }}
+                                                    {% endif %}
+                                                </td>
+                                                <td style="text-align:center">
+                                                    <a href="{% url "report_alert" hash=alert.hash %}">
+                                                        <button type="button" class="btn btn-success btn-sm">
+                                                            Go
+                                                        </button>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </center>
+                        {% else %}
+                            No new alerts
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

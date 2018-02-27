@@ -209,3 +209,17 @@ def shorten_url(url):
         raise Exception('%s' % j['status_txt'])
     except HTTPError as e:
         raise ('HTTP error%s' % e.read())
+
+
+def validate_twitter_handle(handle):
+    api = twitter.Api(consumer_key=settings.TWITTER_CONSUMER_KEY, consumer_secret=settings.TWITTER_CONSUMER_SECRET,
+                      access_token_key=settings.TWITTER_ACCESS_KEY, access_token_secret=settings.TWITTER_ACCESS_SECRET)
+
+    api.GetUser(screen_name=handle)
+
+
+def send_twitter_dm(message, user):
+    api = twitter.Api(consumer_key=settings.TWITTER_CONSUMER_KEY, consumer_secret=settings.TWITTER_CONSUMER_SECRET,
+                      access_token_key=settings.TWITTER_ACCESS_KEY, access_token_secret=settings.TWITTER_ACCESS_SECRET)
+
+    api.PostDirectMessage(message, screen_name=user)

@@ -6,7 +6,7 @@ from django.core.validators import validate_email
 from django.forms import TimeField
 
 from casap.models import *
-from casap.utilities.utils import normalize_email, get_standard_phone, get_address_map_google
+from casap.utilities.utils import normalize_email, get_standard_phone, get_address_map_google, validate_twitter_handle
 
 
 class UserLoginForm(forms.Form):
@@ -50,12 +50,25 @@ class UserEditForm(forms.ModelForm):
         fields = ('first_name', 'last_name', 'username')
 
 
+class ManageNotificationsForm(forms.ModelForm):
+    phone_notify = forms.BooleanField()
+    email_notify = forms.BooleanField()
+    twitter_dm_notify = forms.BooleanField()
+    twitter_public_notify = forms.BooleanField()
+
+    class Meta:
+        model = Notifications
+        fields = ('phone_notify', 'email_notify', 'twitter_dm_notify', 'twitter_public_notify')
+
+
 class VolunteerAvailabilityForm(forms.ModelForm):
     time_from = TimeField(widget=forms.widgets.DateInput(attrs={'type': 'time',
                                                                 'class': 'form-control',
+                                                                'required': True
                                                                 }))
     time_to = TimeField(widget=forms.widgets.DateInput(attrs={'type': 'time',
                                                               'class': 'form-control',
+                                                              'required': True
                                                               }))
 
     class Meta:
@@ -63,6 +76,7 @@ class VolunteerAvailabilityForm(forms.ModelForm):
         widgets = {
             'address': forms.TextInput(attrs={'class': 'form-control',
                                               'placeholder': 'e.g. 12345 74 ST Edmonton AB',
+                                              'required': True
                                               })
         }
         exclude = ('address_lat', 'address_lng')
@@ -95,9 +109,17 @@ class VolunteerForm(forms.ModelForm):
         else:
             return self.cleaned_data['email']
 
+    def clean_twitter_handle(self):
+        if self.cleaned_data.get('twitter_handle'):
+            try:
+                validate_twitter_handle(self.cleaned_data.get('twitter_handle'))
+                return self.cleaned_data['twitter_handle']
+            except:
+                raise forms.ValidationError("Twitter handle does not exist.")
+
     class Meta:
         model = Volunteer
-        fields = ('phone', 'email')
+        fields = ('phone', 'email', 'twitter_handle')
 
 
 class VulnerableForm(forms.ModelForm):

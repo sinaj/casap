@@ -1,6 +1,6 @@
 import datetime
 import json
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, model_to_dict
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages import add_message
@@ -49,7 +49,9 @@ def point_map_record(name, feat, point, activity, act_type):
         'locLon': str(point.x),
         'category': str(activity.category),
         'act_type': str(act_type),
-        'person': person}
+        'person': person,
+        'loc': str(activity.activity_type)
+    }
     return point_record
 
 
@@ -97,13 +99,67 @@ def profile_edit_view(request):
 
 
 @login_required
+def manage_notifications_view(request):
+    if request.method == "POST":
+        notif = Notifications.objects.last()
+        form = ManageNotificationsForm(request.POST, initial=model_to_dict(notif))
+        if form.is_valid():
+            if form.cleaned_data.get('phone_notify'):
+                notif.phone_notify = True
+            else:
+                notif.phone_notify = False
+            if form.cleaned_data.get('email_notify'):
+                notif.email_notify = True
+            else:
+                notif.email_notify = False
+            if form.cleaned_data.get('twitter_dm_notify'):
+                notif.twitter_dm_notify = True
+            else:
+                notif.twitter_dm_notify = False
+            if form.cleaned_data.get('twitter_public_notify'):
+                notif.twitter_public_notify = True
+            else:
+                notif.twitter_public_notify = False
+            notif.save()
+            add_message(request, messages.SUCCESS, "Notifications successfully updated.")
+            return HttpResponseRedirect(reverse("index"))
+        else:
+            if form.cleaned_data:
+                if form.cleaned_data.get('phone_notify'):
+                    notif.phone_notify = True
+                else:
+                    notif.phone_notify = False
+                if form.cleaned_data.get('email_notify'):
+                    notif.email_notify = True
+                else:
+                    notif.email_notify = False
+                if form.cleaned_data.get('twitter_dm_notify'):
+                    notif.twitter_dm_notify = True
+                else:
+                    notif.twitter_dm_notify = False
+                if form.cleaned_data.get('twitter_public_notify'):
+                    notif.twitter_public_notify = True
+                else:
+                    notif.twitter_public_notify = False
+                notif.save()
+            add_message(request, messages.SUCCESS, "Notifications successfully updated.")
+            return HttpResponseRedirect(reverse("index"))
+
+    notif = Notifications.objects.last()
+    form = ManageNotificationsForm(initial=model_to_dict(notif))
+    request.context['notif'] = notif
+    request.context['form'] = form
+    return render(request, 'adminManage.html', request.context)
+
+
+@login_required
 def volunteer_edit_view(request):
     profile = request.context['user_profile']
-    availability_formset = inlineformset_factory(Volunteer, VolunteerAvailability,
-                                                 form=VolunteerAvailabilityForm, fk_name="volunteer")
-    list_of_avail = VolunteerAvailability.objects.filter(volunteer=profile.volunteer).values()
-    item_forms = availability_formset(initial=list_of_avail)
     if request.method == "POST":
+        availability_formset = inlineformset_factory(Volunteer, VolunteerAvailability,
+                                                     form=VolunteerAvailabilityForm, fk_name="volunteer")
+        list_of_avail = VolunteerAvailability.objects.filter(volunteer=profile.volunteer).values()
+        item_forms = availability_formset(initial=list_of_avail, prefix='volunteers')
         next = request.POST.get("next", reverse("index"))
         form = VolunteerForm(request.POST, instance=profile.volunteer)
         if form.is_valid():
@@ -131,6 +187,10 @@ def volunteer_edit_view(request):
         add_message(request, messages.SUCCESS, "Changes saved successfully.")
         request.context['next'] = next
     else:
+        availability_formset = inlineformset_factory(Volunteer, VolunteerAvailability,
+                                                     form=VolunteerAvailabilityForm, fk_name="volunteer", extra=1)
+        list_of_avail = VolunteerAvailability.objects.filter(volunteer=profile.volunteer).values()
+        item_forms = availability_formset(initial=list_of_avail, prefix='volunteers')
         request.context['next'] = request.GET.get('next', reverse("index"))
         form = VolunteerForm(instance=profile.volunteer)
 

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}
+    C-ASAP | Manage Notifications
+{% endblock %}
+
+{% block header_js %}
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap-toggle.min.css"/>
+    <script src="{% static "/js/bootstrap-toggle.min.js" %}"></script>
+{% endblock %}
+
+{% block content %}
+    <style>
+        /* Bootstrap Toggle v2.2.2 corrections for Bootstrap 4*/
+        .toggle-off {
+            box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+        }
+
+        .toggle.off {
+            border-color: rgba(0, 0, 0, .25);
+        }
+
+        .toggle-handle {
+            background-color: white;
+            border: thin rgba(0, 0, 0, .25) solid;
+        }
+    </style>
+
+    <div class="container p-0">
+        <div class="row justify-content-center">
+            <div class="col-sm-10 col-md-10 col-lg-8">
+                <div class="card mr-auto">
+                    <div class="card-body">
+                        <h4 class="card-title">
+                            Manage Notifications
+                        </h4>
+                        <hr>
+                        <form action="" method="post">
+                            {% csrf_token %}
+                        <center>
+                            <table class="table" style="width:75%" cellpadding="10">
+                                <thead>
+                                <tr>
+                                    <th scope="col" style="text-align:justify">Notification Channel</th>
+                                    <th scope="col" style="text-align:left">On/Off</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td style="text-align:justify">
+                                        Cell Phone
+                                    </td>
+                                    <td style="text-align:left">
+                                        <div class="form-group">
+                                            <input type="checkbox" data-toggle="toggle" data-onstyle="success"
+                                                   data-offstyle="danger" data-size="small" id="id_phone"
+                                                   name="phone_notify" class="form-control"
+                                                   {% if notif.phone_notify %}checked{% endif %}/>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="text-align:justify">
+                                        E-mail
+                                    </td>
+                                    <td style="text-align:left">
+                                        <div class="form-group">
+                                            <input type="checkbox" data-toggle="toggle" data-onstyle="success"
+                                                   data-offstyle="danger" data-size="small" id="id_email"
+                                                   name="email_notify"
+                                                   class="form-control"
+                                                   {% if notif.email_notify %}checked{% endif %}/>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="text-align:justify">
+                                        Twitter Direct Messages
+                                    </td>
+                                    <td style="text-align:left">
+                                        <div class="form-group">
+                                            <input type="checkbox" data-toggle="toggle" data-onstyle="success"
+                                                   data-offstyle="danger" data-size="small" data-size="normal"
+                                                   id="id_twitter_dm" name="twitter_dm_notify" class="form-control"
+                                                   {% if notif.twitter_dm_notify %}checked{% endif %}/>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="text-align:justify">
+                                        Twitter Public Tweet
+                                    </td>
+                                    <td style="text-align:left">
+                                        <div class="form-group">
+                                            <input type="checkbox" data-toggle="toggle" data-onstyle="success"
+                                                   data-offstyle="danger" data-size="small" data-size="normal"
+                                                   id="id_twitter_public" name="twitter_public_notify"
+                                                   class="form-control"
+                                                   {% if notif.twitter_public_notify %}checked{% endif %}/>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </center>
+                            <div class="form-group">
+                                <button class="btn btn-primary btn-block" type="submit">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+{% endblock %}
