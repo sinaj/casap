@@ -16,7 +16,7 @@ from casap.forms.forms import ManageNotificationsForm
 from casap.forms.forms_report import LostPersonRecordForm, SightingRecordForm, FindRecordForm
 
 from casap.models import Vulnerable, LostPersonRecord, Volunteer, Activity, Location, VolunteerAvailability, \
-    LostActivity, FoundActivity, Alerts, Notifications
+    LostActivity, FoundActivity, Alerts, Notifications, Profile
 
 from casap.utilities.utils import get_user_time, send_sms, get_standard_phone, SimpleMailHelper, send_tweet, \
     shorten_url, send_twitter_dm
@@ -96,7 +96,7 @@ def send_alert_email(profile, lost_alert):
 
 @login_required
 def report_lost_view(request):
-    profile = request.context['user_profile']
+    coordinators = Profile.objects.filter(coordinator_email=True)
     if request.method == "POST":
         form = LostPersonRecordForm(request.POST)
         request.context['next'] = request.POST.get("next", reverse("index"))
@@ -120,8 +120,8 @@ def report_lost_view(request):
                     state='Lost', lost_record=lost_record, notifications=notif
                 )
                 lost_alert.save()
-                if profile.coordinator_email:
-                    send_alert_email(profile, lost_alert)
+                for coord in coordinators:
+                    send_alert_email(coord, lost_alert)
                 success_msg = "Success! %s has been reported lost." % vulnerable.full_name
                 add_message(request, messages.SUCCESS, success_msg)
                 return HttpResponseRedirect(reverse("index"))
@@ -141,7 +141,7 @@ def report_lost_view(request):
 
 @login_required
 def report_sighting_view(request, hash):
-    profile = request.context['user_profile']
+    coordinators = Profile.objects.filter(coordinator_email=True)
     lost_record = LostPersonRecord.objects.filter(hash=hash).first()
     if not lost_record:
         add_message(request, messages.WARNING, "Record not found")
@@ -170,8 +170,8 @@ def report_sighting_view(request, hash):
                 state='Sighted', lost_record=lost_record, seen_record=sighting_record, notifications=notif
             )
             lost_alert.save()
-            if profile.coordinator_email:
-                send_alert_email(profile, lost_alert)
+            for coord in coordinators:
+                send_alert_email(coord, lost_alert)
             success_msg = "Success! %s has been reported seen." % lost_record.vulnerable.full_name
             add_message(request, messages.SUCCESS, success_msg)
             return HttpResponseRedirect(reverse('index'))
@@ -202,47 +202,10 @@ def alert_view(request, hash):
     notif = Notifications.objects.get(id=alert.notifications_id)
     form = ManageNotificationsForm(request.POST, initial=model_to_dict(notif))
     if request.method == 'POST':
-        alert = Alerts.objects.filter(hash=hash).first()
-        notif = Notifications.objects.get(id=alert.notifications_id)
-        if form.is_valid():
-            if form.cleaned_data.get('phone_notify'):
-                notif.phone_notify = True
-            else:
-                notif.phone_notify = False
-            if form.cleaned_data.get('email_notify'):
-                notif.email_notify = True
-            else:
-                notif.email_notify = False
-            if form.cleaned_data.get('twitter_dm_notify'):
-                notif.twitter_dm_notify = True
-            else:
-                notif.twitter_dm_notify = False
-            if form.cleaned_data.get('twitter_public_notify'):
-                notif.twitter_public_notify = True
-            else:
-                notif.twitter_public_notify = False
-            notif.save()
-
-            time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime("%H:%M")
-            if alert.state == 'Lost':
-                flag = 1
-                notify_volunteers(alert.lost_record, time_seen, flag, notif)
-                if notif.twitter_public_notify:
-                    send_tweet(
-                        tweet_helper(alert.lost_record.vulnerable.full_name, alert.lost_record.get_link(), flag,
-                                     alert.lost_record.time))
-            else:
-                flag = 2
-                notify_volunteers(alert.sighting_record, time_seen, flag, notif)
-                if notif.twitter_public_notify:
-                    send_tweet(
-                        tweet_helper(alert.lost_record.vulnerable.full_name, alert.lost_record.get_link(), flag,
-                                     alert.sighting_record.time))
-
-            add_message(request, messages.SUCCESS, "Notifications successfully sent.")
-            return HttpResponseRedirect(reverse("index"))
-        else:
-            if form.cleaned_data:
+        if 'sendAlert' in request.POST:
+            alert = Alerts.objects.filter(hash=hash).first()
+            notif = Notifications.objects.get(id=alert.notifications_id)
+            if form.is_valid():
                 if form.cleaned_data.get('phone_notify'):
                     notif.phone_notify = True
                 else:
@@ -259,7 +222,6 @@ def alert_view(request, hash):
                     notif.twitter_public_notify = True
                 else:
                     notif.twitter_public_notify = False
-
                 notif.save()
 
                 time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime("%H:%M")
@@ -272,14 +234,66 @@ def alert_view(request, hash):
                                          alert.lost_record.time))
                 else:
                     flag = 2
-                    notify_volunteers(alert.seen_record, time_seen, flag, notif)
+                    notify_volunteers(alert.sighting_record, time_seen, flag, notif)
                     if notif.twitter_public_notify:
                         send_tweet(
                             tweet_helper(alert.lost_record.vulnerable.full_name, alert.lost_record.get_link(), flag,
-                                         alert.seen_record.time))
-                alert.sent = True
+                                         alert.sighting_record.time))
+
                 add_message(request, messages.SUCCESS, "Notifications successfully sent.")
                 return HttpResponseRedirect(reverse("index"))
+            else:
+                if form.cleaned_data:
+                    if form.cleaned_data.get('phone_notify'):
+                        notif.phone_notify = True
+                    else:
+                        notif.phone_notify = False
+                    if form.cleaned_data.get('email_notify'):
+                        notif.email_notify = True
+                    else:
+                        notif.email_notify = False
+                    if form.cleaned_data.get('twitter_dm_notify'):
+                        notif.twitter_dm_notify = True
+                    else:
+                        notif.twitter_dm_notify = False
+                    if form.cleaned_data.get('twitter_public_notify'):
+                        notif.twitter_public_notify = True
+                    else:
+                        notif.twitter_public_notify = False
+
+                    notif.save()
+
+                    time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime("%H:%M")
+                    if alert.state == 'Lost':
+                        flag = 1
+                        notify_volunteers(alert.lost_record, time_seen, flag, notif)
+                        if notif.twitter_public_notify:
+                            send_tweet(
+                                tweet_helper(alert.lost_record.vulnerable.full_name, alert.lost_record.get_link(), flag,
+                                             alert.lost_record.time))
+                    else:
+                        flag = 2
+                        notify_volunteers(alert.seen_record, time_seen, flag, notif)
+                        if notif.twitter_public_notify:
+                            send_tweet(
+                                tweet_helper(alert.lost_record.vulnerable.full_name, alert.lost_record.get_link(), flag,
+                                             alert.seen_record.time))
+                    alert.sent = True
+                    add_message(request, messages.SUCCESS, "Notifications successfully sent.")
+                    return HttpResponseRedirect(reverse("index"))
+        else:
+            alert = Alerts.objects.filter(hash=hash).first()
+            profile = request.context['user_profile']
+            if not alert:
+                add_message(request, messages.WARNING, "Notification alert not found.")
+                return HttpResponseRedirect(reverse("index"))
+            if not profile.coordinator_email:
+                add_message(request, messages.WARNING, "You are not authorized to perform this action.")
+                return HttpResponseRedirect(reverse("index"))
+            alert.sent = True
+            alert.save()
+            add_message(request, messages.SUCCESS, "Notification alert has been ignored.")
+            return HttpResponseRedirect(reverse("index"))
 
     form = ManageNotificationsForm(initial=model_to_dict(notif))
     request.context['form'] = form
