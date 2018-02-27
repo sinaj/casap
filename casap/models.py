@@ -24,6 +24,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, related_name='profile', on_delete=models.CASCADE)
     email_confirmed = models.BooleanField(default=False)
     phone_validated = models.BooleanField(default=False)
+    coordinator_email = models.BooleanField(default=False)
     hash = models.CharField(max_length=30, unique=True, blank=True)
 
     @property
@@ -68,13 +69,15 @@ class PasswordResetCode(models.Model):
 
 
 class Notifications(models.Model):
-    phone_notify = models.BooleanField()
-    email_notify = models.BooleanField()
-    twitter_dm_notify = models.BooleanField()
-    twitter_public_notify = models.BooleanField()
+    phone_notify = models.BooleanField(default=True)
+    email_notify = models.BooleanField(default=True)
+    twitter_dm_notify = models.BooleanField(default=True)
+    twitter_public_notify = models.BooleanField(default=True)
 
     def __str__(self):
-        return u'phone: %s, email: %s, dms: %s, public: %s' % (self.phone_notify, self.email_notify, self.twitter_dm_notify, self.twitter_public_notify)
+        return u'phone: %s, email: %s, dms: %s, public: %s' % (
+            self.phone_notify, self.email_notify, self.twitter_dm_notify, self.twitter_public_notify)
+
 
 class Volunteer(models.Model):
     profile = models.OneToOneField(Profile, related_name="volunteer")
@@ -408,6 +411,28 @@ class Location(models.Model):
         except IntegrityError as e:
             pass
             # self.name = self.name + "salt:" +str(randint(0,1000))
+
+
+class Alerts(models.Model):
+    state = models.CharField(max_length=15)
+    lost_record = models.ForeignKey(LostPersonRecord, related_name="lost_records")
+    seen_record = models.ForeignKey(SightingRecord, blank=True, null=True, related_name="seen_records")
+    notifications = models.ForeignKey(Notifications, related_name="notifications")
+    sent = models.BooleanField(default=False)
+    hash = models.CharField(max_length=30, unique=True, blank=True, null=True)
+
+    def __str__(self):
+        return u'state: %s, lost: %s, seen: %s, notifications: %s' % (
+            self.state, self.lost_record, self.seen_record, self.notifications)
+
+    def get_link(self):
+        return "%s%s" % (settings.DOMAIN, reverse("report_alert", kwargs=dict(hash=self.hash)))
+
+    def save(self, *args, **kwargs):
+        if not self.hash:
+            self.hash = gen_unique_hash(self.__class__, 30)
+
+        super(self.__class__, self).save(*args, **kwargs)
 
 
 @receiver(post_save, sender=User)
