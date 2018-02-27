@@ -3,7 +3,8 @@
 <header>
     <nav class="navbar navbar-light navbar-expand-md fixed-top ">
         <a class="navbar-brand" href="{% url "index" %}">C-ASAP</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon" style="color:#7c9ad5"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -11,34 +12,38 @@
             </ul>
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link hdr-report-missing" href="{% url "report_lost" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
-                        <div class="badge badge-danger">Report missing person</div>
+                    <a class="nav-link"
+                       href="{% url "report_lost" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                        <button type="button" class="btn btn-danger btn-sm">
+                            Report Missing Person
+                        </button>
                     </a>
                 </li>
 
-                {% if user_profile %}
                 {% if request.user.is_superuser %}
 
-                <li class="nav-item">
-                    <div>
-                        <a class="nav-link" href="{% url "adminView" %}">Admin</a>
-                    </div>
-                </li>
-                {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           href="{% url "alert_list" %}">
+                            <button type="button" class="btn btn-warning btn-sm">
+                                Notifications {% if alert_len > 0 %} <span class="badge badge-danger">{{ alert_len }}</span>{% endif %}
+                            </button>
+                        </a>
+                    </li>
+
                 {% endif %}
                 {% if user_profile %}
                     {% if not user_profile.volunteer %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url "register_volunteer" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                            <a class="nav-link"
+                               href="{% url "register_volunteer" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
                                 Become a Volunteer
                             </a>
                         </li>
                     {% endif %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url "vulnerable_list" %}">Vulnerable Persons</a>
-                    </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             {{ user.first_name }}
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -46,18 +51,23 @@
                             {% if user_profile.volunteer %}
                                 <a class="dropdown-item" href="{% url "volunteer_edit" %}">My Volunteer Profile</a>
                             {% endif %}
+                            <a class="dropdown-item" href="{% url "vulnerable_list" %}">Vulnerable Persons</a>
                             {% if request.user.is_superuser %}
-                                <a class="dropdown-item" href="{% url "manage_notifications" %}">Manage Notifications</a>
+                                <a class="dropdown-item" href="{% url "adminView" %}">Admin Map Views</a>
+                                <a class="dropdown-item" href="{% url "manage_notifications" %}">Manage
+                                    Notifications</a>
                             {% endif %}
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{% url "logout" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                            <a class="dropdown-item"
+                               href="{% url "logout" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
                                 Logout
                             </a>
                         </div>
                     </li>
                 {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url "login" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                        <a class="nav-link"
+                           href="{% url "login" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
                             Login
                         </a>
                     </li>
