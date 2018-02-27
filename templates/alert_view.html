@@ -71,13 +71,14 @@
                                     </thead>
                                     <tbody>
                                     <tr>
-                                        <td style="text-align:justify">
+                                        <td style="text-align:left">
                                             Cell Phone
                                         </td>
                                         <td style="text-align:left">
                                             <div class="form-group">
                                                 <input type="checkbox" data-toggle="toggle" data-onstyle="success"
-                                                       data-offstyle="danger" data-size="small" id="id_phone"
+                                                       data-offstyle="danger" data-size="small" data-width="85"
+                                                       data-height="40" id="id_phone"
                                                        name="phone_notify" class="form-control"
                                                        {% if notif.phone_notify %}checked{% endif %}/>
                                             </div>
@@ -90,7 +91,8 @@
                                         <td style="text-align:left">
                                             <div class="form-group">
                                                 <input type="checkbox" data-toggle="toggle" data-onstyle="success"
-                                                       data-offstyle="danger" data-size="small" id="id_email"
+                                                       data-offstyle="danger" data-size="small" data-width="85"
+                                                       data-height="40" id="id_email"
                                                        name="email_notify"
                                                        class="form-control"
                                                        {% if notif.email_notify %}checked{% endif %}/>
@@ -99,27 +101,28 @@
                                     </tr>
 
                                     <tr>
-                                        <td style="text-align:justify">
+                                        <td style="text-align:left">
                                             Twitter Direct Messages
                                         </td>
                                         <td style="text-align:left">
                                             <div class="form-group">
                                                 <input type="checkbox" data-toggle="toggle" data-onstyle="success"
-                                                       data-offstyle="danger" data-size="small" data-size="normal"
+                                                       data-offstyle="danger" data-size="small" data-width="85"
+                                                       data-height="40"
                                                        id="id_twitter_dm" name="twitter_dm_notify" class="form-control"
                                                        {% if notif.twitter_dm_notify %}checked{% endif %}/>
                                             </div>
                                         </td>
                                     </tr>
-
                                     <tr>
-                                        <td style="text-align:justify">
+                                        <td style="text-align:left">
                                             Twitter Public Tweet
                                         </td>
                                         <td style="text-align:left">
                                             <div class="form-group">
                                                 <input type="checkbox" data-toggle="toggle" data-onstyle="success"
-                                                       data-offstyle="danger" data-size="small" data-size="normal"
+                                                       data-offstyle="danger" data-size="small" data-width="85"
+                                                       data-height="40"
                                                        id="id_twitter_public" name="twitter_public_notify"
                                                        class="form-control"
                                                        {% if notif.twitter_public_notify %}checked{% endif %}/>
@@ -129,10 +132,24 @@
                                     </tbody>
                                 </table>
                             </center>
-
-                            <div class="form-group">
-                                <button class="btn btn-primary float-right" type="submit">Send Notifications</button>
-                            </div>
+                            <table class="table" style="width:100%" cellpadding="10">
+                                <tr>
+                                    <td>
+                                        <div class="form-group">
+                                            <button class="btn btn btn-outline-danger" type="submit" name="ignoreAlert">
+                                                Ignore Alert
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td style="align-items:right">
+                                        <div class="form-group">
+                                            <button class="btn btn-primary float-right" type="submit" name="sendAlert">
+                                                Send Alert
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
                         </form>
                     </div>
                 </div>
