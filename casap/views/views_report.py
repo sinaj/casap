@@ -241,6 +241,7 @@ def alert_view(request, hash):
                                          alert.sighting_record.time))
 
                 alert.sent = True
+                alert.save()
                 add_message(request, messages.SUCCESS, "Notifications successfully sent.")
                 return HttpResponseRedirect(reverse("index"))
             else:
@@ -280,6 +281,7 @@ def alert_view(request, hash):
                                 tweet_helper(alert.lost_record.vulnerable.full_name, alert.lost_record.get_link(), flag,
                                              alert.seen_record.time))
                     alert.sent = True
+                    alert.save()
                     add_message(request, messages.SUCCESS, "Notifications successfully sent.")
                     return HttpResponseRedirect(reverse("index"))
         else:
