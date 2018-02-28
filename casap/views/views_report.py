@@ -240,6 +240,7 @@ def alert_view(request, hash):
                             tweet_helper(alert.lost_record.vulnerable.full_name, alert.lost_record.get_link(), flag,
                                          alert.sighting_record.time))
 
+                alert.sent = True
                 add_message(request, messages.SUCCESS, "Notifications successfully sent.")
                 return HttpResponseRedirect(reverse("index"))
             else:
@@ -348,7 +349,7 @@ def report_found_view(request, hash):
                 found_activity.location = fence_loc[0]
             found_activity.save()
             add_message(request, messages.SUCCESS, "Thank you! Our records are updated.")
-            return HttpResponseRedirect(request.POST.get("next", reverse("index")))
+            return HttpResponseRedirect(reverse("index"))
     else:
         form = FindRecordForm(initial=dict(time=get_user_time(request)))
         request.context['next'] = request.GET.get("next", reverse("index"))
