@@ -85,6 +85,11 @@ def register_volunteer_view(request):
                 for f in formset:
                     if f.cleaned_data.get('address'):  # Check if there is a provided address
                         address = get_address_map_google(f.cleaned_data['address'])
+                        for i in range(10):
+                            if map_response is None:
+                                map_response = get_address_map_google(address)
+                            else:
+                                break
                         if address is None:
                             raise forms.ValidationError("Address is invalid")
                         else:

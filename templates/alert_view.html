@@ -7,7 +7,6 @@
 
 {% block header_js %}
     <link rel="stylesheet" type="text/css" href="/static/css/bootstrap-toggle.min.css"/>
-    <script src="{% static "/js/bootstrap-toggle.min.js" %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -132,7 +131,7 @@
                                     </tbody>
                                 </table>
                             </center>
-                            <table class="table" style="width:100%" cellpadding="10">
+                            <table class="table" style="width:100%" cellpadding="0">
                                 <tr>
                                     <td>
                                         <div class="form-group">
@@ -156,4 +155,8 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block scripts_other_origin %}
+    <script src="{% static "/js/bootstrap-toggle.min.js" %}"></script>
 {% endblock %}
