@@ -2,7 +2,7 @@ import datetime
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from casap.models import LostActivity, Activity, FoundActivity
+from casap.models import LostActivity
 from casap.models import Vulnerable, Location
 from django.contrib.gis.geos import GEOSGeometry, Point, WKTWriter
 
@@ -17,27 +17,12 @@ def getPath(request):
     namePair = result.split(" ")
     firstName = namePair[0]
     lastName = namePair[1]
-    location_list = list()
 
     person = Vulnerable.objects.filter(first_name=firstName, last_name=lastName).first()
     wkt_w = WKTWriter()
-    loc_activities = list(LostActivity.objects.prefetch_related('location', 'person').filter(person=person,
+    loc_activities = LostActivity.objects.prefetch_related('location', 'person').filter(person=person,
                                                                                         category="Location").order_by(
-        'time'))
-
-    loc_activities2 = list(Activity.objects.prefetch_related('location', 'person').filter(person=person,
-                                                                                        category="Location").order_by(
-        'time'))
-
-    loc_activities3 = list(FoundActivity.objects.prefetch_related('location', 'person').filter(person=person,
-                                                                                         category="Location").order_by(
-        'time'))
-
-    location_list.extend(loc_activities)
-    location_list.extend(loc_activities2)
-    location_list.extend(loc_activities3)
-
-    location_list.sort(key=lambda x: x.time)
+        'time')
 
     j = 0
     # for the table summary. Group all similar location activities in order
@@ -49,7 +34,7 @@ def getPath(request):
     journeys = [
         []]  # list of lists of separate journey dicts to then add to ordered dict of features for template to draw
     feature_fences = []  # list of lists of locations to add
-    for l in location_list:
+    for l in loc_activities:
         if not startDate:
             startDate = l.time.date()
 
@@ -164,19 +149,4 @@ def getPath(request):
         to_add = geofence_record(f, wkt_fence, False)
         feature_fences.append([to_add])
 
-
-    list1 = list()
-    list2 = list()
-
-    print(journeys)
-    for i in journeys[0]:
-        if i.get('loc') != 'Reported found':
-            list2.append(i)
-        else:
-            list2.append(i)
-            list1.append(list2)
-            list2 = []
-
-    print(list1)
-
-    return Response(list1)
+    return Response(journeys)
