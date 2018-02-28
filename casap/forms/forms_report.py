@@ -13,6 +13,11 @@ class LostPersonRecordForm(forms.ModelForm):
             return self.cleaned_data['address']
         address = self.cleaned_data['address']
         map_response = get_address_map_google(address)
+        for i in range(10):
+            if map_response is None:
+                map_response = get_address_map_google(address)
+            else:
+                break
         if map_response is None:
             raise forms.ValidationError("Address is invalid")
         self.address_lat = map_response['lat']
@@ -42,10 +47,18 @@ class SightingRecordForm(forms.ModelForm):
     time = forms.DateTimeField(input_formats=['%Y-%m-%d %H:%M'])
 
     def clean_address(self):
-        if not self.cleaned_data['address']:
-            return self.cleaned_data['address']
+        # if not self.cleaned_data['address']:
+        #     return self.cleaned_data['address']
         address = self.cleaned_data['address']
+
         map_response = get_address_map_google(address)
+        
+        for i in range(10):
+            if map_response is None:
+                map_response = get_address_map_google(address)
+            else:
+                break
+
         if map_response is None:
             raise forms.ValidationError("Address is invalid")
         self.address_lat = map_response['lat']
@@ -89,6 +102,11 @@ class FindRecordForm(forms.ModelForm):
             return self.cleaned_data['address']
         address = self.cleaned_data['address']
         map_response = get_address_map_google(address)
+        for i in range(10):
+            if map_response is None:
+                map_response = get_address_map_google(address)
+            else:
+                break
         if map_response is None:
             raise forms.ValidationError("Address is invalid")
 

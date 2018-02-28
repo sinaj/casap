@@ -93,7 +93,7 @@ def get_standard_phone(raw_phone, ignore_error=None):
 
 def get_address_map_google(address):
     try:
-        address.replace(",", "")
+        address.replace(",", " ")
         address.replace("'", "")
         endpoint = 'https://maps.googleapis.com/maps/api/geocode/json'
         resp = requests.get(endpoint, params=dict(address=address))
