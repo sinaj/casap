@@ -269,17 +269,17 @@ def alert_view(request, hash):
                     if alert.state == 'Lost':
                         flag = 1
                         notify_volunteers(alert.lost_record, time_seen, flag, notif)
-                        # if notif.twitter_public_notify:
-                        #     send_tweet(
-                        #         tweet_helper(alert.lost_record.vulnerable.full_name, alert.lost_record.get_link(), flag,
-                        #                      alert.lost_record.time))
+                        if notif.twitter_public_notify:
+                            send_tweet(
+                                tweet_helper(alert.lost_record.vulnerable.full_name, alert.lost_record.get_link(), flag,
+                                             alert.lost_record.time))
                     else:
                         flag = 2
                         notify_volunteers(alert.seen_record, time_seen, flag, notif)
-                        # if notif.twitter_public_notify:
-                        #     send_tweet(
-                        #         tweet_helper(alert.lost_record.vulnerable.full_name, alert.lost_record.get_link(), flag,
-                        #                      alert.seen_record.time))
+                        if notif.twitter_public_notify:
+                            send_tweet(
+                                tweet_helper(alert.lost_record.vulnerable.full_name, alert.lost_record.get_link(), flag,
+                                             alert.seen_record.time))
                     alert.sent = True
                     alert.save()
                     add_message(request, messages.SUCCESS, "Notifications successfully sent.")
