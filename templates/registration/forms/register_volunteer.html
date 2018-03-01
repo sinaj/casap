@@ -33,26 +33,51 @@
 </h5><br>
 {{ formset.management_form }}
 {% for form in formset.forms %}
-    <div class="table">
+<div class="table">
+    <div class="row">
         {{ form.non_field_errors }}
         {{ form.field_errors }}
-        <tbody>
-        <tr>
-            <td>
-                <span>
-                    Street<span class="text-danger">*</span> {{ form.street }} City<span
-                        class="text-danger">*</span> {{ form.city }} Province<span
-                        class="text-danger">*</span> {{ form.province }}<br>
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Km Radius<span class="text-danger">*</span> {{ form.km_radius }} Delete {{ form.DELETE }}
-            </td>
-        </tr>
-        </tbody>
+        <div class="col-md-4 text-right">
+            Street<span class="text-danger">*</span>
+        </div>
+        <div class="col-md-4">
+            <input type="text" id="id_street" name="street" class="form-control" placeholder="e.g. whatever" required value="{{form.street|default:"" }}" autofocus>
+        </div>
+        <div class="col-md-4"></div>
+
     </div>
+
+   
+
+    <div class ="row center-block">
+
+            <div class="col-md-4"></div>
+
+            <div class="col-md-4">
+
+                <div class="row">
+                     City
+                    <span
+                    class="text-danger">*</span> {{ form.city }}
+                    Province<span
+                    class="text-danger">*</span> {{ form.province }}
+                </div>
+            </div>
+             <div class="col-md-4"></div> 
+    </div>
+
+    <div class="row">
+        <div class="col-md-4"></div>
+
+            <div class="col-md-4">
+        
+                Km Radius<span class="text-danger">*</span>
+                {{ form.km_radius }} Delete {{ form.DELETE }}
+            </div> 
+        <div class="col-md-4"></div>
+    </div> 
+</div>
+
 {% endfor %}
 <button class="btn btn-primary" type="button" id="add_more">Add Address</button>
 <hr>
