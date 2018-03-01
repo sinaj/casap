@@ -314,9 +314,7 @@ def notify_volunteers(notify_record, time_seen, flag, notif):
     for vol in Volunteer.objects.all():
         availability = VolunteerAvailability.objects.filter(volunteer=vol)
         for x in availability:
-            seen = datetime.datetime.strptime(time_seen, "%H:%M").time()
-            if (time_in_range(x.time_from, x.time_to, seen)) and \
-                    (vincenty((x.address_lat, x.address_lng), (lat, lng)).kilometers <= x.km_radius):
+            if (vincenty((x.address_lat, x.address_lng), (lat, lng)).kilometers <= x.km_radius):
                 close_volunteers.add(vol)
 
     for vol in close_volunteers:

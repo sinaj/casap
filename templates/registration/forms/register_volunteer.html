@@ -1,49 +1,68 @@
 {% load static %}
 
-<div class="form-group">
-    <label for="id_phone">Cell Phone<span class="text-danger">*</span></label>
+<div class="form-group row">
+    <label for="id_phone" class="col-sm-4 col-form-label">Cell Phone<span class="text-danger">*</span></label>
     {{ form.phone.errors }}
-
-    <input type="tel" id="id_phone" name="phone" class="form-control" placeholder="e.g. 780-123-4567" required
-           value="{{ form.phone.value|default:"" }}" autofocus>
+    <div class="col-sm-6">
+        <input type="tel" id="id_phone" name="phone" class="form-control" placeholder="e.g. 780-123-4567" required
+               value="{{ form.phone.value|default:"" }}" autofocus>
+    </div>
 
 </div>
-<div class="form-group">
-    <label for="id_email">Email<span class="text-danger">*</span></label>
+<div class="form-group row">
+    <label for="id_email" class="col-sm-4 col-form-label">Email<span class="text-danger">*</span></label>
     {{ form.email.errors }}
-
-    <input type="text" id="id_email" name="email" class="form-control" placeholder="e.g. username@email.com" required
-           value="{{ form.email.value|default:"" }}" autofocus>
+    <div class="col-sm-6">
+        <input type="text" id="id_email" name="email" class="form-control" placeholder="e.g. username@email.com"
+               required
+               value="{{ form.email.value|default:"" }}" autofocus>
+    </div>
 </div>
 
-<div class="form-group">
-    <label for="id_twitter">Twitter Handle</label>
+<div class="form-group row">
+    <label for="id_twitter" class="col-sm-4 col-form-label">Twitter Handle</label>
     {{ form.twitter_handle.errors }}
-
-    <input type="text" id="id_twitter_handle" name="twitter_handle" class="form-control" placeholder="e.g. casap91"
-           value="{{ form.twitter_handle.value|default:"" }}" autofocus>
+    <div class="col-sm-6">
+        <input type="text" id="id_twitter_handle" name="twitter_handle" class="form-control" placeholder="e.g. casap91"
+               value="{{ form.twitter_handle.value|default:"" }}" autofocus>
+    </div>
 
 </div>
-
+<hr>
+<h5>Areas of Availability
+</h5><br>
 {{ formset.management_form }}
 {% for form in formset.forms %}
     <div class="table">
         {{ form.non_field_errors }}
-        <table class="no_error">
-            {{ form.as_p }}
-        </table>
+        {{ form.field_errors }}
+        <tbody>
+        <tr>
+            <td>
+                <span>
+                    Street<span class="text-danger">*</span> {{ form.street }} City<span
+                        class="text-danger">*</span> {{ form.city }} Province<span
+                        class="text-danger">*</span> {{ form.province }}<br>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Km Radius<span class="text-danger">*</span> {{ form.km_radius }} Delete {{ form.DELETE }}
+            </td>
+        </tr>
+        </tbody>
     </div>
 {% endfor %}
 <button class="btn btn-primary" type="button" id="add_more">Add Address</button>
 <hr>
-{#<input type="button" value="Add More" id="add_more">#}
 <script>
     // language=JQuery-CSS
     $('#add_more').click(function () {
         cloneMore('div.table:last', 'volunteers');
     });
-</script>
 
+</script>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/static/css/time.css">
