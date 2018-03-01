@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% load tz %}
+{% load humanize %}
 
 {% block content %}
     <div class="content">
@@ -10,38 +11,41 @@
                 {% if request.user.is_authenticated %}
                     <a href="{% url "show_missing" hash=vul.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
                 {% endif %}
-                    {% if vul.time|timezone:user_tz_name > two_days_ago|timezone:user_tz_name and vul.time|timezone:user_tz_name < time_now|timezone:user_tz_name %}
-                        <div class="card" id="card_id" style="background-color:rgba(255, 0, 0, 0.1); border: 2px solid red">
-                    {% elif vul.time|timezone:user_tz_name > week_ago|timezone:user_tz_name and vul.time|timezone:user_tz_name < time_now|timezone:user_tz_name %}
-                        <div class="card" id="card_id" style="background-color:rgba(255, 0, 0, 0.1); border: 2px solid green">
-                    {% else %}
-                        <div class="card" id="card_id" style="background-color:rgba(255, 0, 0, 0.1); border: 2px solid blue">
-                    {% endif %}
-                    <div class="overlay" style="background-color:rgba(255,72,67,0.6)">
-                        <div class="container-fluid clearfix"
-                             style="background-color: rgba(255, 255, 255, 0.7)">
-                            <h6>
-                                <div style="text-align: center;">Reported missing on:<br><br>
-                                    {{ vul.time.date }} at {{ vul.time|timezone:user_tz_name|time }}</div>
-                                <hr>
-                                <div style="text-align: center;">Location:</div>
-                                <br>
-                                <div style="text-align: center;">{{ vul.address }}</div>
-                                <br>
-                            </h6>
+            {% if vul.time|timezone:user_tz_name > two_days_ago|timezone:user_tz_name and vul.time|timezone:user_tz_name < time_now|timezone:user_tz_name %}
+                <div class="card" id="card_id" style="background-color:rgba(255, 0, 0, 0.1); border: 2px solid black">
+            {% elif vul.time|timezone:user_tz_name > week_ago|timezone:user_tz_name and vul.time|timezone:user_tz_name < time_now|timezone:user_tz_name %}
+                <div class="card" id="card_id" style="background-color:rgba(255, 0, 0, 0.1); border: 2px solid black">
+            {% else %}
+                <div class="card" id="card_id" style="background-color:rgba(255, 0, 0, 0.1); border: 2px solid black">
+            {% endif %}
+            <div class="overlay" style="background-color:rgba(255,72,67,0.6)">
+                <div class="container-fluid clearfix"
+                     style="background-color: rgba(255, 255, 255, 0.7)">
+                    <h6>
+                        <div style="text-align: center;">Reported missing on:<br><br>
+                            {{ vul.time.date }} at {{ vul.time|timezone:user_tz_name|time }}</div>
+                        <hr>
+                        <div style="text-align: center;">Days missing: {{ vul.time|naturaltime }}
+                            <hr>
                         </div>
-                    </div>
-                    <img class="card-img-top img-fit" src="{{ vul.vulnerable.picture.url }}">
-                    <div class="card-body">
-                        <div class="container-fluid p-1 clearfix">
-                            <h5 class="card-title d-inline">{{ vul.vulnerable.full_name }}</h5>
-                            <span class="badge badge-danger float-right">Missing</span>
-                        </div>
-                    </div>
-                    </div>
-                {% if request.user.is_authenticated %}
+                        <div style="text-align: center;">Location:</div>
+                        <br>
+                        <div style="text-align: center;">{{ vul.address }}</div>
+                        <br>
+                    </h6>
+                </div>
+            </div>
+            <img class="card-img-top img-fit" src="{{ vul.vulnerable.picture.url }}">
+            <div class="card-body">
+                <div class="container-fluid p-1 clearfix">
+                    <h5 class="card-title d-inline">{{ vul.vulnerable.full_name }}</h5>
+                    <span class="badge badge-danger float-right">Missing</span>
+                </div>
+            </div>
+            </div>
+            {% if request.user.is_authenticated %}
                 </a>
-                {% endif %}
+            {% endif %}
             {% endfor %}
         </div>
     </div>
@@ -52,38 +56,45 @@
                 {% if request.user.is_authenticated %}
                     <a href="{% url "show_missing" hash=vul.lost_record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
                 {% endif %}
-                    {% if vul.time|timezone:user_tz_name > two_days_ago|timezone:user_tz_name and vul.time|timezone:user_tz_name < time_now|timezone:user_tz_name %}
-                        <div class="card" id="card_id" style="background-color:rgba(255, 255 , 0, 0.1); border: 2px solid red">
-                    {% elif vul.time|timezone:user_tz_name > week_ago|timezone:user_tz_name and vul.time|timezone:user_tz_name < time_now|timezone:user_tz_name %}
-                        <div class="card" id="card_id" style="background-color:rgba(255, 255 , 0, 0.1); border: 2px solid green">
-                    {% else %}
-                        <div class="card" id="card_id" style="background-color:rgba(255, 255 , 0, 0.1); border: 2px solid blue">
-                    {% endif %}
-                    <div class="overlay" id="card_id" style="background-color:rgba(255, 255, 0, 0.7)">
-                        <div class="container-fluid clearfix"
-                             style="background-color: rgba(255, 255, 0, 0.7)">
-                            <h6>
-                                <div style="text-align: center;">Reported last seen on:<br><br>
-                                    {{ vul.time.date }} at {{ vul.time|timezone:user_tz_name|time }}</div>
-                                <hr>
-                                <div style="text-align: center;">Location:</div>
-                                <br>
-                                <div style="text-align: center;">{{ vul.address }}</div>
-                                <br>
-                            </h6>
-                        </div>
-                    </div>
-                    <img class="card-img-top img-fit" src="{{ vul.lost_record.vulnerable.picture.url }}">
-                    <div class="card-body">
-                        <div class="container-fluid p-1 clearfix">
-                            <h5 class="card-title d-inline">{{ vul.lost_record.vulnerable.full_name }}</h5>
-                            <span class="badge badge-warning float-right">Seen</span>
-                        </div>
-                    </div>
-                    </div>
-                {% if request.user.is_authenticated %}
-                    </a>
-                {% endif %}
+            {% if vul.time|timezone:user_tz_name > two_days_ago|timezone:user_tz_name and vul.time|timezone:user_tz_name < time_now|timezone:user_tz_name %}
+                <div class="card" id="card_id"
+                     style="background-color:rgba(255, 255 , 0, 0.1); border: 2px solid black">
+            {% elif vul.time|timezone:user_tz_name > week_ago|timezone:user_tz_name and vul.time|timezone:user_tz_name < time_now|timezone:user_tz_name %}
+                <div class="card" id="card_id"
+                     style="background-color:rgba(255, 255 , 0, 0.1); border: 2px solid black">
+            {% else %}
+                <div class="card" id="card_id"
+                     style="background-color:rgba(255, 255 , 0, 0.1); border: 2px solid black">
+            {% endif %}
+            <div class="overlay" id="card_id" style="background-color:rgba(255, 255, 0, 0.7)">
+                <div class="container-fluid clearfix"
+                     style="background-color: rgba(255, 255, 0, 0.7)">
+                    <h6>
+                        <div style="text-align: center;">Reported last seen on:<br><br>
+                            {{ vul.time.date }} at {{ vul.time|timezone:user_tz_name|time }}</div>
+                        <hr>
+                        <div style="text-align: center;">Days missing: {{ vul.lost_record.time|naturaltime }}</div>
+                        <div style="text-align: center;">Days last seen: {{ vul.time|naturaltime }}</div>
+                            <hr>
+
+                            <div style="text-align: center;">Location:</div>
+                            <br>
+                            <div style="text-align: center;">{{ vul.address }}</div>
+                            <br>
+                    </h6>
+                </div>
+            </div>
+            <img class="card-img-top img-fit" src="{{ vul.lost_record.vulnerable.picture.url }}">
+            <div class="card-body">
+                <div class="container-fluid p-1 clearfix">
+                    <h5 class="card-title d-inline">{{ vul.lost_record.vulnerable.full_name }}</h5>
+                    <span class="badge badge-warning float-right">Seen</span>
+                </div>
+            </div>
+            </div>
+            {% if request.user.is_authenticated %}
+                </a>
+            {% endif %}
             {% endfor %}
         </div>
     </div>
