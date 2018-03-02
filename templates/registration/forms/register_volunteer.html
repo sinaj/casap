@@ -37,49 +37,70 @@
     <div class="row">
         {{ form.non_field_errors }}
         {{ form.field_errors }}
-        <div class="col-md-4 text-right">
+        <div class="col-md-4 col-form-label col-sm-6">
             Street<span class="text-danger">*</span>
         </div>
-        <div class="col-md-4">
-            <input type="text" id="id_street" name="street" class="form-control" placeholder="e.g. whatever" required value="{{form.street|default:"" }}" autofocus>
+        <div class="col-md-4 col-sm-1">
+        <input type="text" id="id_street" name="street" class="form-control" placeholder="e.g. whatever" required value="{{ form.street.value|default:""}}">
         </div>
-        <div class="col-md-4"></div>
+        <div class="col-md-4 col-sm-5"></div>
 
     </div>
 
    
 
-    <div class ="row center-block">
+    <div class ="row">
 
-            <div class="col-md-4"></div>
+            <div class="col-md-4 col-form-label">
+                City
+                    <span
+                    class="text-danger">*</span>
+            </div>
 
             <div class="col-md-4">
 
                 <div class="row">
-                     City
-                    <span
-                    class="text-danger">*</span> {{ form.city }}
-                    Province<span
-                    class="text-danger">*</span> {{ form.province }}
+                     <div class="col-md-6">
+                      <input type="text" id="id_street" name="street" class="form-control" placeholder="e.g.edmonton" required value="{{form.city.value|default:"" }}" autofocus>
+                    
                 </div>
+                
+                 <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-8 col-form-label">
+                Province<span
+                    class="text-danger">*</span> 
+                </div>
+                <div class="col-md-4">{{ form.province }}
+                </div>
+                </div>
+            </div> 
             </div>
-             <div class="col-md-4"></div> 
+           
+        </div>
     </div>
 
     <div class="row">
-        <div class="col-md-4"></div>
+        <div class="col-md-4 col-form-label">Km Radius<span class="text-danger">*</span></div>
 
             <div class="col-md-4">
+                <div class="row">
+                     <div class="col-md-6">
+                      <input type="text" id="id_street" name="street" class="form-control" placeholder="e.g.edmonton" required value="{{form.km_radius.value|default:"" }}" autofocus> Delete {{ form.DELETE }}
+                    
+                </div>
         
-                Km Radius<span class="text-danger">*</span>
-                {{ form.km_radius }} Delete {{ form.DELETE }}
             </div> 
         <div class="col-md-4"></div>
     </div> 
 </div>
 
 {% endfor %}
-<button class="btn btn-primary" type="button" id="add_more">Add Address</button>
+<div class="row">
+    <div class="col-md-4"></div>
+<button class="btn btn-primary col-md-4 center-block" type="button" id="add_more">Add Address</button>
+<div class="col-md-4"></div>
+</div>
 <hr>
 <script>
     // language=JQuery-CSS
