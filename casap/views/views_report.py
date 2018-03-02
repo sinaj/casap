@@ -97,8 +97,10 @@ def send_alert_email(profile, lost_alert):
 @login_required
 def report_lost_view(request):
     coordinators = Profile.objects.filter(coordinator_email=True)
+    profile = request.context['user_profile']
     if request.method == "POST":
         form = LostPersonRecordForm(request.POST)
+        notif_form = ManageNotificationsForm(request.POST)
         request.context['next'] = request.POST.get("next", reverse("index"))
         if form.is_valid():
             vulnerable = Vulnerable.objects.filter(hash=request.POST.get("vulnerable")).first()
@@ -120,8 +122,67 @@ def report_lost_view(request):
                     state='Lost', lost_record=lost_record, notifications=notif
                 )
                 lost_alert.save()
-                for coord in coordinators:
-                    send_alert_email(coord, lost_alert)
+                if notif_form.is_valid():
+                    if notif_form.cleaned_data.get('phone_notify'):
+                        notif.phone_notify = True
+                    else:
+                        notif.phone_notify = False
+                    if notif_form.cleaned_data.get('email_notify'):
+                        notif.email_notify = True
+                    else:
+                        notif.email_notify = False
+                    if notif_form.cleaned_data.get('twitter_dm_notify'):
+                        notif.twitter_dm_notify = True
+                    else:
+                        notif.twitter_dm_notify = False
+                    if notif_form.cleaned_data.get('twitter_public_notify'):
+                        notif.twitter_public_notify = True
+                    else:
+                        notif.twitter_public_notify = False
+                    notif.save()
+                    time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime(
+                        "%H:%M")
+                    flag = 1
+                    notify_volunteers(lost_alert.lost_record, time_seen, flag, notif)
+                    if notif.twitter_public_notify:
+                        send_tweet(
+                            tweet_helper(lost_alert.lost_record.vulnerable.full_name, lost_alert.lost_record.get_link(),
+                                         flag,
+                                         lost_alert.lost_record.time))
+                    lost_alert.sent = True
+                    lost_alert.save()
+                else:
+                    if notif_form.cleaned_data.get('phone_notify'):
+                        notif.phone_notify = True
+                    else:
+                        notif.phone_notify = False
+                    if notif_form.cleaned_data.get('email_notify'):
+                        notif.email_notify = True
+                    else:
+                        notif.email_notify = False
+                    if notif_form.cleaned_data.get('twitter_dm_notify'):
+                        notif.twitter_dm_notify = True
+                    else:
+                        notif.twitter_dm_notify = False
+                    if notif_form.cleaned_data.get('twitter_public_notify'):
+                        notif.twitter_public_notify = True
+                    else:
+                        notif.twitter_public_notify = False
+                    notif.save()
+                    time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime(
+                        "%H:%M")
+                    flag = 1
+                    notify_volunteers(lost_alert.lost_record, time_seen, flag, notif)
+                    if notif.twitter_public_notify:
+                        send_tweet(
+                            tweet_helper(lost_alert.lost_record.vulnerable.full_name, lost_alert.lost_record.get_link(),
+                                         flag,
+                                         lost_alert.lost_record.time))
+                    lost_alert.sent = True
+                    lost_alert.save()
+
+                # for coord in coordinators:
+                #     send_alert_email(coord, lost_alert)
                 success_msg = "Success! %s has been reported lost." % vulnerable.full_name
                 add_message(request, messages.SUCCESS, success_msg)
                 return HttpResponseRedirect(reverse("index"))
@@ -129,13 +190,16 @@ def report_lost_view(request):
                 form.add_error("vulnerable", ValidationError("Vulnerable person not found"))
     else:
         form = LostPersonRecordForm(initial=dict(time=get_user_time(request)))
+        notif_form = ManageNotificationsForm(request.POST)
         request.context['next'] = request.GET.get("next", reverse("index"))
 
+    request.context['notif_form'] = notif_form
     profile = request.context['user_profile']
+    notif = Notifications()
+    request.context['notif'] = notif
     request.context['form'] = form
     request.context['all_timezones'] = pytz.all_timezones
-    request.context['vulnerable_people'] = [dict(hash=vul.hash, name=vul.full_name) for vul in
-                                            profile.vulnerable_people.all()]
+    request.context['vulnerable_people'] = [dict(hash=vul.hash, name=vul.full_name) for vul in Vulnerable.objects.all()]
     return render(request, "report/report_lost.html", request.context)
 
 
@@ -265,7 +329,8 @@ def alert_view(request, hash):
 
                     notif.save()
 
-                    time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime("%H:%M")
+                    time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime(
+                        "%H:%M")
                     if alert.state == 'Lost':
                         flag = 1
                         notify_volunteers(alert.lost_record, time_seen, flag, notif)
@@ -314,9 +379,7 @@ def notify_volunteers(notify_record, time_seen, flag, notif):
     for vol in Volunteer.objects.all():
         availability = VolunteerAvailability.objects.filter(volunteer=vol)
         for x in availability:
-            seen = datetime.datetime.strptime(time_seen, "%H:%M").time()
-            if (time_in_range(x.time_from, x.time_to, seen)) and \
-                    (vincenty((x.address_lat, x.address_lng), (lat, lng)).kilometers <= x.km_radius):
+            if (vincenty((x.address_lat, x.address_lng), (lat, lng)).kilometers <= x.km_radius):
                 close_volunteers.add(vol)
 
     for vol in close_volunteers:
