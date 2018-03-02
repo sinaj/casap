@@ -11,6 +11,7 @@
             <ul class="navbar-nav mr-auto">
             </ul>
             <ul class="navbar-nav">
+            {% if request.user.is_superuser %}
                 <li class="nav-item">
                     <a class="nav-link"
                        href="{% url "report_lost" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
@@ -19,6 +20,7 @@
                         </button>
                     </a>
                 </li>
+            {% endif %}
 
                 {% if request.user.is_superuser %}
                     {% if alert_len > 0 %}

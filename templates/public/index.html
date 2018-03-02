@@ -25,7 +25,7 @@
                         <div style="text-align: center;">Reported missing on:<br><br>
                             {{ vul.time.date }} at {{ vul.time|timezone:user_tz_name|time }}</div>
                         <hr>
-                        <div style="text-align: center;">Days missing: {{ vul.time|naturaltime }}
+                        <div style="text-align: center;">Missing: {{ vul.time|naturaltime }}
                             <hr>
                         </div>
                         <div style="text-align: center;">Location:</div>
@@ -49,6 +49,7 @@
             {% endfor %}
         </div>
     </div>
+    <hr>
     <div class="content">
         <h4 style="text-align:center">Recently seen</h4>
         <div class="seen_people">
@@ -73,8 +74,8 @@
                         <div style="text-align: center;">Reported last seen on:<br><br>
                             {{ vul.time.date }} at {{ vul.time|timezone:user_tz_name|time }}</div>
                         <hr>
-                        <div style="text-align: center;">Days missing: {{ vul.lost_record.time|naturaltime }}</div>
-                        <div style="text-align: center;">Days last seen: {{ vul.time|naturaltime }}</div>
+                        <div style="text-align: center;">Missing: {{ vul.lost_record.time|naturaltime }}</div>
+                        <div style="text-align: center;">Last seen: {{ vul.time|naturaltime }}</div>
                             <hr>
 
                             <div style="text-align: center;">Location:</div>
