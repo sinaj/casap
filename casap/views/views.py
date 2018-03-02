@@ -67,7 +67,7 @@ def admin_view(request):
     for each in VolunteerAvailability.objects.all():
 
         vol_details = [each.address_lat, each.address_lng, each.km_radius, each.address, each.volunteer.full_name,
-                       each.time_to.strftime('%H:%M'), each.time_from.strftime('%H:%M')]
+                      ]
 
         avail.append(vol_details)
 

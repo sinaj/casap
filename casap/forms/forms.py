@@ -62,28 +62,23 @@ class ManageNotificationsForm(forms.ModelForm):
 
 
 class VolunteerAvailabilityForm(forms.ModelForm):
-    time_from = TimeField(widget=forms.widgets.DateInput(attrs={'type': 'time',
-                                                                'class': 'form-control',
-                                                                'required': True
-                                                                }))
-    time_to = TimeField(widget=forms.widgets.DateInput(attrs={'type': 'time',
-                                                              'class': 'form-control',
-                                                              'required': True
-                                                              }))
+    street = forms.CharField(widget=forms.TextInput(attrs={'size': '30',
+                                                           'placeholder': "e.g. 15 Bermuda Rd NW",
+                                                           'class': 'form-control'}))
+    city = forms.CharField(widget=forms.TextInput(attrs={'size': '20',
+                                                         'placeholder': "e.g. Calgary",
+                                                         'class': 'form-control'
+                                                         }))
 
     class Meta:
         model = VolunteerAvailability
-        widgets = {
-            'address': forms.TextInput(attrs={'class': 'form-control',
-                                              'placeholder': 'e.g. 12345 74 ST Edmonton AB',
-                                              'required': True
-                                              })
-        }
-        exclude = ('address_lat', 'address_lng')
+        fields = ['street', 'city', 'province', 'km_radius']
+        exclude = ('address_lat', 'address_lng', 'address')
 
     def clean_personal_address(self):
         if not self.cleaned_data['address']:
             return self.cleaned_data['address']
+
         address = self.cleaned_data['address']
         map_response = get_address_map_google(address)
         if map_response is None:

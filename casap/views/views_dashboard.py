@@ -170,35 +170,41 @@ def volunteer_edit_view(request):
         if form.is_valid():
             volunteer = form.save(commit=False)
             volunteer.profile = profile
-            volunteer.save()
         formset = availability_formset(request.POST, instance=volunteer)
         VolunteerAvailability.objects.filter(volunteer=volunteer).delete()
         formset.is_valid()
         for f in formset:
-            if f.cleaned_data.get('address'):  # Check if there is a provided address
-                address = get_address_map_google(f.cleaned_data['address'])
+            if f.cleaned_data.get('street') and f.cleaned_data.get('city') and f.cleaned_data.get(
+                    'province') and f.cleaned_data.get('km_radius'):  # Check if there is a provided address
+                add = f.cleaned_data.get('street') + " " + f.cleaned_data.get(
+                    'city') + " " + f.cleaned_data.get('province')
+                address = get_address_map_google(add)
                 for i in range(10):
-                    if map_response is None:
-                        map_response = get_address_map_google(address)
+                    if address is None:
+                        address = get_address_map_google(address)
                     else:
                         break
                 if address is None:
-                    raise forms.ValidationError("Address is invalid")
-                if not f.cleaned_data.get('time_from') or not f.cleaned_data.get('time_to'):
-                    raise forms.ValidationError("Time inputted is invalid")
+                    messages.error(request, 'Address entered cannot be found.')
                 else:
                     # Create new windows of availabilities for a volunteer
-                    availability = VolunteerAvailability(volunteer=volunteer, address=f.cleaned_data.get('address'),
+                    availability = VolunteerAvailability(volunteer=volunteer, address=add,
+                                                         street=f.cleaned_data['street'],
+                                                         city=f.cleaned_data['city'],
+                                                         province=f.cleaned_data['province'],
                                                          address_lat=address['lat'], address_lng=address['lng'],
-                                                         time_from=f.cleaned_data['time_from'],
-                                                         time_to=f.cleaned_data['time_to'])
+                                                         km_radius=f.cleaned_data['km_radius'])
+                    volunteer.save()
                     availability.save()
+                    add_message(request, messages.SUCCESS, "Changes saved successfully.")
 
-        add_message(request, messages.SUCCESS, "Changes saved successfully.")
         request.context['next'] = next
     else:
+        how_many = len(VolunteerAvailability.objects.filter(volunteer=profile.volunteer).values())
+        if how_many == 0:
+            how_many = 1
         availability_formset = inlineformset_factory(Volunteer, VolunteerAvailability,
-                                                     form=VolunteerAvailabilityForm, fk_name="volunteer", extra=1)
+                                                     form=VolunteerAvailabilityForm, fk_name="volunteer", extra=how_many)
         list_of_avail = VolunteerAvailability.objects.filter(volunteer=profile.volunteer).values()
         item_forms = availability_formset(initial=list_of_avail, prefix='volunteers')
         request.context['next'] = request.GET.get('next', reverse("index"))

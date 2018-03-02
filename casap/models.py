@@ -99,18 +99,37 @@ class Volunteer(models.Model):
         return str(self.profile)
 
 
+PROVINCE_CHOICES = (
+    ('ab', 'AB'),
+    ('bc', 'BC'),
+    ('mb', 'MB'),
+    ('nb', 'NB'),
+    ('nl', 'NL'),
+    ('ns', 'NS'),
+    ('nt', 'NT'),
+    ('nu', 'NU'),
+    ('on', 'ON'),
+    ('pe', 'PE'),
+    ('qc', 'QC'),
+    ('sk', 'SK'),
+    ('yt', 'YT')
+)
+
+
 class VolunteerAvailability(models.Model):
     volunteer = models.ForeignKey(Volunteer, related_name="volunteers")
     address = models.TextField()
     address_lat = models.FloatField()
     address_lng = models.FloatField()
-    time_from = models.TimeField()
-    time_to = models.TimeField()
+    street = models.CharField(max_length=50, null=True)
+    city = models.CharField(max_length=50, null=True)
+    province = models.CharField(max_length=4, choices=PROVINCE_CHOICES, default='ab')
+
     km_radius = models.IntegerField(default=5)
 
     def __str__(self):
-        return u"%s - %s from %s to %s km %s" % (
-            self.volunteer, self.address, self.time_from, self.time_to, self.km_radius)
+        return u"%s - %s km %s" % (
+            self.volunteer, self.address, self.km_radius)
 
 
 class Vulnerable(models.Model):
