@@ -82,8 +82,10 @@ def register_volunteer_view(request):
             formset = availability_formset(request.POST, request.FILES, prefix='volunteers')
             if formset.is_valid():
                 for f in formset:
-                    if f.cleaned_data.get('street') and f.cleaned_data.get('city') and f.cleaned_data.get('province') and f.cleaned_data.get('km_radius'):  # Check if there is a provided address
-                        add = f.cleaned_data.get('street') + " " + f.cleaned_data.get('city') + " " + f.cleaned_data.get('province')
+                    if f.cleaned_data.get('street') and f.cleaned_data.get('city') and f.cleaned_data.get(
+                            'province') and f.cleaned_data.get('km_radius'):  # Check if there is a provided address
+                        add = f.cleaned_data.get('street') + " " + f.cleaned_data.get(
+                            'city') + " " + f.cleaned_data.get('province')
                         address = get_address_map_google(add)
                         for i in range(10):
                             if address is None:
@@ -91,18 +93,24 @@ def register_volunteer_view(request):
                             else:
                                 break
                         if address is None:
-                            raise forms.ValidationError("Address is invalid")
+                            messages.error(request, 'Address entered cannot be found.')
                         else:
                             volunteer.save()
                             # Create new windows of availabilities for a volunteer
-                            availability = VolunteerAvailability(volunteer=volunteer, address=add, street=f.cleaned_data['street'], city=f.cleaned_data['city'], province=f.cleaned_data['province'],
-                                                                 address_lat=address['lat'], address_lng=address['lng'], km_radius=f.cleaned_data['km_radius'])
+                            availability = VolunteerAvailability(volunteer=volunteer, address=add,
+                                                                 street=f.cleaned_data['street'],
+                                                                 city=f.cleaned_data['city'],
+                                                                 province=f.cleaned_data['province'],
+                                                                 address_lat=address['lat'], address_lng=address['lng'],
+                                                                 km_radius=f.cleaned_data['km_radius'])
                             availability.save()
 
             else:
                 for f in formset:
-                    if f.cleaned_data.get('street') and f.cleaned_data.get('city') and f.cleaned_data.get('province') and f.cleaned_data.get('km_radius'):  # Check if there is a provided address
-                        add = f.cleaned_data.get('street') + " " + f.cleaned_data.get('city') + " " + f.cleaned_data.get('province')
+                    if f.cleaned_data.get('street') and f.cleaned_data.get('city') and f.cleaned_data.get(
+                            'province') and f.cleaned_data.get('km_radius'):  # Check if there is a provided address
+                        add = f.cleaned_data.get('street') + " " + f.cleaned_data.get(
+                            'city') + " " + f.cleaned_data.get('province')
                         address = get_address_map_google(add)
                         for i in range(10):
                             if address is None:
@@ -110,15 +118,18 @@ def register_volunteer_view(request):
                             else:
                                 break
                         if address is None:
-                            raise forms.ValidationError("Address is invalid")
+                            messages.error(request, 'Address entered cannot be found.')
                         else:
                             volunteer.save()
                             # Create new windows of availabilities for a volunteer
-                            availability = VolunteerAvailability(volunteer=volunteer, address=add, street=f.cleaned_data['street'], city=f.cleaned_data['city'], province=f.cleaned_data['province'],
-                                                                 address_lat=address['lat'], address_lng=address['lng'], km_radius=f.cleaned_data['km_radius'])
+                            availability = VolunteerAvailability(volunteer=volunteer, address=add,
+                                                                 street=f.cleaned_data['street'],
+                                                                 city=f.cleaned_data['city'],
+                                                                 province=f.cleaned_data['province'],
+                                                                 address_lat=address['lat'], address_lng=address['lng'],
+                                                                 km_radius=f.cleaned_data['km_radius'])
 
                             availability.save()
-
 
             add_message(request, messages.SUCCESS, "Registration was successful.")
             return HttpResponseRedirect(request.POST.get("next", reverse("index")))
