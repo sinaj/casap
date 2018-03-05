@@ -73,22 +73,25 @@
         <hr>
     </div>
 {% endfor %}
-<div class="row">
-    <div class="col-md-4"></div>
-    <button class="btn btn-primary col-md-4 center-block" type="button" id="add_more">Add Additional Area</button>
-    <div class="col-md-4"></div>
-</div>
+<span>
+    <center>
+        <button class="btn btn-danger" type="button" id="remove_form">Remove Last Area</button>
+        <button class="btn btn-primary" type="button" id="add_more">Add Additional Area</button>
+    </center>
+</span>
 <hr>
 <script>
     // language=JQuery-CSS
     $('#add_more').click(function () {
         cloneMore('div.table:last', 'volunteers');
     });
+    // language=JQuery-CSS
+    $('#remove_form').click(function () {
+        removeForm('div.table:last', 'volunteers');
+    });
 
 </script>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="{% static 'js/jquery.formset.js' %}"></script>
 <script type="text/javascript" src="/static/js/plugins/bootstrap.min.js"></script>
 
 <script>
@@ -100,18 +103,34 @@
     function cloneMore(selector, type) {
         var newElement = $(selector).clone(true);
         var total = $('#id_' + type + '-TOTAL_FORMS').val();
-        newElement.find(':input').each(function () {
-            var name = $(this).attr('name').replace('-' + (total - 1) + '-', '-' + total + '-');
-            var id = 'id_' + name;
-            $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
-        });
-        newElement.find('label').each(function () {
-            var newFor = $(this).attr('for').replace('-' + (total - 1) + '-', '-' + total + '-');
-            $(this).attr('for', newFor);
-        });
-        total++;
-        $('#id_' + type + '-TOTAL_FORMS').val(total);
-        $(selector).after(newElement);
+        if (total == 5) {
+            alert('The maximum amount of area of availabilities is 5.')
+        } else {
+            newElement.find(':input').each(function () {
+                var name = $(this).attr('name').replace('-' + (total - 1) + '-', '-' + total + '-');
+                var id = 'id_' + name;
+                $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+            });
+            newElement.find('label').each(function () {
+                var newFor = $(this).attr('for').replace('-' + (total - 1) + '-', '-' + total + '-');
+                $(this).attr('for', newFor);
+            });
+            total++;
+            $('#id_' + type + '-TOTAL_FORMS').val(total);
+            $(selector).after(newElement);
+        }
+    }
+
+    function removeForm(selector, type) {
+        var lastElement = $(selector);
+        var total = $('#id_' + type + '-TOTAL_FORMS').val();
+        if (total == 1) {
+            alert('Must provide at least 1 area of availability')
+        } else {
+            total--;
+            $('#id_' + type + '-TOTAL_FORMS').val(total);
+            lastElement.remove();
+        }
     }
 
 </script>
