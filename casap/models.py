@@ -81,8 +81,8 @@ class Notifications(models.Model):
 
 class Volunteer(models.Model):
     profile = models.OneToOneField(Profile, related_name="volunteer")
-    phone = models.CharField(max_length=15)
-    email = models.TextField(max_length=50)
+    phone = models.CharField(max_length=15, null=True, blank=True)
+    email = models.TextField(max_length=50, null=True, blank=True)
     twitter_handle = models.CharField(max_length=50, null=True, blank=True)
     hash = models.CharField(max_length=30, unique=True, blank=True)
 

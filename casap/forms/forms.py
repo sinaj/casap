@@ -90,19 +90,22 @@ class VolunteerAvailabilityForm(forms.ModelForm):
 
 
 class VolunteerForm(forms.ModelForm):
+
     def clean_phone(self):
-        standard_phone = get_standard_phone(self.cleaned_data['phone'])
-        if standard_phone:
-            return standard_phone
-        raise forms.ValidationError("Phone number is invalid.")
+        if self.cleaned_data.get('phone'):
+            standard_phone = get_standard_phone(self.cleaned_data['phone'])
+            if standard_phone:
+                return standard_phone
+            raise forms.ValidationError("Phone number is invalid.")
 
     def clean_email(self):
-        try:
-            validate_email(self.cleaned_data['email'])
-        except:
-            raise forms.ValidationError("Email is invalid.")
-        else:
-            return self.cleaned_data['email']
+        if self.cleaned_data.get('email'):
+            try:
+                validate_email(self.cleaned_data['email'])
+            except:
+                raise forms.ValidationError("Email is invalid.")
+            else:
+                return self.cleaned_data['email']
 
     def clean_twitter_handle(self):
         if self.cleaned_data.get('twitter_handle'):
