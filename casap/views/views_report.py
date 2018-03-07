@@ -100,7 +100,6 @@ def report_lost_view(request):
     profile = request.context['user_profile']
     if request.method == "POST":
         form = LostPersonRecordForm(request.POST)
-        notif_form = ManageNotificationsForm(request.POST)
         request.context['next'] = request.POST.get("next", reverse("index"))
         if form.is_valid():
             vulnerable = Vulnerable.objects.filter(hash=request.POST.get("vulnerable")).first()
@@ -116,87 +115,24 @@ def report_lost_view(request):
                 if fence_loc:
                     lost_activity.location = fence_loc[0]
                 lost_activity.save()
-                notif = Notifications()
-                notif.save()
-                lost_alert = Alerts(
-                    state='Lost', lost_record=lost_record, notifications=notif
-                )
-                lost_alert.save()
-                if notif_form.is_valid():
-                    if notif_form.cleaned_data.get('phone_notify'):
-                        notif.phone_notify = True
-                    else:
-                        notif.phone_notify = False
-                    if notif_form.cleaned_data.get('email_notify'):
-                        notif.email_notify = True
-                    else:
-                        notif.email_notify = False
-                    if notif_form.cleaned_data.get('twitter_dm_notify'):
-                        notif.twitter_dm_notify = True
-                    else:
-                        notif.twitter_dm_notify = False
-                    if notif_form.cleaned_data.get('twitter_public_notify'):
-                        notif.twitter_public_notify = True
-                    else:
-                        notif.twitter_public_notify = False
-                    notif.save()
-                    time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime(
-                        "%H:%M")
-                    flag = 1
-                    notify_volunteers(lost_alert.lost_record, time_seen, flag, notif)
-                    if notif.twitter_public_notify:
-                        send_tweet(
-                            tweet_helper(lost_alert.lost_record.vulnerable.full_name, lost_alert.lost_record.get_link(),
-                                         flag,
-                                         lost_alert.lost_record.time))
-                    lost_alert.sent = True
-                    lost_alert.save()
-                else:
-                    if notif_form.cleaned_data.get('phone_notify'):
-                        notif.phone_notify = True
-                    else:
-                        notif.phone_notify = False
-                    if notif_form.cleaned_data.get('email_notify'):
-                        notif.email_notify = True
-                    else:
-                        notif.email_notify = False
-                    if notif_form.cleaned_data.get('twitter_dm_notify'):
-                        notif.twitter_dm_notify = True
-                    else:
-                        notif.twitter_dm_notify = False
-                    if notif_form.cleaned_data.get('twitter_public_notify'):
-                        notif.twitter_public_notify = True
-                    else:
-                        notif.twitter_public_notify = False
-                    notif.save()
-                    time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime(
-                        "%H:%M")
-                    flag = 1
-                    notify_volunteers(lost_alert.lost_record, time_seen, flag, notif)
-                    if notif.twitter_public_notify:
-                        send_tweet(
-                            tweet_helper(lost_alert.lost_record.vulnerable.full_name, lost_alert.lost_record.get_link(),
-                                         flag,
-                                         lost_alert.lost_record.time))
-                    lost_alert.sent = True
-                    lost_alert.save()
-
-                # for coord in coordinators:
-                #     send_alert_email(coord, lost_alert)
-                success_msg = "Success! %s has been reported lost." % vulnerable.full_name
-                add_message(request, messages.SUCCESS, success_msg)
-                return HttpResponseRedirect(reverse("index"))
+                time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime(
+                    "%H:%M")
+                flag = 1
+                # notify_volunteers(lost_record, time_seen, flag, notif)
+                # if notif.twitter_public_notify:
+                #     send_tweet(
+                #         tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(),
+                #                      flag,
+                #                      lost_record.time))
+                add_message(request, messages.SUCCESS, "Success")
+                return HttpResponseRedirect(reverse('index'))
             else:
                 form.add_error("vulnerable", ValidationError("Vulnerable person not found"))
     else:
         form = LostPersonRecordForm(initial=dict(time=get_user_time(request)))
-        notif_form = ManageNotificationsForm(request.POST)
         request.context['next'] = request.GET.get("next", reverse("index"))
 
-    request.context['notif_form'] = notif_form
     profile = request.context['user_profile']
-    notif = Notifications()
-    request.context['notif'] = notif
     request.context['form'] = form
     request.context['all_timezones'] = pytz.all_timezones
     request.context['vulnerable_people'] = [dict(hash=vul.hash, name=vul.full_name) for vul in Vulnerable.objects.all()]
