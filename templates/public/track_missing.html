@@ -69,14 +69,16 @@
                     </div>
                 </div>
                 {% if record.state != "found" %}
-                    <div class="card-footer clearfix">
-                        <a href="{% url "report_sighting" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
-                            <div class="btn btn-primary">Report Sighting</div>
-                        </a>
-                        <a href="{% url "report_found" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
-                            <div class="btn btn-success float-right">Report Found</div>
-                        </a>
-                    </div>
+                    {% if user_profile.coordinator_email %}
+                        <div class="card-footer clearfix">
+                            {#                        <a href="{% url "report_sighting" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">#}
+                            {#                            <div class="btn btn-primary">Report Sighting</div>#}
+                            {#                        </a>#}
+                            <a href="{% url "report_found" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                                <div class="btn btn-success btn-block">Report Found</div>
+                            </a>
+                        </div>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>
