@@ -35,40 +35,50 @@
                             </div>
                         </div>
                     </div>
-                    <div class="list-group-flush">
-                        {% for sighting in record.get_sighting_records %}
-                            <div class="list-group-item list-group-item-warning">
+                    {% if record.find_records %}
+                        {% with record.find_records.last as found_record %}
+                            <div class="list-group-item list-group-item-success">
                                 <div class="container-fluid p-0 clearfix">
-                                    Located at: <span
-                                        class="float-right text-dark">{{ sighting.time|timezone:user_tz_name|time }}</span>
+                                    Reported found at: <span
+                                        class="float-right text-dark">{{ found_record.time|timezone:user_tz_name|time }}</span>
                                 </div>
-                                {{ sighting.address }}
-                                {% if sighting.description %}
-                                    <div class="container-fluid p-0 text-dark">
-                                        {{ sighting.description }}
-                                    </div>
-                                {% endif %}
+                                {{ found_record.address }}
                             </div>
-                        {% endfor %}
-                        <div class="list-group-item list-group-item-danger">
-                            <div class="container-fluid p-0 clearfix">
-                                Reported missing at: <span
-                                    class="float-right text-dark">{{ record.time|timezone:user_tz_name|time }}</span>
-                            </div>
-                            {{ record.address }}
-                        </div>
-                    </div>
-                    {% if record.state != "found" %}
-                        <div class="card-footer clearfix">
-                            <a href="{% url "report_sighting" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
-                                <div class="btn btn-primary">Report Sighting</div>
-                            </a>
-                            <a href="{% url "report_found" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
-                                <div class="btn btn-success float-right">Report Found</div>
-                            </a>
-                        </div>
+                        {% endwith %}
                     {% endif %}
+                    {% for sighting in record.get_sighting_records %}
+                        <div class="list-group-item list-group-item-warning">
+                            <div class="container-fluid p-0 clearfix">
+                                Located at: <span
+                                    class="float-right text-dark">{{ sighting.time|timezone:user_tz_name|time }}</span>
+                            </div>
+                            {{ sighting.address }}
+                            {% if sighting.description %}
+                                <div class="container-fluid p-0 text-dark">
+                                    {{ sighting.description }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <div class="list-group-item list-group-item-danger">
+                        <div class="container-fluid p-0 clearfix">
+                            Reported missing at: <span
+                                class="float-right text-dark">{{ record.time|timezone:user_tz_name|time }}</span>
+                        </div>
+                        {{ record.address }}
+                    </div>
                 </div>
+                {% if record.state != "found" %}
+                    <div class="card-footer clearfix">
+                        <a href="{% url "report_sighting" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                            <div class="btn btn-primary">Report Sighting</div>
+                        </a>
+                        <a href="{% url "report_found" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                            <div class="btn btn-success float-right">Report Found</div>
+                        </a>
+                    </div>
+                {% endif %}
             </div>
+        </div>
 
 {% endblock %}
