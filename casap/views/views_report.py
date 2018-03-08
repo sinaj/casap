@@ -1,5 +1,6 @@
 import datetime
 import pytz
+import simplejson as json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages import add_message
@@ -45,25 +46,24 @@ def time_in_range(start, end, x):
         return start <= x or x <= end
 
 
-def lost_notification(notify_record, vol, notif):
+def lost_notification(notify_record, vol):
     if notify_record.description:
         sms_text = "Dear %s,\nClient: %s has been lost near you with description:\n%s\n\n" % (vol.full_name,
                                                                                               notify_record.vulnerable.full_name,
                                                                                               notify_record.description) + \
-                   "Please report when seen or found by following the link below:\n%s" % notify_record.get_link()
+                   "For more details visit the link below:\n%s" % notify_record.get_link()
     else:
         sms_text = "Dear %s,\nClient: %s has been lost near you.\n" % (vol.full_name,
                                                                        notify_record.vulnerable.full_name) + \
                    "Please report when seen or found by following the link below:\n%s" % notify_record.get_link()
 
     mail_subject = "C-ASAP Client: %s has been lost near you " % notify_record.vulnerable.full_name
-    if notif.phone_notify:
+    if vol.phone:
         send_sms(get_standard_phone(vol.phone), sms_text)
-    if notif.email_notify:
+    if vol.email:
         SimpleMailHelper(mail_subject, sms_text, sms_text, vol.email).send_email()
-    if notif.twitter_dm_notify:
-        if vol.twitter_handle:
-            send_twitter_dm(sms_text, vol.twitter_handle)
+    if vol.twitter_handle:
+        send_twitter_dm(sms_text, vol.twitter_handle)
 
 
 def seen_notification(notify_record, vol, notif):
@@ -105,6 +105,9 @@ def report_lost_view(request):
             vulnerable = Vulnerable.objects.filter(hash=request.POST.get("vulnerable")).first()
             if vulnerable:
                 lost_record = form.save(request.user, vulnerable)
+                x = list(generate_volunteers(lost_record))
+                lost_record.volunteer_list = json.dumps(x)
+                lost_record.save()
                 lost_activity = LostActivity()
                 lost_activity.locLat = lost_record.address_lat
                 lost_activity.locLon = lost_record.address_lng
@@ -118,8 +121,7 @@ def report_lost_view(request):
                 time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime(
                     "%H:%M")
                 flag = 1
-                # notify_volunteers(lost_record, time_seen, flag, notif)
-                # if notif.twitter_public_notify:
+                notify_volunteers(lost_record, flag)
                 #     send_tweet(
                 #         tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(),
                 #                      flag,
@@ -306,7 +308,7 @@ def alert_view(request, hash):
     return render(request, "alert_view.html", request.context)
 
 
-def notify_volunteers(notify_record, time_seen, flag, notif):
+def notify_volunteers(notify_record, flag):
     lat, lng = notify_record.address_lat, notify_record.address_lng
     inProj = Proj(init='epsg:3857')
     outProj = Proj(init='epsg:4326')
@@ -319,10 +321,30 @@ def notify_volunteers(notify_record, time_seen, flag, notif):
                 close_volunteers.add(vol)
 
     for vol in close_volunteers:
-        if flag == 1:
-            lost_notification(notify_record, vol, notif)
-        else:
-            seen_notification(notify_record, vol, notif)
+        # if flag == 1:
+        lost_notification(notify_record, vol)
+        # else:
+        #     seen_notification(notify_record, vol, notif)
+
+
+def generate_volunteers(notify_record):
+    '''
+
+    :param notify_record: the lost record
+    :return: List of volunteer ids
+    '''
+    lat, lng = notify_record.address_lat, notify_record.address_lng
+    inProj = Proj(init='epsg:3857')
+    outProj = Proj(init='epsg:4326')
+    lng, lat = transform(inProj, outProj, float(lng), float(lat))
+    close_volunteers = set()
+    for vol in Volunteer.objects.all():
+        availability = VolunteerAvailability.objects.filter(volunteer=vol)
+        for x in availability:
+            if (vincenty((x.address_lat, x.address_lng), (lat, lng)).kilometers <= x.km_radius):
+                close_volunteers.add(vol.id)
+
+    return close_volunteers
 
 
 @login_required
@@ -338,6 +360,14 @@ def report_found_view(request, hash):
         if form.is_valid():
             v = form.save(request.user, lost_record)
             lost_record.state = "found"
+            json_dec = json.decoder.JSONDecoder()
+            try:
+                volunteer_list = json_dec.decode(lost_record.volunteer_list)
+            except:
+                volunteer_list = list()
+            if volunteer_list:
+                for i in volunteer_list:
+                    send_found_alert(i, lost_record)
             lost_record.save()
             found_activity = FoundActivity()
             found_activity.locLat = v.address_lat
@@ -359,3 +389,15 @@ def report_found_view(request, hash):
     request.context['record'] = lost_record
     request.context['all_timezones'] = pytz.all_timezones
     return render(request, "report/report_found.html", request.context)
+
+
+def send_found_alert(vol_id, record):
+    vol = Volunteer.objects.get(id=vol_id)
+    message = "Dear {}: {} has been found. For more details visit the link below: {}".format(vol.full_name, record.vulnerable.full_name, record.get_link())
+    if vol.phone:
+        send_sms(get_standard_phone(vol.phone), message)
+    if vol.email:
+        mail_subject = "C-ASAP Client: {} has been found".format(record.vulnerable.full_name)
+        SimpleMailHelper(mail_subject, message, message, vol.email).send_email()
+    if vol.twitter_handle:
+        send_twitter_dm(message, vol.twitter_handle)
