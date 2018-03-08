@@ -31,10 +31,10 @@ def tweet_helper(name, link, flag, time):
                                                                                             time.time().strftime(
                                                                                                 '%H:%M'), link)
     else:
-        txt = "{} has been reported SEEN at {}. For more details, visit {} #Seen".format(name,
-                                                                                         time.time().strftime(
-                                                                                             '%H:%M'),
-                                                                                         link)
+        txt = "{} has been FOUND at {}. For more details, visit {} #Found".format(name,
+                                                                                  time.time().strftime(
+                                                                                      '%H:%M'),
+                                                                                  link)
     return txt
 
 
@@ -122,14 +122,13 @@ def report_lost_view(request):
                     "%H:%M")
                 flag = 1
                 notify_volunteers(lost_record, flag)
-                #     send_tweet(
-                #         tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(),
-                #                      flag,
-                #                      lost_record.time))
-                add_message(request, messages.SUCCESS, "Success")
-                return HttpResponseRedirect(reverse('index'))
-            else:
-                form.add_error("vulnerable", ValidationError("Vulnerable person not found"))
+                send_tweet(
+                    tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(),
+                                 flag, lost_record.time))
+            add_message(request, messages.SUCCESS, "Success")
+            return HttpResponseRedirect(reverse('index'))
+        else:
+            form.add_error("vulnerable", ValidationError("Vulnerable person not found"))
     else:
         form = LostPersonRecordForm(initial=dict(time=get_user_time(request)))
         request.context['next'] = request.GET.get("next", reverse("index"))
@@ -393,7 +392,9 @@ def report_found_view(request, hash):
 
 def send_found_alert(vol_id, record):
     vol = Volunteer.objects.get(id=vol_id)
-    message = "Dear {}: {} has been found. For more details visit the link below: {}".format(vol.full_name, record.vulnerable.full_name, record.get_link())
+    message = "Dear {}: {} has been found. For more details visit the link below: {}".format(vol.full_name,
+                                                                                             record.vulnerable.full_name,
+                                                                                             record.get_link())
     if vol.phone:
         send_sms(get_standard_phone(vol.phone), message)
     if vol.email:
@@ -401,3 +402,5 @@ def send_found_alert(vol_id, record):
         SimpleMailHelper(mail_subject, message, message, vol.email).send_email()
     if vol.twitter_handle:
         send_twitter_dm(message, vol.twitter_handle)
+
+    send_tweet(tweet_helper(record.vulnerable.full_name, record.get_link(), 2, record.time))
