@@ -180,6 +180,7 @@ class LostPersonRecord(models.Model):
     address_lng = models.FloatField()
     description = models.TextField(blank=True)
     hash = models.CharField(max_length=30, unique=True, blank=True)
+    volunteer_list = models.TextField(null=True)  # JSON-serialized (text) version of relevant volunteer ids
 
     def get_link(self):
         return "%s%s" % (settings.DOMAIN, reverse("track_missing", kwargs=dict(hash=self.hash)))
@@ -240,6 +241,9 @@ class FindRecord(models.Model):
     lost_record = models.ForeignKey(LostPersonRecord, related_name="find_records")
     reporter = models.ForeignKey(User, related_name="find_records")
     time = models.DateTimeField()
+    street = models.CharField(max_length=50, null=True)
+    city = models.CharField(max_length=50, null=True)
+    province = models.CharField(max_length=4, choices=PROVINCE_CHOICES, default='ab')
     address = models.TextField()
     address_lat = models.FloatField()
     address_lng = models.FloatField()
