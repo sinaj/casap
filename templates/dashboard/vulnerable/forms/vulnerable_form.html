@@ -1,46 +1,50 @@
+{% load static %}
 <div class="form-group row">
     <label for="id_first_name" class="col-sm-4 col-form-label">First Name <span class="text-danger">*</span></label>
     {{ form.first_name.errors }}
     <div class="col-sm-6">
-    <input type="text" id="id_first_name" name="first_name"
-           class="form-control" placeholder=""
-           value="{{ form.first_name.value|default:"" }}"
-           required>
+        <input type="text" id="id_first_name" name="first_name"
+               class="form-control" placeholder=""
+               value="{{ form.first_name.value|default:"" }}"
+               required>
     </div>
 </div>
 <div class="form-group row">
     <label for="id_last_name" class="col-sm-4 col-form-label">Last Name <span class="text-danger">*</span></label>
     {{ form.last_name.errors }}
     <div class="col-sm-6">
-    <input type="text" id="id_last_name" name="last_name"
-           class="form-control" placeholder=""
-           value="{{ form.last_name.value|default:"" }}"
-           required>
+        <input type="text" id="id_last_name" name="last_name"
+               class="form-control" placeholder=""
+               value="{{ form.last_name.value|default:"" }}"
+               required>
     </div>
 </div>
 <div class="form-group row">
     <label for="id_birthday" class="col-sm-4 col-form-label">Birthday <span class="text-danger">*</span></label>
     {{ form.birthday.errors }}
-<div class="col-sm-6">
-    <input type="date" id="id_birthday" name="birthday"
-           class="form-control" placeholder="YYYY-MM-DD"
-            {% if is_post %}
-           value="{{ form.birthday.value|default:"" }}"
-            {% else %}
-           value="{{ form.birthday.value|date:"Y-m-d"|default:"" }}"
-            {% endif %}
-           required></div>
+    <div class="col-sm-6">
+        <input type="date" id="id_birthday" name="birthday"
+               class="form-control" placeholder="YYYY-MM-DD"
+                {% if is_post %}
+               value="{{ form.birthday.value|default:"" }}"
+                {% else %}
+               value="{{ form.birthday.value|date:"Y-m-d"|default:"" }}"
+                {% endif %}
+               required></div>
 </div>
 <div class="form-group row">
     <label for="id_picture" class="col-sm-4 col-form-label">Picture <span class="text-danger">*</span></label>
     {{ form.picture.errors }}
     <div class="col-sm-6">
-    <input type="file" id="id_picture" name="picture"
-           class="" accept="image/png,image/jpeg" required>
+        <input type="file" id="id_picture" name="picture"
+               class="" accept="image/png,image/jpeg" required>
     </div>
 </div>
 <div class="form-group row">
-    <label for="id_description" class="col-sm-4 col-form-label">Description <span class="text-danger">*</span></label>
+    <label for="id_description" class="col-sm-4 col-form-label">Description <i class="fa fa-info-circle"
+                                                                               data-toggle="popover" title="Description"
+                                                                               data-content="Include Race, Height, Weight, Eye color, and Hair colour. <hr> E.g. Race: Caucasian, Height: 5'3, Weight: 130 lbs, Eyes: Hazel, Hair: Brown"></i><span
+            class="text-danger">*</span></label>
     {{ form.description.errors }}
     <div class="col-sm-6">
     <textarea id="id_description" name="description"
@@ -80,3 +84,9 @@
 <div class="form-group">
     <div class="btn btn-secondary" ng-click="addAddress()">+</div>
 </div>
+
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="popover"]').popover({html: true});
+    });
+</script>
