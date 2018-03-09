@@ -78,6 +78,12 @@
                                 <div class="btn btn-success btn-block">Report Found</div>
                             </a>
                         </div>
+                    {% else %}
+                        <a href="tel:911">
+                            <div class="btn btn-danger btn-block">Seen {{ vulnerable.full_name }}? Call <i
+                                    class="fa fa-phone"></i> 911
+                            </div>
+                        </a>
                     {% endif %}
                 {% endif %}
             </div>
