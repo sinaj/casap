@@ -137,6 +137,7 @@ def report_lost_view(request):
     request.context['form'] = form
     request.context['all_timezones'] = pytz.all_timezones
     request.context['vulnerable_people'] = [dict(hash=vul.hash, name=vul.full_name) for vul in Vulnerable.objects.all()]
+    request.context['user_tz_name'] = 'Canada/Mountain'  # This needs to be changed when multiple timezones will be used
     return render(request, "report/report_lost.html", request.context)
 
 
@@ -387,6 +388,7 @@ def report_found_view(request, hash):
     request.context['vulnerable'] = lost_record.vulnerable
     request.context['record'] = lost_record
     request.context['all_timezones'] = pytz.all_timezones
+    request.context['user_tz_name'] = 'Canada/Mountain'  # This needs to be changed when multiple timezones will be used
     return render(request, "report/report_found.html", request.context)
 
 
