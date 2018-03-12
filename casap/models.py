@@ -158,11 +158,25 @@ class Vulnerable(models.Model):
 class VulnerableAddress(models.Model):
     vulnerable = models.ForeignKey(Vulnerable, related_name="addresses")
     address = models.TextField()
+    street = models.CharField(max_length=50, null=True)
+    city = models.CharField(max_length=50, null=True)
+    province = models.CharField(max_length=4, choices=PROVINCE_CHOICES, default='ab')
     address_lat = models.FloatField()
     address_lng = models.FloatField()
 
     def __str__(self):
         return u"%s - %s" % (self.vulnerable, self.address)
+
+    def save(self, *args, **kwargs):
+        inProj = Proj(init='epsg:4326')
+        outProj = Proj(init='epsg:3857')
+        try:
+            self.address_lng, self.address_lat = transform(inProj, outProj, float(self.address_lng),
+                                                           float(self.address_lat))
+        except Exception as e:
+            print(e)  # must be in correct coord system
+
+        super(self.__class__, self).save(*args, **kwargs)
 
 
 class LostPersonRecord(models.Model):
