@@ -105,7 +105,7 @@ def register_volunteer_view(request):
                                                                  km_radius=f.cleaned_data['km_radius'])
                             availability.save()
                             add_message(request, messages.SUCCESS, "Volunteer Registration was successful.")
-                            return HttpResponseRedirect(request.POST.get("next", reverse("index")))
+                return HttpResponseRedirect(request.POST.get("next", reverse("index")))
 
             else:
                 for f in formset:
