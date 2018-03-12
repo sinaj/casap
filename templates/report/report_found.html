@@ -22,9 +22,13 @@
                                     <center>{{ vulnerable.full_name }}</center>
                                 </h5>
                                 {% if record.state == "reported" %}
-                                    <center><span class="badge badge-danger float-center">{{ record.get_state_display }}</span></center>
+                                    <center><span
+                                            class="badge badge-danger float-center">{{ record.get_state_display }}</span>
+                                    </center>
                                 {% else %}
-                                    <center><span class="badge badge-warning float-center">{{ record.get_state_display }}</span></center>
+                                    <center><span
+                                            class="badge badge-warning float-center">{{ record.get_state_display }}</span>
+                                    </center>
                                 {% endif %}
                                 <hr>
                                 <div class="container-fluid p-0">
@@ -32,7 +36,7 @@
                                 </div>
                             </div>
                         </div>
-                    <hr>
+                        <hr>
                         <form action="" method="post">
                             {% csrf_token %}
                             <div class="form-group row">
@@ -105,9 +109,9 @@
     </div>
 
     <script>
-        $(document).ready(function () {
-            $('[data-toggle="popover"]').popover({});
-        });
+        $(function () {
+            $('[data-toggle="popover"]').popover({html: true, placement: "bottom"})
+        })
     </script>
 
 {% endblock %}

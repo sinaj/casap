@@ -85,9 +85,10 @@
                             </div>
                             <div class="form-group row">
                                 <label for="id_description" class="col-sm-4 col-form-label">Description
-                                    <i class="fa fa-info-circle" data-toggle="popover" title="Optional Description"
+                                    <a tabindex="0" class="fa fa-info-circle" data-toggle="popover"
+                                       title="Optional Description"
                                        data-content="Any description or notes about this missing client can be added.
-                                       For example: 'Wearing a black coat, walking with a brown cane, whistling to himself'."></i>
+                                       For example: 'Wearing a black coat, walking with a brown cane, whistling to himself'."></a>
                                 </label>
                                 <div class="col-sm-6">
                                 <textarea id="id_description" class="form-control"
@@ -111,9 +112,9 @@
     </div>
 
     <script>
-        $(document).ready(function () {
-            $('[data-toggle="popover"]').popover({});
-        });
+        $(function () {
+            $('[data-toggle="popover"]').popover({html: true, placement: "bottom"})
+        })
     </script>
 
 {% endblock %}
