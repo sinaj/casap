@@ -395,9 +395,11 @@ def report_found_view(request, hash):
 def send_found_alert(vol_id, record, v):
     vol = Volunteer.objects.get(id=vol_id)
     link = "http://{}".format(record.get_link())
+    link = shorten_url(link)
     message = "Dear {}: {} has been found at {}. For more details visit the link below: {}".format(vol.full_name,
                                                                                                    record.vulnerable.full_name,
-                                                                                                   v.time, link)
+                                                                                                   v.time.time().strftime(
+                                                                                                       '%H:%M'), link)
     if vol.phone:
         send_sms(get_standard_phone(vol.phone), message)
     if vol.email:
