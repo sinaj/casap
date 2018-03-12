@@ -27,7 +27,7 @@ class VulnerableAdmin(admin.ModelAdmin):
 @admin.register(VulnerableAddress)
 class VulnerableAddressAdmin(admin.ModelAdmin):
     model = VulnerableAddress
-    list_display = ("vulnerable", "address", "address_lat", "address_lng")
+    list_display = ("vulnerable", "address", "street", "city", "province","address_lat", "address_lng")
 
 
 @admin.register(LostPersonRecord)
