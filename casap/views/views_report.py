@@ -361,13 +361,14 @@ def report_found_view(request, hash):
             v = form.save(request.user, lost_record)
             lost_record.state = "found"
             json_dec = json.decoder.JSONDecoder()
+            time_found = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime("%H:%M")
             try:
                 volunteer_list = json_dec.decode(lost_record.volunteer_list)
             except:
                 volunteer_list = list()
             if volunteer_list:
                 for i in volunteer_list:
-                    send_found_alert(i, lost_record)
+                    send_found_alert(i, lost_record, time_found)
             lost_record.save()
             found_activity = FoundActivity()
             found_activity.locLat = v.address_lat
@@ -392,7 +393,7 @@ def report_found_view(request, hash):
     return render(request, "report/report_found.html", request.context)
 
 
-def send_found_alert(vol_id, record):
+def send_found_alert(vol_id, record, time_found):
     vol = Volunteer.objects.get(id=vol_id)
     message = "Dear {}: {} has been found. For more details visit the link below: {}".format(vol.full_name,
                                                                                              record.vulnerable.full_name,
@@ -405,4 +406,4 @@ def send_found_alert(vol_id, record):
     if vol.twitter_handle:
         send_twitter_dm(message, vol.twitter_handle)
 
-    send_tweet(tweet_helper(record.vulnerable.full_name, record.get_link(), 2, record.time))
+    send_tweet(tweet_helper(record.vulnerable.full_name, record.get_link(), 2, time_found))
