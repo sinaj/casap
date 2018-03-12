@@ -13,22 +13,34 @@ from django.contrib.gis.geos import GEOSGeometry, WKTWriter
 from casap.forms.forms import *
 
 
-def create_address(vulnerable, v):
-    loc = get_address_map_google(v)
-    for i in range(10):
-        if map_response is None:
-            map_response = get_address_map_google(address)
+def create_address(request, vulnerable, form):
+    if form.cleaned_data.get('street') and form.cleaned_data.get('city') and form.cleaned_data.get('province'):
+        address = "{} {} {}".format(form.cleaned_data['street'], form.cleaned_data['city'],
+                                    form.cleaned_data['province'])
+        loc = get_address_map_google(address)
+        for i in range(10):
+            if loc is None:
+                loc = get_address_map_google(address)
+            else:
+                break
+        if loc is None:
+            add_message(request, messages.ERROR, "Problem with the inputted address.")
+            vulnerable.delete()
+            return render(request, 'dashboard/vulnerable/vulnerable_add.html', request.context)
         else:
-            break
-    if loc is None:
-        raise forms.ValidationError("Address is invalid")
+            additional_address = VulnerableAddress()
+            additional_address.vulnerable = vulnerable
+            additional_address.address = address
+            additional_address.street = form.cleaned_data['street']
+            additional_address.city = form.cleaned_data['city']
+            additional_address.province = form.cleaned_data['province']
+            additional_address.address_lng = loc['lng']
+            additional_address.address_lat = loc['lat']
+            additional_address.save()
     else:
-        additional_address = VulnerableAddress()
-        additional_address.vulnerable = vulnerable
-        additional_address.address = v
-        additional_address.address_lng = loc['lng']
-        additional_address.address_lat = loc['lat']
-        additional_address.save()
+        add_message(request, messages.ERROR, "Problem with the inputted address.")
+        vulnerable.delete()
+        return render(request, 'dashboard/vulnerable/vulnerable_add.html', request.context)
 
 
 def in_admin_group(user):
@@ -238,17 +250,12 @@ def vulnerable_history_view(request, hash):
     return render(request, 'dashboard/vulnerable/vulnerable_history.html', request.context)
 
 
-
 @login_required
 def vulnerable_add_view(request):
     profile = request.context['user_profile']
     if request.method == "POST":
         address_formset = inlineformset_factory(Vulnerable,
-                                                VulnerableAddress,
-                                                fk_name="vulnerable",
-                                                fields=('address',),
-                                                can_delete=True,
-                                                formset=VulnerableAddressFormSet)
+                                                VulnerableAddress, form=VulnerableAddressForm)
         next = request.POST.get("next", reverse("vulnerable_list"))
         vulnerable_form = VulnerableForm(request.POST, request.FILES)
         if vulnerable_form.is_valid():
@@ -259,24 +266,16 @@ def vulnerable_add_view(request):
             vulnerable.save()
         formset = address_formset(request.POST, queryset=VulnerableAddress.objects.all())
         if formset.is_valid():
-            for k, v in formset.data.items():
-                if k.endswith("-address") and k != "addresses-0-address" and v != "":
-                    create_address(vulnerable, v)
-            for address in formset.save(commit=False):
-                address.vulnerable = vulnerable
-                address.save()
+            for form in formset:
+                create_address(request, vulnerable, form)
             add_message(request, messages.SUCCESS, "Vulnerable added successfully.")
             return HttpResponseRedirect(next)
         else:
             vulnerable.delete()
     else:
         address_formset = inlineformset_factory(Vulnerable,
-                                                VulnerableAddress,
-                                                fk_name="vulnerable",
-                                                fields=('address',),
-                                                extra=1,
-                                                can_delete=True,
-                                                formset=VulnerableAddressFormSet)
+                                                VulnerableAddress, form=VulnerableAddressForm, fk_name="vulnerable",
+                                                extra=1)
         vulnerable_form = VulnerableForm()
         formset = address_formset(queryset=VulnerableAddress.objects.none())
         next = request.GET.get("next", reverse("vulnerable_list"))
@@ -284,13 +283,13 @@ def vulnerable_add_view(request):
     request.context['form'] = vulnerable_form
     request.context['formset'] = formset
     addresses = json.loads("[]")
-    for form in formset.forms:
-        form_json = json.loads("{}")
-        form_json['errors'] = list(form.errors.values())
-        form_json['instance_id'] = form.instance.id or None
-        form_json['value'] = form['address'].value() or None
-        addresses.append(form_json)
-    request.context['addresses'] = json.dumps(addresses)
+    # for form in formset.forms:
+    #     form_json = json.loads("{}")
+    #     form_json['errors'] = list(form.errors.values())
+    #     form_json['instance_id'] = form.instance.id or None
+    #     form_json['value'] = form['address'].value() or None
+    #     addresses.append(form_json)
+    # request.context['addresses'] = json.dumps(addresses)
     return render(request, 'dashboard/vulnerable/vulnerable_add.html', request.context)
 
 
@@ -303,12 +302,8 @@ def vulnerable_edit_view(request, hash):
         return HttpResponseRedirect(reverse("vulnerable_list"))
 
     address_formset = inlineformset_factory(Vulnerable,
-                                            VulnerableAddress,
-                                            fk_name="vulnerable",
-                                            fields=('address',),
-                                            can_delete=True,
-                                            extra=1,
-                                            formset=VulnerableAddressFormSet)
+                                            VulnerableAddress, form=VulnerableAddressForm, fk_name="vulnerable",
+                                            )
     if request.method == "POST":
         request.context['is_post'] = True
         next1 = request.POST.get("next", reverse("vulnerable_list"))
@@ -322,26 +317,30 @@ def vulnerable_edit_view(request, hash):
 
         formset = address_formset(request.POST, instance=vulnerable)
         VulnerableAddress.objects.filter(vulnerable=vulnerable).delete()
-        for k, v in formset.data.items():
-            if k.endswith("-address") and v != "":
-                create_address(vulnerable, v)
-        add_message(request, messages.SUCCESS, "Changes saved successfully.")
-        return HttpResponseRedirect(next1)
+        if formset.is_valid():
+            for form in formset:
+                create_address(request, vulnerable, form)
+            add_message(request, messages.SUCCESS, "Vulnerable added successfully.")
+            return HttpResponseRedirect(next1)
     else:
+        address_list = VulnerableAddress.objects.filter(vulnerable=vulnerable).values()
+        how_many = len(address_list)
+        if how_many == 0:
+            how_many = 1
         form = VulnerableForm(instance=vulnerable)
-        formset = address_formset(instance=vulnerable)
+        formset = address_formset(initial=address_list,  prefix='addresses')
         next = request.GET.get("next", reverse("vulnerable_list"))
     request.context['next'] = next
     request.context['form'] = form
     request.context['formset'] = formset
     addresses = json.loads("[]")
-    for form in formset.forms:
-        form_json = json.loads("{}")
-        form_json['errors'] = list(form.errors.values())
-        form_json['instance_id'] = form.instance.id or None
-        form_json['value'] = form['address'].value() or None
-        addresses.append(form_json)
-    request.context['addresses'] = json.dumps(addresses)
+    # for form in formset.forms:
+    #     form_json = json.loads("{}")
+    #     form_json['errors'] = list(form.errors.values())
+    #     form_json['instance_id'] = form.instance.id or None
+    #     form_json['value'] = form['address'].value() or None
+    #     addresses.append(form_json)
+    # request.context['addresses'] = json.dumps(addresses)
     return render(request, 'dashboard/vulnerable/vulnerable_edit.html', request.context)
 
 

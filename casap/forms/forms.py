@@ -126,28 +126,69 @@ class VulnerableForm(forms.ModelForm):
         fields = ('first_name', 'last_name', 'description', 'birthday', 'picture')
 
 
-class VulnerableAddressFormSet(BaseInlineFormSet):
-    def clean(self):
-        super(VulnerableAddressFormSet, self).clean()
-        for form in self.forms:
-            address = form.cleaned_data.get('address')
-            if not address:
-                continue
-            map_response = get_address_map_google(address)
-            if map_response is None:
-                form.add_error("address", forms.ValidationError("Address is invalid"))
-            else:
-                form.address_lat = map_response['lat']
-                form.address_lng = map_response['lng']
+# class VulnerableAddressFormSet(BaseInlineFormSet):
+#     def clean(self):
+#         super(VulnerableAddressFormSet, self).clean()
+#         for form in self.forms:
+#             address = form.cleaned_data.get('address')
+#             if not address:
+#                 continue
+#             map_response = get_address_map_google(address)
+#             if map_response is None:
+#                 form.add_error("address", forms.ValidationError("Address is invalid"))
+#             else:
+#                 form.address_lat = map_response['lat']
+#                 form.address_lng = map_response['lng']
+#
+#     def save(self, commit=True):
+#         instances = super(VulnerableAddressFormSet, self).save(commit=False)
+#         for form in self.saved_forms:
+#             instance = form.instance
+#             if hasattr(form, "address_lat") and hasattr(form, "address_lng"):
+#                 instance.address_lat = form.address_lat
+#                 instance.address_lng = form.address_lng
+#         if commit:
+#             for form in self.saved_forms:
+#                 form.save()
+#         return instances
 
-    def save(self, commit=True):
-        instances = super(VulnerableAddressFormSet, self).save(commit=False)
-        for form in self.saved_forms:
-            instance = form.instance
-            if hasattr(form, "address_lat") and hasattr(form, "address_lng"):
-                instance.address_lat = form.address_lat
-                instance.address_lng = form.address_lng
-        if commit:
-            for form in self.saved_forms:
-                form.save()
-        return instances
+class VulnerableAddressForm(forms.ModelForm):
+    street = forms.CharField(widget=forms.TextInput(attrs={'size': '30',
+                                                           'placeholder': "e.g. 15 Bermuda Rd NW",
+                                                           'class': 'form-control'}))
+    city = forms.CharField(widget=forms.TextInput(attrs={'size': '20',
+                                                         'placeholder': "e.g. Calgary",
+                                                         'class': 'form-control'
+                                                         }))
+
+    def clean_street(self):
+        if not self.cleaned_data['street']:
+            raise forms.ValidationError("Street not provided")
+        return self.cleaned_data['street']
+
+    def clean_city(self):
+        if not self.cleaned_data['city']:
+            raise forms.ValidationError("City not provided")
+        return self.cleaned_data['city']
+
+    def clean_province(self):
+        if not self.cleaned_data['province']:
+            raise forms.ValidationError("Province not provided")
+        address = self.cleaned_data['street'] + " " + self.cleaned_data['city'] + " " + self.cleaned_data['province']
+        map_response = get_address_map_google(address)
+        for i in range(10):
+            if map_response is None:
+                map_response = get_address_map_google(address)
+            else:
+                break
+        if map_response is None:
+            raise forms.ValidationError("Address is invalid")
+        self.address_lat = map_response['lat']
+        self.address_lng = map_response['lng']
+        self.address = address
+        return self.cleaned_data['province']
+
+    class Meta:
+        model = VulnerableAddress
+        fields = ('street', 'city', 'province')
+        exclude = ('address', 'address_lng', 'address_lat')

@@ -54,40 +54,120 @@
 </div>
 <hr>
 {{ formset.management_form }}
-<div class="form-group" ng-cloak="" ng-repeat="form in addresses track by $index">
-    <label for="id_addresses-[[ $index ]]-address" class="d-flex">
-            <span ng-if="$first" class="">
-                Address
-            </span>
-        <span ng-if="$first" class="text-danger float-left">*</span>
-        <span ng-if="!$first" class="">
-                Additional Address [[ $index + 1 ]]
-        </span>
-        <span ng-if="!$first" class="text-danger ml-auto" ng-click="removeAddress($index)">
-            <span class="fa fa-remove"></span>
-            remove
-        </span>
-    </label>
-    <ul class="errorlist" ng-show="form.errors">
-        <li ng-repeat="error in form.errors">[[ error ]]</li>
-    </ul>
-    {% if include_ids %}
-        <input type="hidden" ng-show="form.instance_id" id="id_addresses-[[ $index ]]-id"
-               name="addresses-[[ $index ]]-id" ng-model="form.instance_id">
-    {% endif %}
-    <input id="id_addresses-[[ $index ]]-address"
-           name="addresses-[[ $index ]]-address"
-           class="form-control" placeholder=""
-           ng-model="form.value"
-           ng-required="$first">
+{#<div class="form-group" ng-cloak="" ng-repeat="form in addresses track by $index">#}
+{#    <label for="id_addresses-[[ $index ]]-address" class="d-flex">#}
+{#            <span ng-if="$first" class="">#}
+{#                Address#}
+{#            </span>#}
+{#        <span ng-if="$first" class="text-danger float-left">*</span>#}
+{#        <span ng-if="!$first" class="">#}
+{#                Additional Address [[ $index + 1 ]]#}
+{#        </span>#}
+{#        <span ng-if="!$first" class="text-danger ml-auto" ng-click="removeAddress($index)">#}
+{#            <span class="fa fa-remove"></span>#}
+{#            remove#}
+{#        </span>#}
+{#    </label>#}
+{#    <ul class="errorlist" ng-show="form.errors">#}
+{#        <li ng-repeat="error in form.errors">[[ error ]]</li>#}
+{#    </ul>#}
+{#    {% if include_ids %}#}
+{#        <input type="hidden" ng-show="form.instance_id" id="id_addresses-[[ $index ]]-id"#}
+{#               name="addresses-[[ $index ]]-id" ng-model="form.instance_id">#}
+{#    {% endif %}#}
+{#    <input id="id_addresses-[[ $index ]]-address"#}
+{#           name="addresses-[[ $index ]]-address"#}
+{#           class="form-control" placeholder=""#}
+{#           ng-model="form.value"#}
+{#           ng-required="$first">#}
+{##}
+{#</div>#}
+{#<div class="form-group">#}
+{#    <div class="btn btn-secondary" ng-click="addAddress()">+</div>#}
+{#</div>#}
+<h5>Addresses</h5>
+{% for form in formset.forms %}
+    {{ form.non_field_errors }}
+    {{ form.field_errors }}
+    <div class="table">
 
-</div>
-<div class="form-group">
-    <div class="btn btn-secondary" ng-click="addAddress()">+</div>
-</div>
+        <div class="form-group row">
+            <div class="col-sm-4 col-form-label">
+                Street<span class="text-danger">*</span>
+            </div>
+            <div class="col-sm-6">
+                {{ form.street }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-4 col-form-label">City<span class="text-danger">*</span></div>
+            <div class="col-sm-6">
+                {{ form.city }}
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-sm-4 col-form-label">Province<span class="text-danger">*</span></div>
+            <div class="col-sm-6">
+                {{ form.province }}
+            </div>
+        </div>
+        <hr>
+    </div>
+{% endfor %}
+<span>
+    <center>
+        <button class="btn btn-danger" type="button" id="remove_form">Remove Last Address</button>
+        <button class="btn btn-primary" type="button" id="add_more">Add Address</button>
+    </center>
+</span>
+<hr>
+
+<script>
+    // language=JQuery-CSS
+    $('#add_more').click(function () {
+        cloneMore('div.table:last', 'addresses');
+    });
+    // language=JQuery-CSS
+    $('#remove_form').click(function () {
+        removeForm('div.table:last', 'addresses');
+    });
+
+</script>
+
 
 <script>
     $(function () {
         $('[data-toggle="popover"]').popover({html: true, trigger: 'focus'})
     })
+
+    function cloneMore(selector, type) {
+        var newElement = $(selector).clone(true);
+        var total = $('#id_' + type + '-TOTAL_FORMS').val();
+        newElement.find(':input').each(function () {
+            var name = $(this).attr('name').replace('-' + (total - 1) + '-', '-' + total + '-');
+            var id = 'id_' + name;
+            $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+        });
+        newElement.find('label').each(function () {
+            var newFor = $(this).attr('for').replace('-' + (total - 1) + '-', '-' + total + '-');
+            $(this).attr('for', newFor);
+        });
+        total++;
+        $('#id_' + type + '-TOTAL_FORMS').val(total);
+        $(selector).after(newElement);
+
+    }
+
+    function removeForm(selector, type) {
+        var lastElement = $(selector);
+        var total = $('#id_' + type + '-TOTAL_FORMS').val();
+        if (total == 1) {
+            alert('Must provide at least 1 address.')
+        } else {
+            total--;
+            $('#id_' + type + '-TOTAL_FORMS').val(total);
+            lastElement.remove();
+        }
+    }
 </script>
