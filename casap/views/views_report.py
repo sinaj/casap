@@ -368,6 +368,7 @@ def report_found_view(request, hash):
             if volunteer_list:
                 for i in volunteer_list:
                     send_found_alert(i, lost_record, v)
+            send_tweet(tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(), 2, v.time))
             lost_record.save()
             found_activity = FoundActivity()
             found_activity.locLat = v.address_lat
@@ -408,4 +409,3 @@ def send_found_alert(vol_id, record, v):
     if vol.twitter_handle:
         send_twitter_dm(message, vol.twitter_handle)
 
-    send_tweet(tweet_helper(record.vulnerable.full_name, record.get_link(), 2, v.time))
