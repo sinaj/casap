@@ -122,10 +122,10 @@ SEX_CHOICES = (
 )
 
 RACE_CHOICES = (
-    ('Aboriginal (Inuit, Métis, North American Indian)', 'Aboriginal (Inuit, Métis, North American Indian)'),
-    ('Arab/West Asian (e.g., Armenian, Egyptian, Iranian, Lebanese, Moroccan)',
-     'Arab/West Asian (e.g., Armenian, Egyptian, Iranian, Lebanese, Moroccan)'),
-    ('Black (e.g., African, Haitian, Jamaican, Somali)', 'Black (e.g., African, Haitian, Jamaican, Somali)'),
+    ('Aboriginal (e.g., Inuit, Métis)', 'Aboriginal (e.g., Inuit, Métis)'),
+    ('Arab/West Asian (e.g., Iranian, Lebanese)',
+     'Arab/West Asian (e.g., Iranian, Lebanese)'),
+    ('Black (e.g., African, Haitian)', 'Black (e.g., African, Haitian)'),
     ('Chinese', 'Chinese'),
     ('Filipino', 'Filipino'),
     ('Japanese', 'Japanese'),
@@ -179,14 +179,13 @@ class Vulnerable(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     nickname = models.CharField(max_length=50, null=True, blank=True)
-    description = models.TextField()
     birthday = models.DateField()
     picture = models.ImageField(upload_to=get_vulnerable_picture_path, null=True, blank=True)
     sex = models.CharField(max_length=50, choices=SEX_CHOICES)
     race = models.CharField(max_length=150, choices=RACE_CHOICES)
     hair_colour = models.CharField(max_length=50, choices=HAIR_CHOICES)
-    height = models.IntegerField(max_length=10, choices=HEIGHT_CHOICES)
-    weight = models.IntegerField(max_length=10, choices=WEIGHT_CHOICES)
+    height = models.IntegerField(choices=HEIGHT_CHOICES)
+    weight = models.IntegerField(choices=WEIGHT_CHOICES)
     eye_colour = models.CharField(max_length=50, choices=EYE_COLOUR_CHOICES)
     favourite_locations = models.TextField()
     hash = models.CharField(max_length=30, unique=True, blank=True)
