@@ -20,7 +20,9 @@
                             {% csrf_token %}
                             <div class="form-group row">
                                 <label for="id_vulnerable" class="col-sm-4 col-form-label" id="first">Select vulnerable
-                                    person
+                                    person <a tabindex="0" class="fa fa-info-circle" data-toggle="popover"
+                                              title="Vulnerable Person?"
+                                              data-content=" <small class='form-text text-muted'> Cannot find the person? Create one by clicking <a href='{% url 'vulnerable_add' %}?next={{request.path|add:'?'|add:request.GET.urlencode|urlencode}}'> here </a> </small>"></a>
                                     <span class="text-danger">*</span></label>
                                 <div class="col-sm-6">
                                     <select id="id_vulnerable" name="vulnerable" class="form-control" required>
@@ -31,12 +33,6 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                {#                                <small class="form-text text-muted">#}
-                                {#                                    Cannot find the person? Create one by clicking#}
-                                {#                                    <a href="{% url "vulnerable_add" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">#}
-                                {#                                        here#}
-                                {#                                    </a>#}
-                                {#                                </small>#}
                             </div>
                             <div class="form-group row">
                                 <label for="id_time" class="col-sm-4 col-form-label">Time <span
