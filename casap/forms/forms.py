@@ -1,9 +1,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
-from django.forms.models import BaseInlineFormSet
 from django.core.validators import validate_email
-from django.forms import TimeField
 
 from casap.models import *
 from casap.utilities.utils import normalize_email, get_standard_phone, get_address_map_google, validate_twitter_handle
@@ -121,6 +119,8 @@ class VolunteerForm(forms.ModelForm):
 
 
 class VulnerableForm(forms.ModelForm):
+    picture = forms.FileField(widget=forms.ClearableFileInput())
+
     class Meta:
         model = Vulnerable
         fields = (
