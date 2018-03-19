@@ -42,7 +42,7 @@
                                         Reported found at: <span
                                             class="float-right text-dark">{{ found_record.time|timezone:user_tz_name|time }}</span>
                                     </div>
-                                    {{ found_record.address }}
+                                    <a href="{% url 'location' %}?lat={{ found_record.address_lat }}&{{ found_record.address_lng }}">{{ found_record.address }}</a>
                                 </div>
                             {% endwith %}
                         {% endif %}
@@ -66,7 +66,7 @@
                             Reported missing at: <span
                                 class="float-right text-dark">{{ record.time|timezone:user_tz_name|time }}</span>
                         </div>
-                        {{ record.address }}
+                        <a href="{% url 'location' %}?lat={{ record.address_lat }}&{{ record.address_lng }}">{{ record.address }}</a>
                     </div>
                     {% if record.state != "found" %}
                         <div class="card-footer clearfix">
