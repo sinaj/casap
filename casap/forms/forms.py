@@ -128,6 +128,14 @@ class VulnerableForm(forms.ModelForm):
             'weight', 'eye_colour', 'favourite_locations')
 
 
+class VulnerableReportForm(forms.ModelForm):
+    class Meta:
+        model = Vulnerable
+        fields = (
+            'nickname', 'sex', 'race', 'hair_colour', 'height',
+            'weight', 'eye_colour', 'favourite_locations')
+
+
 # class VulnerableAddressFormSet(BaseInlineFormSet):
 #     def clean(self):
 #         super(VulnerableAddressFormSet, self).clean()
