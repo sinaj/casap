@@ -4,7 +4,7 @@
     {{ form.first_name.errors }}
     <div class="col-sm-6">
         <input type="text" id="id_first_name" name="first_name"
-               class="form-control" placeholder=""
+               class="form-control" placeholder="e.g. Brendi K"
                value="{{ form.first_name.value|default:"" }}"
                required>
     </div>
@@ -14,9 +14,18 @@
     {{ form.last_name.errors }}
     <div class="col-sm-6">
         <input type="text" id="id_last_name" name="last_name"
-               class="form-control" placeholder=""
+               class="form-control" placeholder="e.g. Seiner"
                value="{{ form.last_name.value|default:"" }}"
                required>
+    </div>
+</div>
+<div class="form-group row">
+    <label for="id_nickname" class="col-sm-4 col-form-label">Nickname</label>
+    {{ form.nickname.errors }}
+    <div class="col-sm-6">
+        <input type="text" id="id_nickname" name="nickname"
+               class="form-control" placeholder="Optional"
+               value="{{ form.nickname.value|default:"" }}">
     </div>
 </div>
 <div class="form-group row">
@@ -36,22 +45,82 @@
     <label for="id_picture" class="col-sm-4 col-form-label">Picture <span class="text-danger">*</span></label>
     {{ form.picture.errors }}
     <div class="col-sm-6">
-        <input type="file" id="id_picture" name="picture"
-               class="" accept="image/png,image/jpeg" required>
+{#        <input type="file" id="id_picture" name="picture"#}
+{#               class="" accept="image/png,image/jpeg" required>#}
+        {{ form.picture }}
     </div>
 </div>
 <div class="form-group row">
-    <label for="id_description" class="col-sm-4 col-form-label">Description <a tabindex="0" class="fa fa-info-circle"
-                                                                               data-placement="bottom"
-                                                                               data-toggle="popover" title="Description"
-                                                                               data-content="Include Race, Height, Weight, Eye color, and Hair colour. <hr> E.g. Race: Caucasian, Height: 5'3, Weight: 130 lbs, Eyes: Hazel, Hair: Brown"></a><span
-            class="text-danger">*</span></label>
-    {{ form.description.errors }}
+    <label for="id_sex" class="col-sm-4 col-form-label">Sex <span class="text-danger">*</span></label>
+    {{ form.sex.errors }}
     <div class="col-sm-6">
-    <textarea id="id_description" name="description"
-              class="form-control" required>{{ form.description.value|default:"" }}</textarea>
+        {{ form.sex }}
     </div>
 </div>
+
+<div class="form-group row">
+    <label for="id_race" class="col-sm-4 col-form-label">Race <span class="text-danger">*</span></label>
+    {{ form.race.errors }}
+    <div class="col-sm-6">
+        {{ form.race }}
+    </div>
+</div>
+
+<div class="form-group row">
+    <label for="id_hair_colour" class="col-sm-4 col-form-label">Hair Colour <span class="text-danger">*</span></label>
+    {{ form.hair_colour.errors }}
+    <div class="col-sm-6">
+        {{ form.hair_colour }}
+    </div>
+</div>
+
+<div class="form-group row">
+    <label for="id_height" class="col-sm-4 col-form-label">Approximate Height (cm) <a tabindex="0"
+                                                                                      class="fa fa-info-circle"
+                                                                                      data-placement="bottom"
+                                                                                      data-toggle="popover"
+                                                                                      title="Feet to Centimeters"
+                                                                                      data-content="<p> <label>Feet.Inches </label> <input id='inputFee' type='number' placeholder='Feet' oninput='LengthConverter(this.value)' onchange='LengthConverter(this.value)'></p><p>cm: <span id='outputcm'></span></p>"></a><span
+            class="text-danger">*</span></label>
+    {{ form.height.errors }}
+    <div class="col-sm-6">
+        {{ form.height }}
+    </div>
+</div>
+
+<div class="form-group row">
+    <label for="id_weight" class="col-sm-4 col-form-label">Approximate Weight (kg) <a tabindex="0"
+                                                                                      class="fa fa-info-circle"
+                                                                                      data-placement="bottom"
+                                                                                      data-toggle="popover"
+                                                                                      title="Pounds to Kilograms"
+                                                                                      data-content="<p> <label>Pounds</label> <input id='inputPounds' type='number' placeholder='Pounds' oninput='weightConverter(this.value)' onchange='weightConverter(this.value)'></p><p>Kilograms: <span id='outputKilograms'></span></p>"></a><span
+            class="text-danger">*</span></label>
+    {{ form.weight.errors }}
+    <div class="col-sm-6">
+        {{ form.weight }}
+    </div>
+</div>
+
+<div class="form-group row">
+    <label for="id_eye_colour" class="col-sm-4 col-form-label">Eye Colour <span class="text-danger">*</span></label>
+    {{ form.eye_colour.errors }}
+    <div class="col-sm-6">
+        {{ form.eye_colour }}
+    </div>
+</div>
+
+<div class="form-group row">
+    <label for="id_favourite_locations" class="col-sm-4 col-form-label">Favourite Locations <span
+            class="text-danger">*</span></label>
+    {{ form.favourite_locations.errors }}
+    <div class="col-sm-6">
+        <textarea id="id_favourite_locations" name="favourite_locations"
+                  class="form-control" required>{{ form.favourite_locations.value|default:"" }}</textarea>
+    </div>
+</div>
+
+
 <hr>
 {{ formset.management_form }}
 {#<div class="form-group" ng-cloak="" ng-repeat="form in addresses track by $index">#}
@@ -85,7 +154,7 @@
 {#<div class="form-group">#}
 {#    <div class="btn btn-secondary" ng-click="addAddress()">+</div>#}
 {#</div>#}
-<h5>Addresses</h5>
+<h5>Address(es)</h5>
 {% for form in formset.forms %}
     {{ form.non_field_errors }}
     {{ form.field_errors }}
@@ -138,8 +207,8 @@
 
 <script>
     $(function () {
-        $('[data-toggle="popover"]').popover({html: true, trigger: 'focus'})
-    })
+        $('[data-toggle="popover"]').popover({html: true})
+    });
 
     function cloneMore(selector, type) {
         var newElement = $(selector).clone(true);
@@ -170,4 +239,14 @@
             lastElement.remove();
         }
     }
+
+    function LengthConverter(valNum) {
+        document.getElementById("outputcm").innerHTML = valNum / 0.032808;
+    }
+
+
+    function weightConverter(valNum) {
+        document.getElementById("outputKilograms").innerHTML = valNum / 2.2046;
+    }
+
 </script>

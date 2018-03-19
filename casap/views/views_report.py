@@ -13,7 +13,7 @@ from geopy.distance import vincenty
 from django.contrib.gis.geos import Point
 from pyproj import Proj, transform
 
-from casap.forms.forms import ManageNotificationsForm
+from casap.forms.forms import ManageNotificationsForm, VulnerableReportForm
 from casap.forms.forms_report import LostPersonRecordForm, SightingRecordForm, FindRecordForm
 
 from casap.models import Vulnerable, LostPersonRecord, Volunteer, Activity, Location, VolunteerAvailability, \
@@ -100,10 +100,20 @@ def report_lost_view(request):
     profile = request.context['user_profile']
     if request.method == "POST":
         form = LostPersonRecordForm(request.POST)
+        vul_form = VulnerableReportForm(request.POST)
         request.context['next'] = request.POST.get("next", reverse("index"))
-        if form.is_valid():
+        if form.is_valid() and vul_form.is_valid():
             vulnerable = Vulnerable.objects.filter(hash=request.POST.get("vulnerable")).first()
             if vulnerable:
+                vulnerable.nickname = vul_form.cleaned_data.get('nickname')
+                vulnerable.sex = vul_form.cleaned_data.get('sex')
+                vulnerable.race = vul_form.cleaned_data.get('race')
+                vulnerable.hair_colour = vul_form.cleaned_data.get('hair_colour')
+                vulnerable.height = vul_form.cleaned_data.get('height')
+                vulnerable.weight = vul_form.cleaned_data.get('weight')
+                vulnerable.eye_colour = vul_form.cleaned_data.get('eye_colour')
+                vulnerable.favourite_locations = vul_form.cleaned_data.get('favourite_locations')
+                vulnerable.save()
                 lost_record = form.save(request.user, vulnerable)
                 x = list(generate_volunteers(lost_record))
                 lost_record.volunteer_list = json.dumps(x)
@@ -131,10 +141,12 @@ def report_lost_view(request):
             form.add_error("vulnerable", ValidationError("Vulnerable person not found"))
     else:
         form = LostPersonRecordForm(initial=dict(time=get_user_time(request)))
+        vul_form = VulnerableReportForm()
         request.context['next'] = request.GET.get("next", reverse("index"))
 
     profile = request.context['user_profile']
     request.context['form'] = form
+    request.context['vul_form'] = vul_form
     request.context['all_timezones'] = pytz.all_timezones
     request.context['vulnerable_people'] = [dict(hash=vul.hash, name=vul.full_name) for vul in Vulnerable.objects.all()]
     request.context['user_tz_name'] = 'Canada/Mountain'  # This needs to be changed when multiple timezones will be used
@@ -408,4 +420,3 @@ def send_found_alert(vol_id, record, v):
         SimpleMailHelper(mail_subject, message, message, vol.email).send_email()
     if vol.twitter_handle:
         send_twitter_dm(message, vol.twitter_handle)
-

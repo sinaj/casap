@@ -100,21 +100,63 @@ class Volunteer(models.Model):
 
 
 PROVINCE_CHOICES = (
-    ('ab', 'AB'),
-    ('bc', 'BC'),
-    ('mb', 'MB'),
-    ('nb', 'NB'),
-    ('nl', 'NL'),
-    ('ns', 'NS'),
-    ('nt', 'NT'),
-    ('nu', 'NU'),
-    ('on', 'ON'),
-    ('pe', 'PE'),
-    ('qc', 'QC'),
-    ('sk', 'SK'),
-    ('yt', 'YT')
+    ('AB', 'AB'),
+    ('BC', 'BC'),
+    ('MB', 'MB'),
+    ('NB', 'NB'),
+    ('NL', 'NL'),
+    ('NS', 'NS'),
+    ('NT', 'NT'),
+    ('NU', 'NU'),
+    ('ON', 'ON'),
+    ('PE', 'PE'),
+    ('QC', 'QC'),
+    ('SK', 'SK'),
+    ('YT', 'YT'),
 )
 
+SEX_CHOICES = (
+    ('Male', 'Male'),
+    ('Female', 'Female'),
+    ('Other', 'Other'),
+)
+
+RACE_CHOICES = (
+    ('Aboriginal (e.g., Inuit, Métis)', 'Aboriginal (e.g., Inuit, Métis)'),
+    ('Arab/West Asian (e.g., Iranian, Lebanese)',
+     'Arab/West Asian (e.g., Iranian, Lebanese)'),
+    ('Black (e.g., African, Haitian)', 'Black (e.g., African, Haitian)'),
+    ('Chinese', 'Chinese'),
+    ('Filipino', 'Filipino'),
+    ('Japanese', 'Japanese'),
+    ('Korean', 'Korean'),
+    ('Latin American', 'Latin American'),
+    ('South Asian', 'South Asian'),
+    ('South East Asian', 'South East Asian'),
+    ('White (Caucasian)', 'White (Caucasian)'),
+    ('Other', 'Other'),
+)
+
+HAIR_CHOICES = (
+    ('Brown', 'Brown'),
+    ('Blonde', 'Blonde'),
+    ('Black', 'Black'),
+    ('Grey', 'Grey'),
+    ('Red', 'Red'),
+    ('White', 'White'),
+    ('No hair', 'No hair'),
+    ('Other', 'Other'),
+)
+
+HEIGHT_CHOICES = [(x, x) for x in range(140, 200)]
+WEIGHT_CHOICES = [(x, x) for x in range(30, 140)]
+
+EYE_COLOUR_CHOICES = (
+    ('Blue', 'Blue'),
+    ('Brown', 'Brown'),
+    ('Green', 'Green'),
+    ('Hazel', 'Hazel'),
+)
 
 class VolunteerAvailability(models.Model):
     volunteer = models.ForeignKey(Volunteer, related_name="volunteers")
@@ -124,7 +166,6 @@ class VolunteerAvailability(models.Model):
     street = models.CharField(max_length=50, null=True)
     city = models.CharField(max_length=50, null=True)
     province = models.CharField(max_length=4, choices=PROVINCE_CHOICES, default='ab')
-
     km_radius = models.IntegerField(default=5)
 
     def __str__(self):
@@ -137,9 +178,16 @@ class Vulnerable(models.Model):
     creation_time = models.DateTimeField()
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
-    description = models.TextField()
+    nickname = models.CharField(max_length=50, null=True, blank=True)
     birthday = models.DateField()
     picture = models.ImageField(upload_to=get_vulnerable_picture_path, null=True, blank=True)
+    sex = models.CharField(max_length=50, choices=SEX_CHOICES)
+    race = models.CharField(max_length=150, choices=RACE_CHOICES)
+    hair_colour = models.CharField(max_length=50, choices=HAIR_CHOICES)
+    height = models.IntegerField(choices=HEIGHT_CHOICES)
+    weight = models.IntegerField(choices=WEIGHT_CHOICES)
+    eye_colour = models.CharField(max_length=50, choices=EYE_COLOUR_CHOICES)
+    favourite_locations = models.TextField()
     hash = models.CharField(max_length=30, unique=True, blank=True)
 
     def save(self, *args, **kwargs):

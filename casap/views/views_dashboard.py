@@ -231,7 +231,10 @@ def volunteer_edit_view(request):
 def vulnerable_list_view(request):
     profile = request.context['user_profile']
     request.context['user'] = profile.user
-    request.context['vulnerable_list'] = profile.vulnerable_people.all()
+    if profile.coordinator_email:
+        request.context['vulnerable_list'] = Vulnerable.objects.all()
+    else:
+        request.context['vulnerable_list'] = profile.vulnerable_people.all()
     return render(request, 'dashboard/vulnerable/vulnerable_list.html', request.context)
 
 
