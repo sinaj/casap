@@ -188,6 +188,7 @@ class Vulnerable(models.Model):
     weight = models.IntegerField(choices=WEIGHT_CHOICES)
     eye_colour = models.CharField(max_length=50, choices=EYE_COLOUR_CHOICES)
     favourite_locations = models.TextField()
+    description = models.TextField(null=True, blank=True)
     hash = models.CharField(max_length=30, unique=True, blank=True)
 
     def save(self, *args, **kwargs):
