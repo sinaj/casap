@@ -22,9 +22,13 @@
                                     <center>{{ vulnerable.full_name }}</center>
                                 </h5>
                                 {% if record.state == "reported" %}
-                                    <center><span class="badge badge-danger float-center">{{ record.get_state_display }}</span></center>
+                                    <center><span
+                                            class="badge badge-danger float-center">{{ record.get_state_display }}</span>
+                                    </center>
                                 {% else %}
-                                    <center><span class="badge badge-warning float-center">{{ record.get_state_display }}</span></center>
+                                    <center><span
+                                            class="badge badge-warning float-center">{{ record.get_state_display }}</span>
+                                    </center>
                                 {% endif %}
                                 <hr>
                                 <div class="container-fluid p-0">
@@ -32,18 +36,20 @@
                                 </div>
                             </div>
                         </div>
-                    <hr>
+                        <hr>
                         <form action="" method="post">
                             {% csrf_token %}
                             <div class="form-group row">
-                                <label for="id_time" class="col-sm-4 col-form-label">Time</label>
+                                <label for="id_time" class="col-sm-4 col-form-label">Time<span
+                                        class="text-danger">*</span></label>
                                 <div class="col-sm-6">
                                     <input id="id_time" name="time" class="form-control"
                                            value="{{ form.time.value|timezone:user_tz_name|date:"Y-m-d"|default:"" }} {{ form.time.value|timezone:user_tz_name|time:"H:i"|default:"" }}">
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="id_tz_name" class="col-sm-4 col-form-label">Timezone</label>
+                                <label for="id_tz_name" class="col-sm-4 col-form-label">Timezone <span
+                                        class="text-danger">*</span></label>
                                 <div class="col-sm-6">
                                     <select id="id_tz_name" name="tz_name" class="form-control">
                                         {% for tz in all_timezones %}
@@ -54,10 +60,28 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label for="id_address" class="col-sm-4 col-form-label">Address</label>
+                                <label for="id_street" class="col-sm-4 col-form-label">Street Address<span
+                                        class="text-danger">*</span></label>
                                 <div class="col-sm-6">
-                                    <input id="id_address" name="address" class="form-control"
-                                           value="{{ form.address.value|default:"" }}" required>
+                                    <input id="id_street" name="street" class="form-control"
+                                           placeholder="e.g. 3626 7 St SW"
+                                           value="{{ form.street.value|default:"" }}" required>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_city" class="col-sm-4 col-form-label">City <span
+                                        class="text-danger">*</span></label>
+                                <div class="col-sm-6">
+                                    <input id="id_city" name="city" class="form-control"
+                                           placeholder="e.g. Calgary"
+                                           value="{{ form.city.value|default:"" }}" required>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="id_province" class="col-sm-4 col-form-label">Province <span
+                                        class="text-danger">*</span></label>
+                                <div class="col-sm-6">
+                                    {{ form.province }}
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -85,9 +109,9 @@
     </div>
 
     <script>
-        $(document).ready(function () {
-            $('[data-toggle="popover"]').popover({});
-        });
+        $(function () {
+            $('[data-toggle="popover"]').popover({html: true, placement: "bottom"})
+        })
     </script>
 
 {% endblock %}

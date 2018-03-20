@@ -7,56 +7,48 @@
 
 
 {% block content %}
-<html>
+    <html>
 
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Location</title>
-    <link rel="stylesheet" type="text/css" href="/static/css/mapview.css" />
-    <script src="http://dev.openlayers.org/OpenLayers.js"></script>
-    <script type="text/javascript">
-    var map, vectors, controls;
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <title>Location</title>
+        <link rel="stylesheet" type="text/css" href="/static/css/mapview.css"/>
+        <script src="{% static "/openlayers/OpenLayers.js" %}"></script>
+        <script type="text/javascript">
+            var map;
 
-    function init() {
-        var a = location.href;
-        var b = a.substring(a.indexOf("?") + 1);
-        var locationData = b.substring(b.indexOf("=") + 1).split("&");
-        map = new OpenLayers.Map('map');
-        var OSM_layer = new OpenLayers.Layer.OSM("OpenStreet Map");
-        map.addLayer(OSM_layer);
+            function init() {
+                var a = location.href;
+                var b = a.substring(a.indexOf("?") + 1);
+                var locationData = b.substring(b.indexOf("=") + 1).split("&");
+                map = new OpenLayers.Map('map');
+                var OSM_layer = new OpenLayers.Layer.OSM();
+                map.addLayer(OSM_layer);
 
 
-        var position = new OpenLayers.LonLat(locationData[1], locationData[0]);
+                var position = new OpenLayers.LonLat(locationData[1], locationData[0]);
 
-        var zoom = 13;
+                var zoom = 17.3;
 
-        var size = new OpenLayers.Size(55, 60);
-        var offset = new OpenLayers.Pixel(-(size.w / 2), -size.h);
+                var size = new OpenLayers.Size(55, 60);
+                var offset = new OpenLayers.Pixel(-(size.w / 2), -size.h);
 
-        var icon = new OpenLayers.Icon("http://pluspng.com/img-png/png-location-file-location-icon-png-287.png", size, offset);
-        //base layer
-        var markers = new OpenLayers.Layer.Markers("Markers");
-        markers.addMarker(new OpenLayers.Marker(position, icon));
+                var icon = new OpenLayers.Icon("http://icon-park.com/imagefiles/location_map_pin_red3.png", size, offset);
+                //base layer
+                var markers = new OpenLayers.Layer.Markers("Markers");
+                markers.addMarker(new OpenLayers.Marker(position, icon));
+                map.setCenter(position, zoom);
+                map.addLayer(markers);
+            }
+        </script>
+    </head>
 
-       
-        map.setCenter(position, zoom);
-        map.addLayer(markers);
-        // map.addLayers(markers);
-       
-        map.addControl(new OpenLayers.Control.LayerSwitcher());
-
-        map.addControl(new OpenLayers.Control.Attribution());
-
-    }
-    </script>
-</head>
-
-<body onload="init()">
+    <body onload="init()">
     </p>
     <div id="map" class="smallmap"></div>
-</body>
+    </body>
 
-</html>
+    </html>
 {% endblock %}

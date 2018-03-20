@@ -1,9 +1,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
-from django.forms.models import BaseInlineFormSet
 from django.core.validators import validate_email
-from django.forms import TimeField
 
 from casap.models import *
 from casap.utilities.utils import normalize_email, get_standard_phone, get_address_map_google, validate_twitter_handle
@@ -62,28 +60,23 @@ class ManageNotificationsForm(forms.ModelForm):
 
 
 class VolunteerAvailabilityForm(forms.ModelForm):
-    time_from = TimeField(widget=forms.widgets.DateInput(attrs={'type': 'time',
-                                                                'class': 'form-control',
-                                                                'required': True
-                                                                }))
-    time_to = TimeField(widget=forms.widgets.DateInput(attrs={'type': 'time',
-                                                              'class': 'form-control',
-                                                              'required': True
-                                                              }))
+    street = forms.CharField(widget=forms.TextInput(attrs={'size': '30',
+                                                           'placeholder': "e.g. 15 Bermuda Rd NW",
+                                                           'class': 'form-control'}))
+    city = forms.CharField(widget=forms.TextInput(attrs={'size': '20',
+                                                         'placeholder': "e.g. Calgary",
+                                                         'class': 'form-control'
+                                                         }))
 
     class Meta:
         model = VolunteerAvailability
-        widgets = {
-            'address': forms.TextInput(attrs={'class': 'form-control',
-                                              'placeholder': 'e.g. 12345 74 ST Edmonton AB',
-                                              'required': True
-                                              })
-        }
-        exclude = ('address_lat', 'address_lng')
+        fields = ['street', 'city', 'province', 'km_radius']
+        exclude = ('address_lat', 'address_lng', 'address')
 
     def clean_personal_address(self):
         if not self.cleaned_data['address']:
             return self.cleaned_data['address']
+
         address = self.cleaned_data['address']
         map_response = get_address_map_google(address)
         if map_response is None:
@@ -95,19 +88,22 @@ class VolunteerAvailabilityForm(forms.ModelForm):
 
 
 class VolunteerForm(forms.ModelForm):
+
     def clean_phone(self):
-        standard_phone = get_standard_phone(self.cleaned_data['phone'])
-        if standard_phone:
-            return standard_phone
-        raise forms.ValidationError("Phone number is invalid.")
+        if self.cleaned_data.get('phone'):
+            standard_phone = get_standard_phone(self.cleaned_data['phone'])
+            if standard_phone:
+                return standard_phone
+            raise forms.ValidationError("Phone number is invalid.")
 
     def clean_email(self):
-        try:
-            validate_email(self.cleaned_data['email'])
-        except:
-            raise forms.ValidationError("Email is invalid.")
-        else:
-            return self.cleaned_data['email']
+        if self.cleaned_data.get('email'):
+            try:
+                validate_email(self.cleaned_data['email'])
+            except:
+                raise forms.ValidationError("Email is invalid.")
+            else:
+                return self.cleaned_data['email']
 
     def clean_twitter_handle(self):
         if self.cleaned_data.get('twitter_handle'):
@@ -123,33 +119,86 @@ class VolunteerForm(forms.ModelForm):
 
 
 class VulnerableForm(forms.ModelForm):
+    picture = forms.FileField(widget=forms.ClearableFileInput())
+
     class Meta:
         model = Vulnerable
-        fields = ('first_name', 'last_name', 'description', 'birthday', 'picture')
+        fields = (
+            'first_name', 'last_name', 'nickname', 'birthday', 'picture', 'sex', 'race', 'hair_colour', 'height',
+            'weight', 'eye_colour', 'favourite_locations')
 
 
-class VulnerableAddressFormSet(BaseInlineFormSet):
-    def clean(self):
-        super(VulnerableAddressFormSet, self).clean()
-        for form in self.forms:
-            address = form.cleaned_data.get('address')
-            if not address:
-                continue
-            map_response = get_address_map_google(address)
+class VulnerableReportForm(forms.ModelForm):
+    class Meta:
+        model = Vulnerable
+        fields = (
+            'nickname', 'sex', 'race', 'hair_colour', 'height',
+            'weight', 'eye_colour', 'favourite_locations')
+
+
+# class VulnerableAddressFormSet(BaseInlineFormSet):
+#     def clean(self):
+#         super(VulnerableAddressFormSet, self).clean()
+#         for form in self.forms:
+#             address = form.cleaned_data.get('address')
+#             if not address:
+#                 continue
+#             map_response = get_address_map_google(address)
+#             if map_response is None:
+#                 form.add_error("address", forms.ValidationError("Address is invalid"))
+#             else:
+#                 form.address_lat = map_response['lat']
+#                 form.address_lng = map_response['lng']
+#
+#     def save(self, commit=True):
+#         instances = super(VulnerableAddressFormSet, self).save(commit=False)
+#         for form in self.saved_forms:
+#             instance = form.instance
+#             if hasattr(form, "address_lat") and hasattr(form, "address_lng"):
+#                 instance.address_lat = form.address_lat
+#                 instance.address_lng = form.address_lng
+#         if commit:
+#             for form in self.saved_forms:
+#                 form.save()
+#         return instances
+
+class VulnerableAddressForm(forms.ModelForm):
+    street = forms.CharField(widget=forms.TextInput(attrs={'size': '30',
+                                                           'placeholder': "e.g. 15 Bermuda Rd NW",
+                                                           'class': 'form-control'}))
+    city = forms.CharField(widget=forms.TextInput(attrs={'size': '20',
+                                                         'placeholder': "e.g. Calgary",
+                                                         'class': 'form-control'
+                                                         }))
+
+    def clean_street(self):
+        if not self.cleaned_data['street']:
+            raise forms.ValidationError("Street not provided")
+        return self.cleaned_data['street']
+
+    def clean_city(self):
+        if not self.cleaned_data['city']:
+            raise forms.ValidationError("City not provided")
+        return self.cleaned_data['city']
+
+    def clean_province(self):
+        if not self.cleaned_data['province']:
+            raise forms.ValidationError("Province not provided")
+        address = self.cleaned_data['street'] + " " + self.cleaned_data['city'] + " " + self.cleaned_data['province']
+        map_response = get_address_map_google(address)
+        for i in range(10):
             if map_response is None:
-                form.add_error("address", forms.ValidationError("Address is invalid"))
+                map_response = get_address_map_google(address)
             else:
-                form.address_lat = map_response['lat']
-                form.address_lng = map_response['lng']
+                break
+        if map_response is None:
+            raise forms.ValidationError("Address is invalid")
+        self.address_lat = map_response['lat']
+        self.address_lng = map_response['lng']
+        self.address = address
+        return self.cleaned_data['province']
 
-    def save(self, commit=True):
-        instances = super(VulnerableAddressFormSet, self).save(commit=False)
-        for form in self.saved_forms:
-            instance = form.instance
-            if hasattr(form, "address_lat") and hasattr(form, "address_lng"):
-                instance.address_lat = form.address_lat
-                instance.address_lng = form.address_lng
-        if commit:
-            for form in self.saved_forms:
-                form.save()
-        return instances
+    class Meta:
+        model = VulnerableAddress
+        fields = ('street', 'city', 'province')
+        exclude = ('address', 'address_lng', 'address_lat')

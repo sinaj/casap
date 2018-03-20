@@ -18,7 +18,7 @@
 
     <div class="container p-0">
         <div class="row justify-content-center">
-            <div class="col-sm-6 col-md-8 col-lg-6">
+            <div class="col-sm-6 col-md-8 col-lg-8">
                 <div class="card mr-auto mb-4">
                     <div class="card-body">
                         <h4 class="card-title">
@@ -49,10 +49,10 @@
 {% endblock %}
 
 {% block scripts %}
-    <script>
-        {% autoescape off %}
-            $.addresses = {{ addresses }};
-        {% endautoescape %}
-    </script>
+{#    <script>#}
+{#        {% autoescape off %}#}
+{#            $.addresses = {{ addresses }};#}
+{#        {% endautoescape %}#}
+{#    </script>#}
     <script type="text/javascript" src="/static/js/dashboard/vulnerable/vulnerable_add.js"></script>
 {% endblock %}

@@ -37,8 +37,8 @@
                                         {% if alert.sent == False %}
                                             <tr>
                                                 <td style="text-align:center">
-                                                    {% if alert.state == 'Lost' %}
-                                                        <span class="badge badge-danger float-center">Missing</span>
+                                                    {% if alert.state == 'Found' %}
+                                                        <span class="badge badge-success float-center">Found</span>
                                                     {% else %}
                                                         <span class="badge badge-warning float-center">Seen</span>
                                                     {% endif %}

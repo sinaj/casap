@@ -1,5 +1,6 @@
 import datetime
 import pytz
+import simplejson as json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages import add_message
@@ -12,7 +13,7 @@ from geopy.distance import vincenty
 from django.contrib.gis.geos import Point
 from pyproj import Proj, transform
 
-from casap.forms.forms import ManageNotificationsForm
+from casap.forms.forms import ManageNotificationsForm, VulnerableReportForm
 from casap.forms.forms_report import LostPersonRecordForm, SightingRecordForm, FindRecordForm
 
 from casap.models import Vulnerable, LostPersonRecord, Volunteer, Activity, Location, VolunteerAvailability, \
@@ -30,10 +31,10 @@ def tweet_helper(name, link, flag, time):
                                                                                             time.time().strftime(
                                                                                                 '%H:%M'), link)
     else:
-        txt = "{} has been reported SEEN at {}. For more details, visit {} #Seen".format(name,
-                                                                                         time.time().strftime(
-                                                                                             '%H:%M'),
-                                                                                         link)
+        txt = "{} has been FOUND at {}. For more details, visit {} #Found".format(name,
+                                                                                  time.time().strftime(
+                                                                                      '%H:%M'),
+                                                                                  link)
     return txt
 
 
@@ -45,25 +46,26 @@ def time_in_range(start, end, x):
         return start <= x or x <= end
 
 
-def lost_notification(notify_record, vol, notif):
+def lost_notification(notify_record, vol):
+    link = "http://{}".format(notify_record.get_link())
+    link = shorten_url(link)
     if notify_record.description:
         sms_text = "Dear %s,\nClient: %s has been lost near you with description:\n%s\n\n" % (vol.full_name,
                                                                                               notify_record.vulnerable.full_name,
                                                                                               notify_record.description) + \
-                   "Please report when seen or found by following the link below:\n%s" % notify_record.get_link()
+                   "For more details visit the link below:\n%s" % link
     else:
         sms_text = "Dear %s,\nClient: %s has been lost near you.\n" % (vol.full_name,
                                                                        notify_record.vulnerable.full_name) + \
-                   "Please report when seen or found by following the link below:\n%s" % notify_record.get_link()
+                   "For more details visit the link below:\n%s" % link
 
     mail_subject = "C-ASAP Client: %s has been lost near you " % notify_record.vulnerable.full_name
-    if notif.phone_notify:
+    if vol.phone:
         send_sms(get_standard_phone(vol.phone), sms_text)
-    if notif.email_notify:
+    if vol.email:
         SimpleMailHelper(mail_subject, sms_text, sms_text, vol.email).send_email()
-    if notif.twitter_dm_notify:
-        if vol.twitter_handle:
-            send_twitter_dm(sms_text, vol.twitter_handle)
+    if vol.twitter_handle:
+        send_twitter_dm(sms_text, vol.twitter_handle)
 
 
 def seen_notification(notify_record, vol, notif):
@@ -97,13 +99,27 @@ def send_alert_email(profile, lost_alert):
 @login_required
 def report_lost_view(request):
     coordinators = Profile.objects.filter(coordinator_email=True)
+    profile = request.context['user_profile']
     if request.method == "POST":
         form = LostPersonRecordForm(request.POST)
+        vul_form = VulnerableReportForm(request.POST)
         request.context['next'] = request.POST.get("next", reverse("index"))
-        if form.is_valid():
+        if form.is_valid() and vul_form.is_valid():
             vulnerable = Vulnerable.objects.filter(hash=request.POST.get("vulnerable")).first()
             if vulnerable:
+                vulnerable.nickname = vul_form.cleaned_data.get('nickname')
+                vulnerable.sex = vul_form.cleaned_data.get('sex')
+                vulnerable.race = vul_form.cleaned_data.get('race')
+                vulnerable.hair_colour = vul_form.cleaned_data.get('hair_colour')
+                vulnerable.height = vul_form.cleaned_data.get('height')
+                vulnerable.weight = vul_form.cleaned_data.get('weight')
+                vulnerable.eye_colour = vul_form.cleaned_data.get('eye_colour')
+                vulnerable.favourite_locations = vul_form.cleaned_data.get('favourite_locations')
+                vulnerable.save()
                 lost_record = form.save(request.user, vulnerable)
+                x = list(generate_volunteers(lost_record))
+                lost_record.volunteer_list = json.dumps(x)
+                lost_record.save()
                 lost_activity = LostActivity()
                 lost_activity.locLat = lost_record.address_lat
                 lost_activity.locLon = lost_record.address_lng
@@ -114,28 +130,28 @@ def report_lost_view(request):
                 if fence_loc:
                     lost_activity.location = fence_loc[0]
                 lost_activity.save()
-                notif = Notifications()
-                notif.save()
-                lost_alert = Alerts(
-                    state='Lost', lost_record=lost_record, notifications=notif
-                )
-                lost_alert.save()
-                for coord in coordinators:
-                    send_alert_email(coord, lost_alert)
-                success_msg = "Success! %s has been reported lost." % vulnerable.full_name
-                add_message(request, messages.SUCCESS, success_msg)
-                return HttpResponseRedirect(reverse("index"))
-            else:
-                form.add_error("vulnerable", ValidationError("Vulnerable person not found"))
+                time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime(
+                    "%H:%M")
+                flag = 1
+                notify_volunteers(lost_record, flag)
+                send_tweet(
+                    tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(),
+                                 flag, lost_record.time))
+            add_message(request, messages.SUCCESS, "Success")
+            return HttpResponseRedirect(reverse('index'))
+        else:
+            form.add_error("vulnerable", ValidationError("Vulnerable person not found"))
     else:
         form = LostPersonRecordForm(initial=dict(time=get_user_time(request)))
+        vul_form = VulnerableReportForm()
         request.context['next'] = request.GET.get("next", reverse("index"))
 
     profile = request.context['user_profile']
     request.context['form'] = form
+    request.context['vul_form'] = vul_form
     request.context['all_timezones'] = pytz.all_timezones
-    request.context['vulnerable_people'] = [dict(hash=vul.hash, name=vul.full_name) for vul in
-                                            profile.vulnerable_people.all()]
+    request.context['vulnerable_people'] = [dict(hash=vul.hash, name=vul.full_name) for vul in Vulnerable.objects.all()]
+    request.context['user_tz_name'] = 'Canada/Mountain'  # This needs to be changed when multiple timezones will be used
     return render(request, "report/report_lost.html", request.context)
 
 
@@ -240,6 +256,8 @@ def alert_view(request, hash):
                             tweet_helper(alert.lost_record.vulnerable.full_name, alert.lost_record.get_link(), flag,
                                          alert.sighting_record.time))
 
+                alert.sent = True
+                alert.save()
                 add_message(request, messages.SUCCESS, "Notifications successfully sent.")
                 return HttpResponseRedirect(reverse("index"))
             else:
@@ -263,7 +281,8 @@ def alert_view(request, hash):
 
                     notif.save()
 
-                    time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime("%H:%M")
+                    time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime(
+                        "%H:%M")
                     if alert.state == 'Lost':
                         flag = 1
                         notify_volunteers(alert.lost_record, time_seen, flag, notif)
@@ -279,6 +298,7 @@ def alert_view(request, hash):
                                 tweet_helper(alert.lost_record.vulnerable.full_name, alert.lost_record.get_link(), flag,
                                              alert.seen_record.time))
                     alert.sent = True
+                    alert.save()
                     add_message(request, messages.SUCCESS, "Notifications successfully sent.")
                     return HttpResponseRedirect(reverse("index"))
         else:
@@ -302,7 +322,7 @@ def alert_view(request, hash):
     return render(request, "alert_view.html", request.context)
 
 
-def notify_volunteers(notify_record, time_seen, flag, notif):
+def notify_volunteers(notify_record, flag):
     lat, lng = notify_record.address_lat, notify_record.address_lng
     inProj = Proj(init='epsg:3857')
     outProj = Proj(init='epsg:4326')
@@ -311,16 +331,34 @@ def notify_volunteers(notify_record, time_seen, flag, notif):
     for vol in Volunteer.objects.all():
         availability = VolunteerAvailability.objects.filter(volunteer=vol)
         for x in availability:
-            seen = datetime.datetime.strptime(time_seen, "%H:%M").time()
-            if (time_in_range(x.time_from, x.time_to, seen)) and \
-                    (vincenty((x.address_lat, x.address_lng), (lat, lng)).kilometers <= x.km_radius):
+            if (vincenty((x.address_lat, x.address_lng), (lat, lng)).kilometers <= x.km_radius):
                 close_volunteers.add(vol)
 
     for vol in close_volunteers:
-        if flag == 1:
-            lost_notification(notify_record, vol, notif)
-        else:
-            seen_notification(notify_record, vol, notif)
+        # if flag == 1:
+        lost_notification(notify_record, vol)
+        # else:
+        #     seen_notification(notify_record, vol, notif)
+
+
+def generate_volunteers(notify_record):
+    '''
+
+    :param notify_record: the lost record
+    :return: List of volunteer ids
+    '''
+    lat, lng = notify_record.address_lat, notify_record.address_lng
+    inProj = Proj(init='epsg:3857')
+    outProj = Proj(init='epsg:4326')
+    lng, lat = transform(inProj, outProj, float(lng), float(lat))
+    close_volunteers = set()
+    for vol in Volunteer.objects.all():
+        availability = VolunteerAvailability.objects.filter(volunteer=vol)
+        for x in availability:
+            if (vincenty((x.address_lat, x.address_lng), (lat, lng)).kilometers <= x.km_radius):
+                close_volunteers.add(vol.id)
+
+    return close_volunteers
 
 
 @login_required
@@ -336,6 +374,15 @@ def report_found_view(request, hash):
         if form.is_valid():
             v = form.save(request.user, lost_record)
             lost_record.state = "found"
+            json_dec = json.decoder.JSONDecoder()
+            try:
+                volunteer_list = json_dec.decode(lost_record.volunteer_list)
+            except:
+                volunteer_list = list()
+            if volunteer_list:
+                for i in volunteer_list:
+                    send_found_alert(i, lost_record, v)
+            send_tweet(tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(), 2, v.time))
             lost_record.save()
             found_activity = FoundActivity()
             found_activity.locLat = v.address_lat
@@ -348,7 +395,7 @@ def report_found_view(request, hash):
                 found_activity.location = fence_loc[0]
             found_activity.save()
             add_message(request, messages.SUCCESS, "Thank you! Our records are updated.")
-            return HttpResponseRedirect(request.POST.get("next", reverse("index")))
+            return HttpResponseRedirect(reverse("index"))
     else:
         form = FindRecordForm(initial=dict(time=get_user_time(request)))
         request.context['next'] = request.GET.get("next", reverse("index"))
@@ -356,4 +403,22 @@ def report_found_view(request, hash):
     request.context['vulnerable'] = lost_record.vulnerable
     request.context['record'] = lost_record
     request.context['all_timezones'] = pytz.all_timezones
+    request.context['user_tz_name'] = 'Canada/Mountain'  # This needs to be changed when multiple timezones will be used
     return render(request, "report/report_found.html", request.context)
+
+
+def send_found_alert(vol_id, record, v):
+    vol = Volunteer.objects.get(id=vol_id)
+    link = "http://{}".format(record.get_link())
+    link = shorten_url(link)
+    message = "Dear {}: {} has been found at {}. For more details visit the link below: {}".format(vol.full_name,
+                                                                                                   record.vulnerable.full_name,
+                                                                                                   v.time.time().strftime(
+                                                                                                       '%H:%M'), link)
+    if vol.phone:
+        send_sms(get_standard_phone(vol.phone), message)
+    if vol.email:
+        mail_subject = "C-ASAP Client: {} has been found".format(record.vulnerable.full_name)
+        SimpleMailHelper(mail_subject, message, message, vol.email).send_email()
+    if vol.twitter_handle:
+        send_twitter_dm(message, vol.twitter_handle)

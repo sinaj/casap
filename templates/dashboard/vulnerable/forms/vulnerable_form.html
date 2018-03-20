@@ -1,82 +1,252 @@
+{% load static %}
 <div class="form-group row">
     <label for="id_first_name" class="col-sm-4 col-form-label">First Name <span class="text-danger">*</span></label>
     {{ form.first_name.errors }}
     <div class="col-sm-6">
-    <input type="text" id="id_first_name" name="first_name"
-           class="form-control" placeholder=""
-           value="{{ form.first_name.value|default:"" }}"
-           required>
+        <input type="text" id="id_first_name" name="first_name"
+               class="form-control" placeholder="e.g. Brendi K"
+               value="{{ form.first_name.value|default:"" }}"
+               required>
     </div>
 </div>
 <div class="form-group row">
     <label for="id_last_name" class="col-sm-4 col-form-label">Last Name <span class="text-danger">*</span></label>
     {{ form.last_name.errors }}
     <div class="col-sm-6">
-    <input type="text" id="id_last_name" name="last_name"
-           class="form-control" placeholder=""
-           value="{{ form.last_name.value|default:"" }}"
-           required>
+        <input type="text" id="id_last_name" name="last_name"
+               class="form-control" placeholder="e.g. Seiner"
+               value="{{ form.last_name.value|default:"" }}"
+               required>
+    </div>
+</div>
+<div class="form-group row">
+    <label for="id_nickname" class="col-sm-4 col-form-label">Nickname</label>
+    {{ form.nickname.errors }}
+    <div class="col-sm-6">
+        <input type="text" id="id_nickname" name="nickname"
+               class="form-control" placeholder="Optional"
+               value="{{ form.nickname.value|default:"" }}">
     </div>
 </div>
 <div class="form-group row">
     <label for="id_birthday" class="col-sm-4 col-form-label">Birthday <span class="text-danger">*</span></label>
     {{ form.birthday.errors }}
-<div class="col-sm-6">
-    <input type="date" id="id_birthday" name="birthday"
-           class="form-control" placeholder="YYYY-MM-DD"
-            {% if is_post %}
-           value="{{ form.birthday.value|default:"" }}"
-            {% else %}
-           value="{{ form.birthday.value|date:"Y-m-d"|default:"" }}"
-            {% endif %}
-           required></div>
+    <div class="col-sm-6">
+        <input type="date" id="id_birthday" name="birthday"
+               class="form-control" placeholder="YYYY-MM-DD"
+                {% if is_post %}
+               value="{{ form.birthday.value|default:"" }}"
+                {% else %}
+               value="{{ form.birthday.value|date:"Y-m-d"|default:"" }}"
+                {% endif %}
+               required></div>
 </div>
 <div class="form-group row">
     <label for="id_picture" class="col-sm-4 col-form-label">Picture <span class="text-danger">*</span></label>
     {{ form.picture.errors }}
     <div class="col-sm-6">
-    <input type="file" id="id_picture" name="picture"
-           class="" accept="image/png,image/jpeg" required>
+{#        <input type="file" id="id_picture" name="picture"#}
+{#               class="" accept="image/png,image/jpeg" required>#}
+        {{ form.picture }}
     </div>
 </div>
 <div class="form-group row">
-    <label for="id_description" class="col-sm-4 col-form-label">Description <span class="text-danger">*</span></label>
-    {{ form.description.errors }}
+    <label for="id_sex" class="col-sm-4 col-form-label">Sex <span class="text-danger">*</span></label>
+    {{ form.sex.errors }}
     <div class="col-sm-6">
-    <textarea id="id_description" name="description"
-              class="form-control" required>{{ form.description.value|default:"" }}</textarea>
+        {{ form.sex }}
     </div>
 </div>
+
+<div class="form-group row">
+    <label for="id_race" class="col-sm-4 col-form-label">Race <span class="text-danger">*</span></label>
+    {{ form.race.errors }}
+    <div class="col-sm-6">
+        {{ form.race }}
+    </div>
+</div>
+
+<div class="form-group row">
+    <label for="id_hair_colour" class="col-sm-4 col-form-label">Hair Colour <span class="text-danger">*</span></label>
+    {{ form.hair_colour.errors }}
+    <div class="col-sm-6">
+        {{ form.hair_colour }}
+    </div>
+</div>
+
+<div class="form-group row">
+    <label for="id_height" class="col-sm-4 col-form-label">Approximate Height (cm) <a tabindex="0"
+                                                                                      class="fa fa-info-circle"
+                                                                                      data-placement="bottom"
+                                                                                      data-toggle="popover"
+                                                                                      title="Feet to Centimeters"
+                                                                                      data-content="<p> <label>Feet.Inches </label> <input id='inputFee' type='number' placeholder='Feet' oninput='LengthConverter(this.value)' onchange='LengthConverter(this.value)'></p><p>cm: <span id='outputcm'></span></p>"></a><span
+            class="text-danger">*</span></label>
+    {{ form.height.errors }}
+    <div class="col-sm-6">
+        {{ form.height }}
+    </div>
+</div>
+
+<div class="form-group row">
+    <label for="id_weight" class="col-sm-4 col-form-label">Approximate Weight (kg) <a tabindex="0"
+                                                                                      class="fa fa-info-circle"
+                                                                                      data-placement="bottom"
+                                                                                      data-toggle="popover"
+                                                                                      title="Pounds to Kilograms"
+                                                                                      data-content="<p> <label>Pounds</label> <input id='inputPounds' type='number' placeholder='Pounds' oninput='weightConverter(this.value)' onchange='weightConverter(this.value)'></p><p>Kilograms: <span id='outputKilograms'></span></p>"></a><span
+            class="text-danger">*</span></label>
+    {{ form.weight.errors }}
+    <div class="col-sm-6">
+        {{ form.weight }}
+    </div>
+</div>
+
+<div class="form-group row">
+    <label for="id_eye_colour" class="col-sm-4 col-form-label">Eye Colour <span class="text-danger">*</span></label>
+    {{ form.eye_colour.errors }}
+    <div class="col-sm-6">
+        {{ form.eye_colour }}
+    </div>
+</div>
+
+<div class="form-group row">
+    <label for="id_favourite_locations" class="col-sm-4 col-form-label">Favourite Locations <span
+            class="text-danger">*</span></label>
+    {{ form.favourite_locations.errors }}
+    <div class="col-sm-6">
+        <textarea id="id_favourite_locations" name="favourite_locations"
+                  class="form-control" required>{{ form.favourite_locations.value|default:"" }}</textarea>
+    </div>
+</div>
+
+
 <hr>
 {{ formset.management_form }}
-<div class="form-group" ng-cloak="" ng-repeat="form in addresses track by $index">
-    <label for="id_addresses-[[ $index ]]-address" class="d-flex">
-            <span ng-if="$first" class="">
-                Address
-            </span>
-        <span ng-if="$first" class="text-danger float-left">*</span>
-        <span ng-if="!$first" class="">
-                Additional Address [[ $index + 1 ]]
-        </span>
-        <span ng-if="!$first" class="text-danger ml-auto" ng-click="removeAddress($index)">
-            <span class="fa fa-remove"></span>
-            remove
-        </span>
-    </label>
-    <ul class="errorlist" ng-show="form.errors">
-        <li ng-repeat="error in form.errors">[[ error ]]</li>
-    </ul>
-    {% if include_ids %}
-        <input type="hidden" ng-show="form.instance_id" id="id_addresses-[[ $index ]]-id"
-               name="addresses-[[ $index ]]-id" ng-model="form.instance_id">
-    {% endif %}
-    <input id="id_addresses-[[ $index ]]-address"
-           name="addresses-[[ $index ]]-address"
-           class="form-control" placeholder=""
-           ng-model="form.value"
-           ng-required="$first">
+{#<div class="form-group" ng-cloak="" ng-repeat="form in addresses track by $index">#}
+{#    <label for="id_addresses-[[ $index ]]-address" class="d-flex">#}
+{#            <span ng-if="$first" class="">#}
+{#                Address#}
+{#            </span>#}
+{#        <span ng-if="$first" class="text-danger float-left">*</span>#}
+{#        <span ng-if="!$first" class="">#}
+{#                Additional Address [[ $index + 1 ]]#}
+{#        </span>#}
+{#        <span ng-if="!$first" class="text-danger ml-auto" ng-click="removeAddress($index)">#}
+{#            <span class="fa fa-remove"></span>#}
+{#            remove#}
+{#        </span>#}
+{#    </label>#}
+{#    <ul class="errorlist" ng-show="form.errors">#}
+{#        <li ng-repeat="error in form.errors">[[ error ]]</li>#}
+{#    </ul>#}
+{#    {% if include_ids %}#}
+{#        <input type="hidden" ng-show="form.instance_id" id="id_addresses-[[ $index ]]-id"#}
+{#               name="addresses-[[ $index ]]-id" ng-model="form.instance_id">#}
+{#    {% endif %}#}
+{#    <input id="id_addresses-[[ $index ]]-address"#}
+{#           name="addresses-[[ $index ]]-address"#}
+{#           class="form-control" placeholder=""#}
+{#           ng-model="form.value"#}
+{#           ng-required="$first">#}
+{##}
+{#</div>#}
+{#<div class="form-group">#}
+{#    <div class="btn btn-secondary" ng-click="addAddress()">+</div>#}
+{#</div>#}
+<h5>Address(es)</h5>
+{% for form in formset.forms %}
+    {{ form.non_field_errors }}
+    {{ form.field_errors }}
+    <div class="table">
 
-</div>
-<div class="form-group">
-    <div class="btn btn-secondary" ng-click="addAddress()">+</div>
-</div>
+        <div class="form-group row">
+            <div class="col-sm-4 col-form-label">
+                Street<span class="text-danger">*</span>
+            </div>
+            <div class="col-sm-6">
+                {{ form.street }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-4 col-form-label">City<span class="text-danger">*</span></div>
+            <div class="col-sm-6">
+                {{ form.city }}
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-sm-4 col-form-label">Province<span class="text-danger">*</span></div>
+            <div class="col-sm-6">
+                {{ form.province }}
+            </div>
+        </div>
+        <hr>
+    </div>
+{% endfor %}
+<span>
+    <center>
+        <button class="btn btn-danger" type="button" id="remove_form">Remove Last Address</button>
+        <button class="btn btn-primary" type="button" id="add_more">Add Address</button>
+    </center>
+</span>
+<hr>
+
+<script>
+    // language=JQuery-CSS
+    $('#add_more').click(function () {
+        cloneMore('div.table:last', 'addresses');
+    });
+    // language=JQuery-CSS
+    $('#remove_form').click(function () {
+        removeForm('div.table:last', 'addresses');
+    });
+
+</script>
+
+
+<script>
+    $(function () {
+        $('[data-toggle="popover"]').popover({html: true})
+    });
+
+    function cloneMore(selector, type) {
+        var newElement = $(selector).clone(true);
+        var total = $('#id_' + type + '-TOTAL_FORMS').val();
+        newElement.find(':input').each(function () {
+            var name = $(this).attr('name').replace('-' + (total - 1) + '-', '-' + total + '-');
+            var id = 'id_' + name;
+            $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+        });
+        newElement.find('label').each(function () {
+            var newFor = $(this).attr('for').replace('-' + (total - 1) + '-', '-' + total + '-');
+            $(this).attr('for', newFor);
+        });
+        total++;
+        $('#id_' + type + '-TOTAL_FORMS').val(total);
+        $(selector).after(newElement);
+
+    }
+
+    function removeForm(selector, type) {
+        var lastElement = $(selector);
+        var total = $('#id_' + type + '-TOTAL_FORMS').val();
+        if (total == 1) {
+            alert('Must provide at least 1 address.')
+        } else {
+            total--;
+            $('#id_' + type + '-TOTAL_FORMS').val(total);
+            lastElement.remove();
+        }
+    }
+
+    function LengthConverter(valNum) {
+        document.getElementById("outputcm").innerHTML = valNum / 0.032808;
+    }
+
+
+    function weightConverter(valNum) {
+        document.getElementById("outputKilograms").innerHTML = valNum / 2.2046;
+    }
+
+</script>

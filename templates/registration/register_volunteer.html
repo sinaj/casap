@@ -13,9 +13,27 @@
 
 {% block content %}
 
+    <script>
+        /**
+         * @return {boolean}
+         */
+        function IsEmpty() {
+            var a = document.getElementById('id_phone').value.length;
+            var b = document.getElementById('id_email').value.length;
+            var c = document.getElementById('id_twitter_handle').value.length;
+
+            if (a === 0 && b === 0 && c === 0) {
+                alert("Must provide AT LEAST one channel for notifications.");
+                return false;
+            } else {
+                return true;
+            }
+        }
+    </script>
+
     <div class="container p-0">
         <div class="row justify-content-center">
-            <div class="col-sm-6 col-md-8 col-lg-6">
+            <div class="col-sm-6 col-md-8 col-lg-10">
                 <div class="card mr-auto">
                     <div class="card-body">
                         <h4 class="card-title">
@@ -27,7 +45,9 @@
                                 {% csrf_token %}
                                 {% include "registration/forms/register_volunteer.html" %}
                                 <div class="form-group">
-                                    <button class="btn btn-primary btn-block" type="submit">Register</button>
+                                    <button class="btn btn-primary btn-block" onclick="return IsEmpty();" type="submit">
+                                        Register
+                                    </button>
                                 </div>
                             </form>
                         </div>

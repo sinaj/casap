@@ -28,16 +28,23 @@
                                     <table class="table">
                                     <thead>
                                     <tr>
-                                        <th scope="col">#</th>
+                                        {#                                        <th scope="col">#</th>#}
                                         <th scope="col">Picture</th>
                                         <th scope="col">Name</th>
-                                        <th scope="col">Options</th>
+                                        <th scope="col">Options <a tabindex="0"
+                                                                   class="fa fa-info-circle"
+                                                                   data-placement="bottom"
+                                                                   data-toggle="popover"
+                                                                   data-trigger="focus"
+                                                                   title="Options"
+                                                                   data-content="Options include: <br><br> <li>Edit Vulnerable</li><li>Delete Vulnerable</li><li>Map Views</li>"></a>
+                                        </th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                 {% endif %}
                             <tr>
-                                <th scope="row">{{ forloop.counter }}</th>
+                                {#                                <th scope="row">{{ forloop.counter }}</th>#}
                                 <td>
                                     {% if vul.picture %}
                                         <img class="ht-lg" src="{{ vul.picture.url }}">
@@ -57,16 +64,15 @@
                                             <a class="dropdown-item" href="{% url "vulnerable_edit" hash=vul.hash %}">Edit</a>
                                             <span class="dropdown-item">
                                                 <form action="{% url "vulnerable_delete" hash=vul.hash %}" method="post"
-                                                      class="d-inline" onsubmit="return confirm('Delete vulnerable client?')">
+                                                      class="d-inline"
+                                                      onsubmit="return confirm('Delete vulnerable client?')">
                                             {% csrf_token %}
                                             <input type="hidden" name="hash" value="{{ vul.hash }}">
                                             <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                                         </form>
                                             </span>
-                                            {% if request.user.is_staff %}
-                                                <a class="dropdown-item"
-                                                   href="{% url "vulnerable_history" hash=vul.hash %}">Map Views</a>
-                                            {% endif %}
+                                            <a class="dropdown-item"
+                                               href="{% url "vulnerable_history" hash=vul.hash %}">Map Views</a>
                                         </div>
                                     </div>
                                 </td>
@@ -93,5 +99,11 @@
             </div>
         </div>
     </div>
+
+    <script>
+        $(function () {
+            $('[data-toggle="popover"]').popover({html: true, trigger: 'focus'})
+        });
+    </script>
 
 {% endblock %}

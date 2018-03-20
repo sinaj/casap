@@ -1,73 +1,142 @@
 {% load static %}
-
-<div class="form-group">
-    <label for="id_phone">Cell Phone<span class="text-danger">*</span></label>
+<h5>Notification Channels <i class="fa fa-info-circle" data-toggle="popover" title="Notification Channels"
+                             data-content="Can choose to receive SMS texts via a cell phone, email from an email address, and/or Direct Message from Twitter."></i>
+</h5><br>
+<div class="form-group row">
+    <label for="id_phone" class="col-sm-4 col-form-label">Cell Phone</label>
     {{ form.phone.errors }}
-
-    <input type="tel" id="id_phone" name="phone" class="form-control" placeholder="e.g. 780-123-4567" required
-           value="{{ form.phone.value|default:"" }}" autofocus>
+    <div class="col-sm-6">
+        <input type="tel" id="id_phone" name="phone" class="form-control" placeholder="e.g. 780-123-4567"
+               value="{{ form.phone.value|default:"" }}" autofocus>
+    </div>
 
 </div>
-<div class="form-group">
-    <label for="id_email">Email<span class="text-danger">*</span></label>
+<div class="form-group row">
+    <label for="id_email" class="col-sm-4 col-form-label">Email</label>
     {{ form.email.errors }}
-
-    <input type="text" id="id_email" name="email" class="form-control" placeholder="e.g. username@email.com" required
-           value="{{ form.email.value|default:"" }}" autofocus>
+    <div class="col-sm-6">
+        <input type="text" id="id_email" name="email" class="form-control" placeholder="e.g. username@email.com"
+               value="{{ form.email.value|default:"" }}" autofocus>
+    </div>
 </div>
 
-<div class="form-group">
-    <label for="id_twitter">Twitter Handle</label>
+<div class="form-group row">
+    <label for="id_twitter" class="col-sm-4 col-form-label">Twitter Handle</label>
     {{ form.twitter_handle.errors }}
-
-    <input type="text" id="id_twitter_handle" name="twitter_handle" class="form-control" placeholder="e.g. casap91"
-           value="{{ form.twitter_handle.value|default:"" }}" autofocus>
+    <div class="col-sm-6">
+        <input type="text" id="id_twitter_handle" name="twitter_handle" class="form-control" placeholder="e.g. casap91"
+               value="{{ form.twitter_handle.value|default:"" }}" autofocus>
+    </div>
 
 </div>
-
+<hr>
+<h5>Areas of Availability <i class="fa fa-info-circle" data-toggle="popover" title="Areas of Availability"
+                             data-content="These areas are defined by the volunteer to receive notifications about missing persons within a set kilometer radius from the given address."></i>
+</h5><br>
 {{ formset.management_form }}
 {% for form in formset.forms %}
+    {{ form.non_field_errors }}
+    {{ form.field_errors }}
     <div class="table">
-        {{ form.non_field_errors }}
-        <table class="no_error">
-            {{ form.as_p }}
-        </table>
+
+        <div class="form-group row">
+            <div class="col-sm-4 col-form-label">
+                Street<span class="text-danger">*</span>
+            </div>
+            <div class="col-sm-6">
+                {{ form.street }}
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-4 col-form-label">City<span class="text-danger">*</span></div>
+            <div class="col-sm-6">
+                {{ form.city }}
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-sm-4 col-form-label">Province<span class="text-danger">*</span></div>
+            <div class="col-sm-6">
+                {{ form.province }}
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-4 col-form-label">Km Radius<span class="text-danger">*</span></div>
+
+            <div class="col-md-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.km_radius }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
     </div>
 {% endfor %}
-<button class="btn btn-primary" type="button" id="add_more">Add Address</button>
+<span>
+    <center>
+        <button class="btn btn-danger" type="button" id="remove_form">Remove Last Area</button>
+        <button class="btn btn-primary" type="button" id="add_more">Add Additional Area</button>
+    </center>
+</span>
 <hr>
-{#<input type="button" value="Add More" id="add_more">#}
 <script>
     // language=JQuery-CSS
     $('#add_more').click(function () {
         cloneMore('div.table:last', 'volunteers');
     });
+    // language=JQuery-CSS
+    $('#remove_form').click(function () {
+        removeForm('div.table:last', 'volunteers');
+    });
+
 </script>
 
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<link rel="stylesheet" type="text/css" href="/static/css/time.css">
-<script src="{% static 'js/jquery.formset.js' %}"></script>
-<script type="text/javascript" src="scripts/bootstrap.min.js"></script>
+<script type="text/javascript" src="/static/js/plugins/bootstrap.min.js"></script>
 
 <script>
+
+    $(document).ready(function () {
+        $('[data-toggle="popover"]').popover({});
+    });
+
     function cloneMore(selector, type) {
         var newElement = $(selector).clone(true);
         var total = $('#id_' + type + '-TOTAL_FORMS').val();
-        newElement.find(':input').each(function () {
-            var name = $(this).attr('name').replace('-' + (total - 1) + '-', '-' + total + '-');
-            var id = 'id_' + name;
-            $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
-        });
-        newElement.find('label').each(function () {
-            var newFor = $(this).attr('for').replace('-' + (total - 1) + '-', '-' + total + '-');
-            $(this).attr('for', newFor);
-        });
-        total++;
-        $('#id_' + type + '-TOTAL_FORMS').val(total);
-        $(selector).after(newElement);
+        if (total == 5) {
+            alert('The maximum amount of area of availabilities is 5.')
+        } else {
+            newElement.find(':input').each(function () {
+                var name = $(this).attr('name').replace('-' + (total - 1) + '-', '-' + total + '-');
+                var id = 'id_' + name;
+                $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+            });
+            newElement.find('label').each(function () {
+                var newFor = $(this).attr('for').replace('-' + (total - 1) + '-', '-' + total + '-');
+                $(this).attr('for', newFor);
+            });
+            total++;
+            $('#id_' + type + '-TOTAL_FORMS').val(total);
+            $(selector).after(newElement);
+        }
+    }
+
+    function removeForm(selector, type) {
+        var lastElement = $(selector);
+        var total = $('#id_' + type + '-TOTAL_FORMS').val();
+        if (total == 1) {
+            alert('Must provide at least 1 area of availability')
+        } else {
+            total--;
+            $('#id_' + type + '-TOTAL_FORMS').val(total);
+            lastElement.remove();
+        }
     }
 
 </script>
+
+
 
 

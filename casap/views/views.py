@@ -45,6 +45,7 @@ def track_missing_view(request, hash):
         return HttpResponseRedirect(reverse("index"))
     request.context['record'] = lost_record
     request.context['vulnerable'] = lost_record.vulnerable
+    request.context['user_tz_name'] = 'Canada/Mountain'  # This needs to be changed when multiple timezones will be used
     return render(request, "public/track_missing.html", request.context)
 
 
@@ -55,6 +56,7 @@ def show_missing_view(request, hash):
         return HttpResponseRedirect(reverse("index"))
     request.context['record'] = lost_record
     request.context['vulnerable'] = lost_record.vulnerable
+    request.context['user_tz_name'] = 'Canada/Mountain'  # This needs to be changed when multiple timezones will be used
     return render(request, "public/show_missing.html", request.context)
 
 
@@ -67,7 +69,7 @@ def admin_view(request):
     for each in VolunteerAvailability.objects.all():
 
         vol_details = [each.address_lat, each.address_lng, each.km_radius, each.address, each.volunteer.full_name,
-                       each.time_to.strftime('%H:%M'), each.time_from.strftime('%H:%M')]
+                      ]
 
         avail.append(vol_details)
 
