@@ -15,16 +15,16 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <title>Location</title>
         <link rel="stylesheet" type="text/css" href="/static/css/mapview.css"/>
-        <script src="http://dev.openlayers.org/OpenLayers.js"></script>
+        <script src="{% static "/openlayers/OpenLayers.js" %}"></script>
         <script type="text/javascript">
-            var map, vectors, controls;
+            var map;
 
             function init() {
                 var a = location.href;
                 var b = a.substring(a.indexOf("?") + 1);
                 var locationData = b.substring(b.indexOf("=") + 1).split("&");
                 map = new OpenLayers.Map('map');
-                var OSM_layer = new OpenLayers.Layer.OSM("OpenStreet Map");
+                var OSM_layer = new OpenLayers.Layer.OSM();
                 map.addLayer(OSM_layer);
 
 
@@ -39,8 +39,6 @@
                 //base layer
                 var markers = new OpenLayers.Layer.Markers("Markers");
                 markers.addMarker(new OpenLayers.Marker(position, icon));
-
-
                 map.setCenter(position, zoom);
                 map.addLayer(markers);
             }
