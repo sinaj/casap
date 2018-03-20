@@ -216,7 +216,8 @@ def volunteer_edit_view(request):
         if how_many == 0:
             how_many = 1
         availability_formset = inlineformset_factory(Volunteer, VolunteerAvailability,
-                                                     form=VolunteerAvailabilityForm, fk_name="volunteer", extra=how_many)
+                                                     form=VolunteerAvailabilityForm, fk_name="volunteer",
+                                                     extra=how_many)
         list_of_avail = VolunteerAvailability.objects.filter(volunteer=profile.volunteer).values()
         item_forms = availability_formset(initial=list_of_avail, prefix='volunteers')
         request.context['next'] = request.GET.get('next', reverse("index"))
@@ -304,10 +305,10 @@ def vulnerable_edit_view(request, hash):
         add_message(request, messages.WARNING, "Vulnerable person not found.")
         return HttpResponseRedirect(reverse("vulnerable_list"))
 
-    address_formset = inlineformset_factory(Vulnerable,
-                                            VulnerableAddress, form=VulnerableAddressForm, fk_name="vulnerable",
-                                            )
     if request.method == "POST":
+        address_formset = inlineformset_factory(Vulnerable,
+                                                VulnerableAddress, form=VulnerableAddressForm, fk_name="vulnerable",
+                                                )
         request.context['is_post'] = True
         next1 = request.POST.get("next", reverse("vulnerable_list"))
         form = VulnerableForm(request.POST, request.FILES, instance=vulnerable)
@@ -330,8 +331,11 @@ def vulnerable_edit_view(request, hash):
         how_many = len(address_list)
         if how_many == 0:
             how_many = 1
+        address_formset = inlineformset_factory(Vulnerable,
+                                                VulnerableAddress, form=VulnerableAddressForm, fk_name="vulnerable",
+                                                extra=how_many)
         form = VulnerableForm(instance=vulnerable)
-        formset = address_formset(initial=address_list,  prefix='addresses')
+        formset = address_formset(initial=address_list, prefix='addresses')
         next = request.GET.get("next", reverse("vulnerable_list"))
     request.context['next'] = next
     request.context['form'] = form
