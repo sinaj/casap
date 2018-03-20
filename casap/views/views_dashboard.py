@@ -233,9 +233,9 @@ def vulnerable_list_view(request):
     profile = request.context['user_profile']
     request.context['user'] = profile.user
     if profile.coordinator_email:
-        request.context['vulnerable_list'] = Vulnerable.objects.all()
+        request.context['vulnerable_list'] = Vulnerable.objects.all().order_by('first_name')
     else:
-        request.context['vulnerable_list'] = profile.vulnerable_people.all()
+        request.context['vulnerable_list'] = profile.vulnerable_people.all().order_by('first_name')
     return render(request, 'dashboard/vulnerable/vulnerable_list.html', request.context)
 
 
