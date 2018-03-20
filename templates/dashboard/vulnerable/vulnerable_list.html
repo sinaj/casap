@@ -71,10 +71,8 @@
                                             <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                                         </form>
                                             </span>
-                                            {% if request.user.is_staff %}
-                                                <a class="dropdown-item"
-                                                   href="{% url "vulnerable_history" hash=vul.hash %}">Map Views</a>
-                                            {% endif %}
+                                            <a class="dropdown-item"
+                                               href="{% url "vulnerable_history" hash=vul.hash %}">Map Views</a>
                                         </div>
                                     </div>
                                 </td>
