@@ -51,7 +51,7 @@ class EmailConfirmationCode(models.Model):
         super(self.__class__, self).save(*args, **kwargs)
 
     def __str__(self):
-        return str(self.__unicode__())
+        return str(self.user)
 
 
 class PasswordResetCode(models.Model):
