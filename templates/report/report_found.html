@@ -19,8 +19,14 @@
                                  alt="{{ vulnerable.full_name }}'s picture">
                             <div class="media-body">
                                 <h5>
+                                    <br>
                                     <center>{{ vulnerable.full_name }}</center>
                                 </h5>
+                                {% if vulnerable.nickname %}
+                                    <h6>
+                                        <center><i><b>{{ vulnerable.nickname }}</b></i></center>
+                                    </h6>
+                                {% endif %}
                                 {% if record.state == "reported" %}
                                     <center><span
                                             class="badge badge-danger float-center">{{ record.get_state_display }}</span>
@@ -30,9 +36,69 @@
                                             class="badge badge-warning float-center">{{ record.get_state_display }}</span>
                                     </center>
                                 {% endif %}
-                                <hr>
-                                <div class="container-fluid p-0">
-                                    {{ vulnerable.description }}
+                                {% if request.user.is_authenticated %}
+                                    <center><br>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal"
+                                                data-target="#myModal">Details
+                                        </button>
+                                    </center>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="modal fade" id="myModal" role="dialog">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Personal Details for {{ vulnerable.full_name }}</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <table cellpadding="8">
+                                            <tr>
+                                                <td align="right"><b>Name</b></td>
+                                                <td>{{ vulnerable.full_name }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td align="right"><b>Birthday</b></td>
+                                                <td>{{ vulnerable.birthday }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td align="right"><b>Sex</b></td>
+                                                <td>{{ vulnerable.sex }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td align="right"><b>Race</b></td>
+                                                <td>{{ vulnerable.race }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td align="right"><b>Hair Colour</b></td>
+                                                <td>{{ vulnerable.hair_colour }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td align="right"><b>Approx Height</b></td>
+                                                <td>{{ vulnerable.height }} cm</td>
+                                            </tr>
+                                            <tr>
+                                                <td align="right"><b>Approx Weight</b></td>
+                                                <td>{{ vulnerable.weight }} kg</td>
+                                            </tr>
+                                            <tr>
+                                                <td align="right"><b>Eye Colour</b></td>
+                                                <td>{{ vulnerable.eye_colour }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td align="right"><b>Favourite Locations</b></td>
+                                                <td>{{ vulnerable.favourite_locations }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td align="right"><b>Description of Clothing</b></td>
+                                                <td>{{ record.description }}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -84,17 +150,17 @@
                                     {{ form.province }}
                                 </div>
                             </div>
-                            <div class="form-group row">
-                                <label for="id_description" class="col-sm-4 col-form-label">Description
-                                    <i class="fa fa-info-circle" data-toggle="popover" title="Optional Description"
-                                       data-content="Any description or notes about this found client can be added.
-                                       For example: 'Wearing a black coat, walking with a brown cane, whistling to himself'."></i>
-                                </label>
-                                <div class="col-sm-6">
-                                <textarea id="id_description" class="form-control"
-                                          name="description">{{ form.description.value|default:"" }}</textarea>
-                                    <div class="col-sm-6">
-                                    </div>
+{#                            <div class="form-group row">#}
+{#                                <label for="id_description" class="col-sm-4 col-form-label">Description#}
+{#                                    <i class="fa fa-info-circle" data-toggle="popover" title="Optional Description"#}
+{#                                       data-content="Any description or notes about this found client can be added.#}
+{#                                       For example: 'Wearing a black coat, walking with a brown cane, whistling to himself'."></i>#}
+{#                                </label>#}
+{#                                <div class="col-sm-6">#}
+{#                                <textarea id="id_description" class="form-control"#}
+{#                                          name="description">{{ form.description.value|default:"" }}</textarea>#}
+{#                                    <div class="col-sm-6">#}
+{#                                    </div>#}
                                     <div class="form-group text-center">
                                         <input id="id_next" type="hidden" name="next" value="{{ next|default:"" }}"><br>
                                         <button class="btn btn-primary btn-block">Submit</button>
