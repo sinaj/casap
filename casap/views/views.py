@@ -1,6 +1,7 @@
 import datetime
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.messages import add_message
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
@@ -38,6 +39,7 @@ def index(request):
     return render(request, "public/index.html", request.context)
 
 
+@login_required
 def track_missing_view(request, hash):
     lost_record = LostPersonRecord.objects.filter(hash=hash).first()
     if not lost_record:
@@ -49,6 +51,7 @@ def track_missing_view(request, hash):
     return render(request, "public/track_missing.html", request.context)
 
 
+@login_required
 def show_missing_view(request, hash):
     lost_record = LostPersonRecord.objects.filter(hash=hash).first()
     if not lost_record:
@@ -67,9 +70,8 @@ def location_view(request):
 def admin_view(request):
     avail = list()
     for each in VolunteerAvailability.objects.all():
-
         vol_details = [each.address_lat, each.address_lng, each.km_radius, each.address, each.volunteer.full_name,
-                      ]
+                       ]
 
         avail.append(vol_details)
 
