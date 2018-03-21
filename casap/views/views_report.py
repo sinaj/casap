@@ -49,15 +49,10 @@ def time_in_range(start, end, x):
 def lost_notification(notify_record, vol):
     link = "http://{}".format(notify_record.get_link())
     link = shorten_url(link)
-    if notify_record.description:
-        sms_text = "Dear %s,\nClient: %s has been lost near you with description:\n%s\n\n" % (vol.full_name,
-                                                                                              notify_record.vulnerable.full_name,
-                                                                                              notify_record.description) + \
-                   "For more details visit the link below:\n%s" % link
-    else:
-        sms_text = "Dear %s,\nClient: %s has been lost near you.\n" % (vol.full_name,
-                                                                       notify_record.vulnerable.full_name) + \
-                   "For more details visit the link below:\n%s" % link
+
+    sms_text = "Dear %s,\nClient: %s has been lost near you.\n" % (vol.full_name,
+                                                                   notify_record.vulnerable.full_name) + \
+               "For more details visit the link below:\n%s" % link
 
     mail_subject = "C-ASAP Client: %s has been lost near you " % notify_record.vulnerable.full_name
     if vol.phone:
