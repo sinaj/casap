@@ -119,6 +119,18 @@
                   class="form-control" required>{{ vul_form.favourite_locations.value|default:"" }}</textarea>
                                 </div>
                             </div>
+                            <div class="form-group row">
+                                <label for="id_description" class="col-sm-4 col-form-label">Description of Clothing<span
+                                        class="text-danger">*</span>
+                                    <a tabindex="0" class="fa fa-info-circle" data-toggle="popover"
+                                       title="Last Wearing"
+                                       data-content="What the missing person was last seen wearing."></a>
+                                </label>
+                                <div class="col-sm-6">
+                                    <textarea id="id_description" class="form-control" name="description"
+                                              required>{{ form.description.value|default:"" }}</textarea>
+                                </div>
+                            </div>
 
                             <hr>
                             <h6>Last Known Address</h6>
@@ -167,18 +179,6 @@
                                     </select>
                                 </div>
                             </div>
-                            {#                            <div class="form-group row">#}
-                            {#                                <label for="id_description" class="col-sm-4 col-form-label">Description#}
-                            {#                                    <a tabindex="0" class="fa fa-info-circle" data-toggle="popover"#}
-                            {#                                       title="Optional Description"#}
-                            {#                                       data-content="Any description or notes about this missing client can be added.#}
-                            {#                                       For example: 'Wearing a black coat, walking with a brown cane, whistling to himself'."></a>#}
-                            {#                                </label>#}
-                            {#                                <div class="col-sm-6">#}
-                            {#                                <textarea id="id_description" class="form-control"#}
-                            {#                                          name="description">{{ form.description.value|default:"" }}</textarea>#}
-                            {#                                </div>#}
-                            {#                            </div>#}
                             <div class="form-group text-center clearfix">
                                 <input id="id_next" type="hidden" name="next" value="{{ next|default:"" }}">
                                 <button class="btn btn-primary float-right">OK</button>
