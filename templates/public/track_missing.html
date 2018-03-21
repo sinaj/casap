@@ -21,6 +21,11 @@
                                     <br>
                                     <center>{{ vulnerable.full_name }}</center>
                                 </h5>
+                                {% if vulnerable.nickname %}
+                                    <h6>
+                                        <center><i><b>{{ vulnerable.nickname }}</b></i></center>
+                                    </h6>
+                                {% endif %}
                                 {% if record.state == "reported" %}
                                     <center><span class="badge badge-danger float-center">Reported Missing</span>
                                     </center>
