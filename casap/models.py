@@ -122,10 +122,9 @@ SEX_CHOICES = (
 )
 
 RACE_CHOICES = (
-    ('Aboriginal (e.g., Inuit, Métis)', 'Aboriginal (e.g., Inuit, Métis)'),
-    ('Arab/West Asian (e.g., Iranian, Lebanese)',
-     'Arab/West Asian (e.g., Iranian, Lebanese)'),
-    ('Black (e.g., African, Haitian)', 'Black (e.g., African, Haitian)'),
+    ('Aboriginal', 'Aboriginal'),
+    ('Arab/West Asian', 'Arab/West Asian'),
+    ('Black', 'Black'),
     ('Chinese', 'Chinese'),
     ('Filipino', 'Filipino'),
     ('Japanese', 'Japanese'),
@@ -157,6 +156,7 @@ EYE_COLOUR_CHOICES = (
     ('Green', 'Green'),
     ('Hazel', 'Hazel'),
 )
+
 
 class VolunteerAvailability(models.Model):
     volunteer = models.ForeignKey(Volunteer, related_name="volunteers")
