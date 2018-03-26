@@ -72,11 +72,11 @@
             $("#slider").bind("valuesChanged", function (e, data) {
                 var mLayers = map.layers;
                 var layer = mLayers[1];
-                var layer2 = mLayers[2];
+                {#var layer2 = mLayers[2];#}
                 var layer3 = mLayers[3];
 
                 layer.removeAllFeatures();
-                layer2.removeAllFeatures();
+                {#layer2.removeAllFeatures();#}
                 layer3.removeAllFeatures();
 
                 for (each in LostPersonName) {
@@ -102,17 +102,17 @@
                         }
                     });
 
-                    $.ajax({
-                        type: "GET",
-                        url: "/getPath/",
-                        data: name,
-                        async: false,
-                        contentType: false,
-                        processData: false,
-                        success: function (response) {
-                            show_seen(layer2, response, data.values.min, data.values.max);
-                        }
-                    });
+                    {#$.ajax({#}
+                    {#    type: "GET",#}
+                    {#    url: "/getPath/",#}
+                    {#    data: name,#}
+                    {#    async: false,#}
+                    {#    contentType: false,#}
+                    {#    processData: false,#}
+                    {#    success: function (response) {#}
+                    {#        show_seen(layer2, response, data.values.min, data.values.max);#}
+                    {#    }#}
+                    {##}
 
                     $.ajax({
                         type: "GET",
@@ -230,27 +230,27 @@
                 'labelYOffset': "${yOffset}"
             });
 
-            var path_style2 = new OpenLayers.StyleMap(s);
-            var MissingLayer2 = new OpenLayers.Layer.Vector('Seen Client Locations (Blue)', {styleMap: path_style2});
-            map.addLayer(MissingLayer2);
-            layers.push(MissingLayer2);
+            {#var path_style2 = new OpenLayers.StyleMap(s);#}
+            {#var MissingLayer2 = new OpenLayers.Layer.Vector('Seen Client Locations (Blue)', {styleMap: path_style2});#}
+            {#map.addLayer(MissingLayer2);#}
+            {#layers.push(MissingLayer2);#}
 
             for (each in LostPersonName) {
 
                 var name = LostPersonName[each];
 
-                $.ajax({
-                    type: "GET",
-                    url: "/getPath/",
-                    data: name,
-                    async: false,
-                    contentType: false,
-                    processData: false,
-                    success: function (response) {
-                        show_seen(MissingLayer2, response);
-                    }
-
-                });
+                {#$.ajax({#}
+                {#    type: "GET",#}
+                {#    url: "/getPath/",#}
+                {#    data: name,#}
+                {#    async: false,#}
+                {#    contentType: false,#}
+                {#    processData: false,#}
+                {#    success: function (response) {#}
+                {#        show_seen(MissingLayer2, response);#}
+                {#    }#}
+                {##}
+                {##}
             }
 
             var f = new OpenLayers.Style({
