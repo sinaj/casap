@@ -1,6 +1,6 @@
 {% load static %}
-<h5>Notification Channels <i class="fa fa-info-circle" data-toggle="popover" title="Notification Channels"
-                             data-content="Can choose to receive SMS texts via a cell phone, email from an email address, and/or Direct Message from Twitter."></i>
+<h5>Notification Channels <a tabindex="0" class="fa fa-info-circle" data-toggle="popover" title="Notification Channels"
+                             data-content="Can choose to receive SMS texts via a cell phone and/or email from an email address."></a>
 </h5><br>
 <div class="form-group row">
     <label for="id_phone" class="col-sm-4 col-form-label">Cell Phone</label>
@@ -20,18 +20,17 @@
     </div>
 </div>
 
-<div class="form-group row">
-    <label for="id_twitter" class="col-sm-4 col-form-label">Twitter Handle</label>
-    {{ form.twitter_handle.errors }}
-    <div class="col-sm-6">
-        <input type="text" id="id_twitter_handle" name="twitter_handle" class="form-control" placeholder="e.g. casap91"
-               value="{{ form.twitter_handle.value|default:"" }}" autofocus>
-    </div>
-
-</div>
+{#<div class="form-group row">#}
+{#    <label for="id_twitter" class="col-sm-4 col-form-label">Twitter Handle</label>#}
+{#    {{ form.twitter_handle.errors }}#}
+{#    <div class="col-sm-6">#}
+{#        <input type="text" id="id_twitter_handle" name="twitter_handle" class="form-control" placeholder="e.g. casap91"#}
+{#               value="{{ form.twitter_handle.value|default:"" }}" autofocus>#}
+{#    </div>#}
+{#</div>#}
 <hr>
-<h5>Areas of Availability <i class="fa fa-info-circle" data-toggle="popover" title="Areas of Availability"
-                             data-content="These areas are defined by the volunteer to receive notifications about missing persons within a set kilometer radius from the given address."></i>
+<h5>Areas of Availability <a tabindex="0" class="fa fa-info-circle" data-toggle="popover" title="Areas of Availability"
+                             data-content="These areas are defined by the volunteer to receive notifications about missing persons within a set kilometer radius from the given address."></a>
 </h5><br>
 {{ formset.management_form }}
 {% for form in formset.forms %}
@@ -99,7 +98,7 @@
 <script>
 
     $(document).ready(function () {
-        $('[data-toggle="popover"]').popover({});
+        $('[data-toggle="popover"]').popover({trigger: 'focus'});
     });
 
     function cloneMore(selector, type) {
