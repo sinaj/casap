@@ -129,9 +129,9 @@ def report_lost_view(request):
                     "%H:%M")
                 flag = 1
                 notify_volunteers(lost_record, flag)
-                send_tweet(
-                    tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(),
-                                 flag, lost_record.time))
+                # send_tweet(
+                #     tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(),
+                #                  flag, lost_record.time))
             add_message(request, messages.SUCCESS, "Success")
             return HttpResponseRedirect(reverse('index'))
         else:
@@ -377,7 +377,7 @@ def report_found_view(request, hash):
             if volunteer_list:
                 for i in volunteer_list:
                     send_found_alert(i, lost_record, v)
-            send_tweet(tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(), 2, v.time))
+            # send_tweet(tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(), 2, v.time))
             lost_record.save()
             found_activity = FoundActivity()
             found_activity.locLat = v.address_lat
