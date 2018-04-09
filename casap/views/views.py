@@ -1,4 +1,5 @@
 import datetime
+import simplejson as json
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -13,7 +14,9 @@ from casap.models import Vulnerable
 from casap.utilities.utils import get_user_time
 
 
+@login_required
 def index(request):
+    profile = request.context['user_profile']
     current_date = datetime.date.today()
     time_now = datetime.datetime.now()
     two_days_ago = datetime.datetime.now() - datetime.timedelta(hours=48)
@@ -29,11 +32,28 @@ def index(request):
             seen_id.append(i.lost_record_id)
             seen_list.append(i)
 
+    records = list()
+    json_dec = json.decoder.JSONDecoder()
+    try:
+        if profile.volunteer.id:
+            for i in missing_people:
+                try:
+                    vol_list = json_dec.decode(i.volunteer_list)
+                    if int(profile.volunteer.id) in vol_list:
+                        records.append(i)
+                except:
+                    pass
+    except:
+        pass
+
     request.context['current_date'] = current_date
     request.context['time_now'] = time_now
     request.context['two_days_ago'] = two_days_ago
     request.context['week_ago'] = week_ago
-    request.context['missing_people'] = missing_people
+    if profile.user.is_staff:
+        request.context['missing_people'] = missing_people
+    else:
+        request.context['missing_people'] = records
     request.context['seen_people'] = seen_list
     request.context['user_tz_name'] = 'Canada/Mountain'  # This needs to be changed when multiple timezones will be used
     return render(request, "public/index.html", request.context)
