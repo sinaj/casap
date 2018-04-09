@@ -11,11 +11,17 @@ from django.core.urlresolvers import reverse
 from casap.models import LostPersonRecord, VolunteerAvailability
 from casap.models import SightingRecord
 from casap.models import Vulnerable
-from casap.utilities.utils import get_user_time
 
 
 @login_required
 def index(request):
+    """
+    Index is the homepage/landing page of the CASAP application. It will pass the current date, current time, time two
+    weeks ago, time a week ago, the missing persons records, and seen persons records to the index template.
+
+    :param request: The request
+    :return: Render template "public/index.html"
+    """
     profile = request.context['user_profile']
     current_date = datetime.date.today()
     time_now = datetime.datetime.now()
@@ -32,6 +38,7 @@ def index(request):
             seen_id.append(i.lost_record_id)
             seen_list.append(i)
 
+    # Generate a list of records that the current volunteer has been notified of.
     records = list()
     json_dec = json.decoder.JSONDecoder()
     try:
@@ -61,6 +68,14 @@ def index(request):
 
 @login_required
 def track_missing_view(request, hash):
+    """
+    This view is responsible for passing the lost record, as well as the vulnerable person to the
+    "public/track_missing.html" template.
+
+    :param request: The request.
+    :param hash: The hash of the missing person record.
+    :return: Render template "public/track_missing.html".
+    """
     lost_record = LostPersonRecord.objects.filter(hash=hash).first()
     if not lost_record:
         add_message(request, messages.WARNING, "Record not found")
@@ -73,6 +88,14 @@ def track_missing_view(request, hash):
 
 @login_required
 def show_missing_view(request, hash):
+    """
+    This view is responsible for passing the lost record, as well as the vulnerable person to the
+    "public/show_missing.html" template.
+
+    :param request: The request.
+    :param hash: The hash of the missing person record.
+    :return: Render template "public/show_missing.html".
+    """
     lost_record = LostPersonRecord.objects.filter(hash=hash).first()
     if not lost_record:
         add_message(request, messages.WARNING, "Record not found")
@@ -84,10 +107,23 @@ def show_missing_view(request, hash):
 
 
 def location_view(request):
+    """
+    This view is responsible for rendering the location view used in show missing and track missing.
+
+    :param request: The request.
+    :return: Render template "LocationView.html"
+    """
     return render(request, "LocationView.html", request.context)
 
 
 def admin_view(request):
+    """
+    admin_view is responsible for rendering the template used for admin maps. Volunteer details as well as lost
+    person records are passed to the template.
+
+    :param request: The request.
+    :return: Render template "adminView.html"
+    """
     avail = list()
     for each in VolunteerAvailability.objects.all():
         vol_details = [each.address_lat, each.address_lng, each.km_radius, each.address, each.volunteer.full_name,
