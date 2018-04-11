@@ -1,9 +1,10 @@
 from django.contrib.auth.models import User
 from rest_framework import viewsets
 
-from casap.models import Profile, Volunteer, VolunteerAvailability, Vulnerable
+from casap.models import Profile, Volunteer, VolunteerAvailability, Vulnerable, VulnerableAddress, LostPersonRecord, \
+    FindRecord
 from casap.serializers import UserSerializer, ProfileSerializer, VolunteerSerializer, VolunteerAvailabilitySerializer, \
-    VulnerableSerializer
+    VulnerableSerializer, VulnerableAddressSerializer, LostPersonRecordSerializer, FindRecordSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -44,3 +45,27 @@ class VulnerableViewSet(viewsets.ModelViewSet):
     """
     queryset = Vulnerable.objects.all().order_by('id')
     serializer_class = VulnerableSerializer
+
+
+class VulnerableAddressViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows vulnerables to be viewed or edited.
+    """
+    queryset = VulnerableAddress.objects.all().order_by('id')
+    serializer_class = VulnerableAddressSerializer
+
+
+class LostPersonRecordViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows lost person records to be viewed or edited.
+    """
+    queryset = LostPersonRecord.objects.all().order_by('id')
+    serializer_class = LostPersonRecordSerializer
+
+
+class FindRecordViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows find person records to be viewed or edited.
+    """
+    queryset = FindRecord.objects.all().order_by('id')
+    serializer_class = FindRecordSerializer

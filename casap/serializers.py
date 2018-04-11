@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from casap.models import Profile, Volunteer, VolunteerAvailability, Vulnerable
+from casap.models import Profile, Volunteer, VolunteerAvailability, Vulnerable, VulnerableAddress, LostPersonRecord, \
+    FindRecord
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -34,6 +35,29 @@ class VulnerableSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Vulnerable
         fields = (
-            'id', 'creation_time', 'first_name', 'last_name', 'nickname', 'birthday', 'picture', 'hash', 'creator_id',
+            'url', 'id', 'creation_time', 'first_name', 'last_name', 'nickname', 'birthday', 'picture', 'hash',
+            'creator_id',
             'sex', 'race', 'eye_colour', 'hair_colour', 'height', 'weight', 'favourite_locations'
         )
+
+
+class VulnerableAddressSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = VulnerableAddress
+        fields = ('url', 'id', 'vulnerable', 'address', 'address_lat', 'address_lng', 'city', 'province', 'street')
+
+
+class LostPersonRecordSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = LostPersonRecord
+        fields = (
+            'url', 'id', 'state', 'time', 'address', 'address_lat', 'address_lng', 'description', 'hash', 'reporter',
+            'vulnerable', 'city', 'province', 'street', 'volunteer_list')
+
+
+class FindRecordSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = FindRecord
+        fields = (
+            'url', 'id', 'lost_record', 'reporter', 'time', 'address', 'address_lat', 'address_lng', 'description',
+            'hash', 'city', 'province', 'street')

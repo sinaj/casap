@@ -52,13 +52,16 @@ report_patterns = [
     url(r'^alert/(?P<hash>[\w\d]+)/$', views_report.alert_view, name="report_alert"),
 ]
 
+# API routes
 router = routers.DefaultRouter()
 router.register(r'users', views_api.UserViewSet)
 router.register(r'profiles', views_api.ProfileViewSet)
 router.register(r'volunteers', views_api.VolunteerViewSet)
 router.register(r'volunteer_availability', views_api.VolunteerAvailabilityViewSet)
 router.register(r'vulnerable', views_api.VulnerableViewSet)
-
+router.register(r'vulnerable_address', views_api.VulnerableAddressViewSet)
+router.register(r'lost_person_record', views_api.LostPersonRecordViewSet)
+router.register(r'find_record', views_api.FindRecordViewSet)
 
 urlpatterns = [
     url(r'^$', views.index),
