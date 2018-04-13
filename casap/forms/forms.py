@@ -184,18 +184,18 @@ class VulnerableAddressForm(forms.ModelForm):
     def clean_province(self):
         if not self.cleaned_data['province']:
             raise forms.ValidationError("Province not provided")
-        address = self.cleaned_data['street'] + " " + self.cleaned_data['city'] + " " + self.cleaned_data['province']
-        map_response = get_address_map_google(address)
+        add = self.cleaned_data['street'] + " " + self.cleaned_data['city'] + " " + self.cleaned_data['province']
+        map_response = get_address_map_google(add)
         for i in range(10):
             if map_response is None:
-                map_response = get_address_map_google(address)
+                map_response = get_address_map_google(add)
             else:
                 break
         if map_response is None:
             raise forms.ValidationError("Address is invalid")
         self.address_lat = map_response['lat']
         self.address_lng = map_response['lng']
-        self.address = address
+        self.address = add
         return self.cleaned_data['province']
 
     class Meta:

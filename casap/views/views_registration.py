@@ -116,7 +116,7 @@ def register_volunteer_view(request):
                         address = get_address_map_google(add)
                         for i in range(10):
                             if address is None:
-                                address = get_address_map_google(address)
+                                address = get_address_map_google(add)
                             else:
                                 break
                         if address is None:
