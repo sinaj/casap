@@ -2,8 +2,13 @@
 <h5>Notification Channels <a tabindex="0" class="fa fa-info-circle" data-toggle="popover" title="Notification Channels"
                              data-content="Can choose to receive SMS texts via a cell phone and/or email from an email address."></a>
 </h5><br>
+
+<p>I give consent to receive notifications via:</p>
 <div class="form-group row">
-    <label for="id_phone" class="col-sm-4 col-form-label">Cell Phone</label>
+    <label for="id_phone" class="col-sm-4 col-form-label">Cell Phone <span> <img id='phone_img'
+                                                                                 src='https://www.iconsdb.com/icons/preview/red/x-mark-3-xxl.png'
+                                                                                 width="15" height="15"
+    /></span></label>
     {{ form.phone.errors }}
     <div class="col-sm-6">
         <input type="tel" id="id_phone" name="phone" class="form-control" placeholder="e.g. 780-123-4567"
@@ -12,7 +17,10 @@
 
 </div>
 <div class="form-group row">
-    <label for="id_email" class="col-sm-4 col-form-label">Email</label>
+    <label for="id_email" class="col-sm-4 col-form-label">Email<span> <img id='email_img'
+                                                                           src='https://www.iconsdb.com/icons/preview/red/x-mark-3-xxl.png'
+                                                                           width="15" height="15"
+    /></span></label>
     {{ form.email.errors }}
     <div class="col-sm-6">
         <input type="text" id="id_email" name="email" class="form-control" placeholder="e.g. username@email.com"
@@ -134,6 +142,50 @@
         }
     }
 
+    var i = $("#id_phone").val();
+    var k = $("#phone_img");
+    if (i.length > 0) {
+        k.attr('src', "https://cdn1.iconfinder.com/data/icons/interface-elements/32/accept-circle-512.png");
+        k.show();
+    } else {
+        k.attr('src', "https://www.iconsdb.com/icons/preview/red/x-mark-3-xxl.png");
+        k.show();
+    }
+
+    var l = $("#id_email").val();
+    var j = $("#email_img");
+    if (l.length > 0) {
+        j.attr('src', "https://cdn1.iconfinder.com/data/icons/interface-elements/32/accept-circle-512.png");
+        j.show();
+    } else {
+        j.attr('src', "https://www.iconsdb.com/icons/preview/red/x-mark-3-xxl.png");
+        j.show();
+    }
+
+
+    $('#id_phone').on('input', function () {
+        var i = $("#id_phone").val();
+        var k = $("#phone_img");
+        if (i.length > 0) {
+            k.attr('src', "https://cdn1.iconfinder.com/data/icons/interface-elements/32/accept-circle-512.png");
+            k.show();
+        } else {
+            k.attr('src', "https://www.iconsdb.com/icons/preview/red/x-mark-3-xxl.png");
+            k.show();
+        }
+    });
+
+    $('#id_email').on('input', function () {
+        var l = $("#id_email").val();
+        var j = $("#email_img");
+        if (l.length > 0) {
+            j.attr('src', "https://cdn1.iconfinder.com/data/icons/interface-elements/32/accept-circle-512.png");
+            j.show();
+        } else {
+            j.attr('src', "https://www.iconsdb.com/icons/preview/red/x-mark-3-xxl.png");
+            j.show();
+        }
+    });
 </script>
 
 

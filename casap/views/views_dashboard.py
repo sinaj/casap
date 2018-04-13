@@ -177,23 +177,53 @@ def volunteer_edit_view(request):
                                                      form=VolunteerAvailabilityForm, fk_name="volunteer")
         list_of_avail = VolunteerAvailability.objects.filter(volunteer=profile.volunteer).values()
         item_forms = availability_formset(initial=list_of_avail, prefix='volunteers')
-        next = request.POST.get("next", reverse("index"))
+        next = request.POST.get("next", reverse("volunteer_edit"))
         form = VolunteerForm(request.POST, instance=profile.volunteer)
         if form.is_valid():
             volunteer = form.save(commit=False)
             volunteer.profile = profile
         formset = availability_formset(request.POST, instance=volunteer)
-        VolunteerAvailability.objects.filter(volunteer=volunteer).delete()
         formset.is_valid()
+
+        for f in formset:
+            if f.cleaned_data.get('street') and f.cleaned_data.get('city') and f.cleaned_data.get(
+                    'province') and f.cleaned_data.get('km_radius'):
+                add = f.cleaned_data.get('street') + " " + f.cleaned_data.get(
+                    'city') + " " + f.cleaned_data.get('province')
+                address = get_address_map_google(add)
+                for i in range(25):
+                    if address is None:
+                        address = get_address_map_google(add)
+                    else:
+                        break
+                if address is None:
+                    for i in range(25):
+                        if address is None:
+                            address = get_address_map_google(add)
+                        else:
+                            break
+                if address is None:
+                    messages.error(request, 'Address entered cannot be found. Try again')
+                    return HttpResponseRedirect(request.path_info)
+            elif not f.cleaned_data.get('street') and not f.cleaned_data.get('city') and not f.cleaned_data.get(
+                    'province') and not f.cleaned_data.get('km_radius'):
+                messages.error(request, 'Empty area of availability entered.')
+                return HttpResponseRedirect(request.path_info)
+            else:
+                messages.error(request, 'Incomplete area of availability entered. Please fill out all fields.')
+                return HttpResponseRedirect(request.path_info)
+
+        VolunteerAvailability.objects.filter(volunteer=volunteer).delete()
+
         for f in formset:
             if f.cleaned_data.get('street') and f.cleaned_data.get('city') and f.cleaned_data.get(
                     'province') and f.cleaned_data.get('km_radius'):  # Check if there is a provided address
                 add = f.cleaned_data.get('street') + " " + f.cleaned_data.get(
                     'city') + " " + f.cleaned_data.get('province')
                 address = get_address_map_google(add)
-                for i in range(10):
+                for i in range(25):
                     if address is None:
-                        address = get_address_map_google(address)
+                        address = get_address_map_google(add)
                     else:
                         break
                 if address is None:
@@ -208,9 +238,13 @@ def volunteer_edit_view(request):
                                                          km_radius=f.cleaned_data['km_radius'])
                     volunteer.save()
                     availability.save()
-                    add_message(request, messages.SUCCESS, "Changes saved successfully.")
+            else:
+                messages.error(request, 'Please fill out all of the fields.')
+                return HttpResponseRedirect(request.path_info)
 
         request.context['next'] = next
+        add_message(request, messages.SUCCESS, "Changes saved successfully.")
+        return HttpResponseRedirect(request.POST.get("next", reverse("index")))
     else:
         how_many = len(VolunteerAvailability.objects.filter(volunteer=profile.volunteer).values())
         if how_many == 0:
