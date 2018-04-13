@@ -244,7 +244,7 @@ def volunteer_edit_view(request):
 
         request.context['next'] = next
         add_message(request, messages.SUCCESS, "Changes saved successfully.")
-        return HttpResponseRedirect(request.POST.get("next", reverse("index")))
+        return HttpResponseRedirect(request.path_info)
     else:
         how_many = len(VolunteerAvailability.objects.filter(volunteer=profile.volunteer).values())
         if how_many == 0:
