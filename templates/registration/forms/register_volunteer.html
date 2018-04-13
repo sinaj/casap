@@ -6,7 +6,7 @@
 <p>I give consent to receive notifications via:</p>
 <div class="form-group row">
     <label for="id_phone" class="col-sm-4 col-form-label">Cell Phone <span> <img id='phone_img'
-                                                                                 src='https://www.iconsdb.com/icons/preview/red/x-mark-3-xxl.png'
+                                                                                 src='{% static "Image/x.png" %}'
                                                                                  width="15" height="15"
     /></span></label>
     {{ form.phone.errors }}
@@ -18,7 +18,7 @@
 </div>
 <div class="form-group row">
     <label for="id_email" class="col-sm-4 col-form-label">Email<span> <img id='email_img'
-                                                                           src='https://www.iconsdb.com/icons/preview/red/x-mark-3-xxl.png'
+                                                                           src='{% static "Image/x.png" %}'
                                                                            width="15" height="15"
     /></span></label>
     {{ form.email.errors }}
@@ -145,20 +145,20 @@
     var i = $("#id_phone").val();
     var k = $("#phone_img");
     if (i.length > 0) {
-        k.attr('src', "https://cdn1.iconfinder.com/data/icons/interface-elements/32/accept-circle-512.png");
+        k.attr('src', '{% static "Image/checkmark.png" %}');
         k.show();
     } else {
-        k.attr('src', "https://www.iconsdb.com/icons/preview/red/x-mark-3-xxl.png");
+        k.attr('src', '{% static "Image/x.png" %}');
         k.show();
     }
 
     var l = $("#id_email").val();
     var j = $("#email_img");
     if (l.length > 0) {
-        j.attr('src', "https://cdn1.iconfinder.com/data/icons/interface-elements/32/accept-circle-512.png");
+        j.attr('src', '{% static "Image/checkmark.png" %}');
         j.show();
     } else {
-        j.attr('src', "https://www.iconsdb.com/icons/preview/red/x-mark-3-xxl.png");
+        j.attr('src', '{% static "Image/x.png" %}');
         j.show();
     }
 
@@ -167,10 +167,10 @@
         var i = $("#id_phone").val();
         var k = $("#phone_img");
         if (i.length > 0) {
-            k.attr('src', "https://cdn1.iconfinder.com/data/icons/interface-elements/32/accept-circle-512.png");
+            k.attr('src', '{% static "Image/checkmark.png" %}');
             k.show();
         } else {
-            k.attr('src', "https://www.iconsdb.com/icons/preview/red/x-mark-3-xxl.png");
+            k.attr('src', '{% static "Image/x.png" %}');
             k.show();
         }
     });
@@ -179,10 +179,10 @@
         var l = $("#id_email").val();
         var j = $("#email_img");
         if (l.length > 0) {
-            j.attr('src', "https://cdn1.iconfinder.com/data/icons/interface-elements/32/accept-circle-512.png");
+            j.attr('src', '{% static "Image/checkmark.png" %}');
             j.show();
         } else {
-            j.attr('src', "https://www.iconsdb.com/icons/preview/red/x-mark-3-xxl.png");
+            j.attr('src', '{% static "Image/x.png" %}');
             j.show();
         }
     });
