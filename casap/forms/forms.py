@@ -62,7 +62,7 @@ class ManageNotificationsForm(forms.ModelForm):
 class VolunteerAvailabilityForm(forms.ModelForm):
     street = forms.CharField(widget=forms.TextInput(attrs={'size': '30',
                                                            'placeholder': "e.g. 15 Bermuda Rd NW",
-                                                           'class': 'form-control'}))
+                                                           'class': 'form-control geocomplete'}))
     city = forms.CharField(widget=forms.TextInput(attrs={'size': '20',
                                                          'placeholder': "e.g. Calgary",
                                                          'class': 'form-control'

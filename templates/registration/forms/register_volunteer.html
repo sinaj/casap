@@ -89,21 +89,24 @@
     </center>
 </span>
 <hr>
+<script type="text/javascript"
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBgF1Ldq14xLP93KAh2ArF3-qr4hJ1CxcY&libraries=places"></script>
+<script type="text/javascript" src="/static/js/plugins/bootstrap.min.js"></script>
+<script src="{% static "js/plugins/jquery.geocomplete.js" %}"></script>
+
 <script>
+
+
     // language=JQuery-CSS
     $('#add_more').click(function () {
         cloneMore('div.table:last', 'volunteers');
+
     });
     // language=JQuery-CSS
     $('#remove_form').click(function () {
         removeForm('div.table:last', 'volunteers');
     });
 
-</script>
-
-<script type="text/javascript" src="/static/js/plugins/bootstrap.min.js"></script>
-
-<script>
 
     $(document).ready(function () {
         $('[data-toggle="popover"]').popover({trigger: 'focus'});
@@ -186,6 +189,17 @@
             j.show();
         }
     });
+
+
+    $(document).ready(function () {
+        $('#id_volunteers-0-street').geocomplete({details: 'detailsScope'});
+    });
+
+    $(document).on("click", "#id_volunteers-1-street", function () {
+        $('#id_volunteers-1-street').geocomplete({details: 'detailsScope'});
+    });
+
+
 </script>
 
 
