@@ -60,25 +60,26 @@ class ManageNotificationsForm(forms.ModelForm):
 
 
 class VolunteerAvailabilityForm(forms.ModelForm):
-    street = forms.CharField(widget=forms.TextInput(attrs={'size': '30',
-                                                           'placeholder': "e.g. 15 Bermuda Rd NW",
+    address = forms.CharField(widget=forms.TextInput(attrs={'size': '30',
+                                                           'placeholder': "Press here to find address",
                                                            'class': 'form-control geocomplete'}))
-    city = forms.CharField(widget=forms.TextInput(attrs={'size': '20',
-                                                         'placeholder': "e.g. Calgary",
-                                                         'class': 'form-control'
-                                                         }))
 
     class Meta:
         model = VolunteerAvailability
-        fields = ['street', 'city', 'province', 'km_radius']
-        exclude = ('address_lat', 'address_lng', 'address')
+        fields = ['address', 'km_radius']
+        exclude = ('address_lat', 'address_lng')
 
-    def clean_personal_address(self):
+    def clean_address(self):
         if not self.cleaned_data['address']:
             return self.cleaned_data['address']
 
         address = self.cleaned_data['address']
         map_response = get_address_map_google(address)
+        if map_response is None:
+            for i in range(10):
+                map_response = get_address_map_google(address)
+                if map_response:
+                    break
         if map_response is None:
             raise forms.ValidationError("Address is invalid")
         else:

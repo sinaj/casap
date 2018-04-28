@@ -169,12 +169,9 @@ KM_CHOICES = (
 
 class VolunteerAvailability(models.Model):
     volunteer = models.ForeignKey(Volunteer, related_name="volunteers")
-    address = models.TextField()
+    address = models.CharField(max_length=200)
     address_lat = models.FloatField()
     address_lng = models.FloatField()
-    street = models.CharField(max_length=50, null=True)
-    city = models.CharField(max_length=50, null=True)
-    province = models.CharField(max_length=4, choices=PROVINCE_CHOICES, default='ab')
     km_radius = models.IntegerField(choices=KM_CHOICES, default=1)
 
     def __str__(self):
