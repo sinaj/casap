@@ -126,7 +126,7 @@ class VulnerableForm(forms.ModelForm):
         model = Vulnerable
         fields = (
             'first_name', 'last_name', 'nickname', 'birthday', 'picture', 'sex', 'race', 'hair_colour', 'height',
-            'weight', 'eye_colour', 'favourite_locations')
+            'weight', 'eye_colour', 'favourite_locations', 'transportation')
 
 
 class VulnerableReportForm(forms.ModelForm):
