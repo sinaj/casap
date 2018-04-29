@@ -45,8 +45,8 @@
     <label for="id_picture" class="col-sm-4 col-form-label">Picture <span class="text-danger">*</span></label>
     {{ form.picture.errors }}
     <div class="col-sm-6">
-{#        <input type="file" id="id_picture" name="picture"#}
-{#               class="" accept="image/png,image/jpeg" required>#}
+        {#        <input type="file" id="id_picture" name="picture"#}
+        {#               class="" accept="image/png,image/jpeg" required>#}
         {{ form.picture }}
     </div>
 </div>
@@ -159,31 +159,39 @@
     {{ form.non_field_errors }}
     {{ form.field_errors }}
     <div class="table">
-
         <div class="form-group row">
             <div class="col-sm-4 col-form-label">
-                Street<span class="text-danger">*</span>
+                Address<span class="text-danger">*</span>
             </div>
             <div class="col-sm-6">
-                {{ form.street }}
+                {{ form.address }}
             </div>
         </div>
-        <div class="form-group row">
-            <div class="col-sm-4 col-form-label">City<span class="text-danger">*</span></div>
-            <div class="col-sm-6">
-                {{ form.city }}
-            </div>
-        </div>
-
-        <div class="form-group row">
-            <div class="col-sm-4 col-form-label">Province<span class="text-danger">*</span></div>
-            <div class="col-sm-6">
-                {{ form.province }}
-            </div>
-        </div>
-        <hr>
     </div>
 {% endfor %}
+
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Address for vulnerable client</h4>
+            </div>
+            <div class="modal-body">
+                <div class="location">
+                    <input id="geocomplete" type="text" placeholder="Type in an address" size="90"
+                           class="form-control"/>
+                </div>
+                <div class="map_canvas"></div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close
+                </button>
+                <button type="button" class="btn btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
 <span>
     <center>
         <button class="btn btn-danger" type="button" id="remove_form">Remove Last Address</button>
@@ -191,6 +199,22 @@
     </center>
 </span>
 <hr>
+
+<style>
+    .pac-container {
+        /* put Google geocomplete list on top of Bootstrap modal */
+        z-index: 9999;
+    }
+
+    .map_canvas {
+        width: 100%;
+        height: 300px;
+        margin: 10px 20px 10px 0;
+    }
+</style>
+<script type="text/javascript"
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBgF1Ldq14xLP93KAh2ArF3-qr4hJ1CxcY&libraries=places"></script>
+<script src="{% static "js/plugins/jquery.geocomplete.js" %}"></script>
 
 <script>
     // language=JQuery-CSS
@@ -248,5 +272,29 @@
     function weightConverter(valNum) {
         document.getElementById("outputKilograms").innerHTML = valNum / 2.2046;
     }
+
+    $(function () {
+        $("#geocomplete").geocomplete({
+            map: ".map_canvas",
+            country: 'CA'
+        });
+    });
+
+    var add;
+
+    $(document).on('click', '.geocomplete', function () {
+        var id = $(this).attr('id');
+        add = id;
+        console.log(id);
+        $("#myModal").modal("show");
+    });
+
+    $("#myModal").on("click", ".btn-primary", function (e) {
+        var address = $("#geocomplete").val();
+        var new_id = '#' + add;
+        $(new_id).val(address);
+        console.log(new_id);
+        $("#myModal").modal("hide");
+    });
 
 </script>

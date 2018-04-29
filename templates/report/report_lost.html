@@ -138,25 +138,9 @@
                                 <label for="id_street" class="col-sm-4 col-form-label">Street Address<span
                                         class="text-danger">*</span></label>
                                 <div class="col-sm-6">
-                                    <input id="id_street" name="street" class="form-control"
-                                           placeholder="e.g. 3626 7 St SW"
-                                           value="{{ form.street.value|default:"" }}" required>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label for="id_city" class="col-sm-4 col-form-label">City <span
-                                        class="text-danger">*</span></label>
-                                <div class="col-sm-6">
-                                    <input id="id_city" name="city" class="form-control"
-                                           placeholder="e.g. Calgary"
-                                           value="{{ form.city.value|default:"" }}" required>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label for="id_province" class="col-sm-4 col-form-label">Province <span
-                                        class="text-danger">*</span></label>
-                                <div class="col-sm-6">
-                                    {{ form.province }}
+                                    <input id="id_address" name="address" class="form-control geocomplete"
+                                           placeholder="Press to enter address"
+                                           value="{{ form.address.value|default:"" }}" required>
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -195,6 +179,46 @@
         </div>
     </div>
 
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Last known address</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="location">
+                        <input id="geocomplete" type="text" placeholder="Type in an address" size="90"
+                               class="form-control"/>
+                    </div>
+                    <div class="map_canvas"></div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close
+                    </button>
+                    <button type="button" class="btn btn-primary">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .pac-container {
+            /* put Google geocomplete list on top of Bootstrap modal */
+            z-index: 9999;
+        }
+
+        .map_canvas {
+            width: 100%;
+            height: 300px;
+            margin: 10px 20px 10px 0;
+        }
+    </style>
+
+    <script type="text/javascript"
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBgF1Ldq14xLP93KAh2ArF3-qr4hJ1CxcY&libraries=places"></script>
+    <script src="{% static "js/plugins/jquery.geocomplete.js" %}"></script>
+
     <script>
         $(function () {
             $('[data-toggle="popover"]').popover({html: true, placement: "bottom"})
@@ -224,6 +248,29 @@
             });
         });
 
+        $(function () {
+            $("#geocomplete").geocomplete({
+                map: ".map_canvas",
+                country: 'CA'
+            });
+        });
+
+        var add;
+
+        $(document).on('click', '.geocomplete', function () {
+            var id = $(this).attr('id');
+            add = id;
+            console.log(id);
+            $("#myModal").modal("show");
+        });
+
+        $("#myModal").on("click", ".btn-primary", function (e) {
+            var address = $("#geocomplete").val();
+            var new_id = '#' + add;
+            $(new_id).val(address);
+            console.log(new_id);
+            $("#myModal").modal("hide");
+        });
 
     </script>
 
