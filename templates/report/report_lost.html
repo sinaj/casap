@@ -119,6 +119,16 @@
                   class="form-control" required>{{ vul_form.favourite_locations.value|default:"" }}</textarea>
                                 </div>
                             </div>
+
+                            <div class="form-group row">
+                                <label for="id_transportation" class="col-sm-4 col-form-label">Mode of
+                                    transportation </label>
+                                {{ form.transportation.errors }}
+                                <div class="col-sm-6">
+        <textarea id="id_transportation" name="transportation" placeholder="Optional"
+                  class="form-control">{{ form.transportation.value|default:"" }}</textarea>
+                                </div>
+                            </div>
                             <div class="form-group row">
                                 <label for="id_description" class="col-sm-4 col-form-label">Description of Clothing<span
                                         class="text-danger">*</span>
@@ -235,7 +245,7 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    console.log(response)
+                    console.log(response);
                     $("#id_nickname").val(response[0][0]);
                     $("#id_sex").val(response[1][0]);
                     $("#id_race").val(response[2][0]);
@@ -244,6 +254,7 @@
                     $("#id_weight").val(response[5][0]);
                     $("#id_eye_colour").val(response[6][0]);
                     $("#id_favourite_locations").val(response[7][0]);
+                    $("#id_transportation").val(response[8][0]);
                 }
             });
         });
