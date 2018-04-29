@@ -27,13 +27,13 @@ class VulnerableAdmin(admin.ModelAdmin):
 @admin.register(VulnerableAddress)
 class VulnerableAddressAdmin(admin.ModelAdmin):
     model = VulnerableAddress
-    list_display = ("vulnerable", "address", "street", "city", "province","address_lat", "address_lng")
+    list_display = ("vulnerable", "address", "address_lat", "address_lng")
 
 
 @admin.register(LostPersonRecord)
 class LostPersonRecordAdmin(admin.ModelAdmin):
     model = LostPersonRecord
-    list_display = ("vulnerable", "state", "reporter", "time", "street", "city", "province", "address")
+    list_display = ("vulnerable", "state", "reporter", "time", "address")
 
 
 @admin.register(SightingRecord)
@@ -45,7 +45,7 @@ class SightingRecordAdmin(admin.ModelAdmin):
 @admin.register(FindRecord)
 class FindRecordAdmin(admin.ModelAdmin):
     model = FindRecord
-    list_display = ("reporter", "lost_record", "time", "street", "city", "province", "address")
+    list_display = ("reporter", "lost_record", "time", "address")
 
 
 @admin.register(PasswordResetCode)

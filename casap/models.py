@@ -99,22 +99,6 @@ class Volunteer(models.Model):
         return str(self.profile)
 
 
-PROVINCE_CHOICES = (
-    ('AB', 'AB'),
-    ('BC', 'BC'),
-    ('MB', 'MB'),
-    ('NB', 'NB'),
-    ('NL', 'NL'),
-    ('NS', 'NS'),
-    ('NT', 'NT'),
-    ('NU', 'NU'),
-    ('ON', 'ON'),
-    ('PE', 'PE'),
-    ('QC', 'QC'),
-    ('SK', 'SK'),
-    ('YT', 'YT'),
-)
-
 SEX_CHOICES = (
     ('Male', 'Male'),
     ('Female', 'Female'),
@@ -169,12 +153,9 @@ KM_CHOICES = (
 
 class VolunteerAvailability(models.Model):
     volunteer = models.ForeignKey(Volunteer, related_name="volunteers")
-    address = models.TextField()
+    address = models.CharField(max_length=200)
     address_lat = models.FloatField()
     address_lng = models.FloatField()
-    street = models.CharField(max_length=50, null=True)
-    city = models.CharField(max_length=50, null=True)
-    province = models.CharField(max_length=4, choices=PROVINCE_CHOICES, default='ab')
     km_radius = models.IntegerField(choices=KM_CHOICES, default=1)
 
     def __str__(self):
@@ -215,10 +196,7 @@ class Vulnerable(models.Model):
 
 class VulnerableAddress(models.Model):
     vulnerable = models.ForeignKey(Vulnerable, related_name="addresses")
-    address = models.TextField()
-    street = models.CharField(max_length=50, null=True)
-    city = models.CharField(max_length=50, null=True)
-    province = models.CharField(max_length=4, choices=PROVINCE_CHOICES, default='ab')
+    address = models.CharField(max_length=200)
     address_lat = models.FloatField()
     address_lng = models.FloatField()
 
@@ -244,10 +222,7 @@ class LostPersonRecord(models.Model):
                                                      ("sighted", "Reported as sighted"),
                                                      ("found", "Reported found")])
     time = models.DateTimeField()
-    address = models.TextField()
-    street = models.CharField(max_length=50, null=True)
-    city = models.CharField(max_length=50, null=True)
-    province = models.CharField(max_length=4, choices=PROVINCE_CHOICES, default='ab')
+    address = models.CharField(max_length=50)
     address_lat = models.FloatField()
     address_lng = models.FloatField()
     description = models.TextField(blank=True)
@@ -313,10 +288,7 @@ class FindRecord(models.Model):
     lost_record = models.ForeignKey(LostPersonRecord, related_name="find_records")
     reporter = models.ForeignKey(User, related_name="find_records")
     time = models.DateTimeField()
-    street = models.CharField(max_length=50, null=True)
-    city = models.CharField(max_length=50, null=True)
-    province = models.CharField(max_length=4, choices=PROVINCE_CHOICES, default='ab')
-    address = models.TextField()
+    address = models.CharField(max_length=200)
     address_lat = models.FloatField()
     address_lng = models.FloatField()
     description = models.TextField(blank=True)
