@@ -297,4 +297,8 @@
         $("#myModal").modal("hide");
     });
 
+    $('#myModal').on('hidden.bs.modal', function () {
+        $("#geocomplete").val("");
+    });
+
 </script>
