@@ -14,9 +14,8 @@ from casap.forms.forms import *
 
 
 def create_address(request, vulnerable, form):
-    if form.cleaned_data.get('street') and form.cleaned_data.get('city') and form.cleaned_data.get('province'):
-        address = "{} {} {}".format(form.cleaned_data['street'], form.cleaned_data['city'],
-                                    form.cleaned_data['province'])
+    if form.cleaned_data.get('address'):
+        address = form.cleaned_data.get('address')
         loc = get_address_map_google(address)
         for i in range(10):
             if loc is None:
@@ -31,9 +30,6 @@ def create_address(request, vulnerable, form):
             additional_address = VulnerableAddress()
             additional_address.vulnerable = vulnerable
             additional_address.address = address
-            additional_address.street = form.cleaned_data['street']
-            additional_address.city = form.cleaned_data['city']
-            additional_address.province = form.cleaned_data['province']
             additional_address.address_lng = loc['lng']
             additional_address.address_lat = loc['lat']
             additional_address.save()
