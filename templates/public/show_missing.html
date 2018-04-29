@@ -88,6 +88,12 @@
                                                 <td align="right"><b>Favourite Locations</b></td>
                                                 <td>{{ vulnerable.favourite_locations }}</td>
                                             </tr>
+                                            {% if vulnerable.transportation %}
+                                                <tr>
+                                                    <td align="right"><b>Mode of Transportation</b></td>
+                                                    <td>{{ vulnerable.transportation }}</td>
+                                                </tr>
+                                            {% endif %}
                                             <tr>
                                                 <td align="right"><b>Description of Clothing</b></td>
                                                 <td>{{ record.description }}</td>
