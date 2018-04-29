@@ -61,8 +61,8 @@ class ManageNotificationsForm(forms.ModelForm):
 
 class VolunteerAvailabilityForm(forms.ModelForm):
     address = forms.CharField(widget=forms.TextInput(attrs={'size': '30',
-                                                           'placeholder': "Press here to find address",
-                                                           'class': 'form-control geocomplete'}))
+                                                            'placeholder': "Press here to find address",
+                                                            'class': 'form-control geocomplete'}))
 
     class Meta:
         model = VolunteerAvailability
@@ -164,28 +164,14 @@ class VulnerableReportForm(forms.ModelForm):
 #         return instances
 
 class VulnerableAddressForm(forms.ModelForm):
-    street = forms.CharField(widget=forms.TextInput(attrs={'size': '30',
-                                                           'placeholder': "e.g. 15 Bermuda Rd NW",
-                                                           'class': 'form-control'}))
-    city = forms.CharField(widget=forms.TextInput(attrs={'size': '20',
-                                                         'placeholder': "e.g. Calgary",
-                                                         'class': 'form-control'
-                                                         }))
+    address = forms.CharField(widget=forms.TextInput(attrs={'size': '30',
+                                                            'placeholder': "Press here to add address",
+                                                            'class': 'form-control geocomplete'}))
 
-    def clean_street(self):
-        if not self.cleaned_data['street']:
-            raise forms.ValidationError("Street not provided")
-        return self.cleaned_data['street']
-
-    def clean_city(self):
-        if not self.cleaned_data['city']:
-            raise forms.ValidationError("City not provided")
-        return self.cleaned_data['city']
-
-    def clean_province(self):
-        if not self.cleaned_data['province']:
-            raise forms.ValidationError("Province not provided")
-        add = self.cleaned_data['street'] + " " + self.cleaned_data['city'] + " " + self.cleaned_data['province']
+    def clean_address(self):
+        if not self.cleaned_data['address']:
+            raise forms.ValidationError("Address not provided")
+        add = self.cleaned_data['address']
         map_response = get_address_map_google(add)
         for i in range(10):
             if map_response is None:
@@ -197,9 +183,9 @@ class VulnerableAddressForm(forms.ModelForm):
         self.address_lat = map_response['lat']
         self.address_lng = map_response['lng']
         self.address = add
-        return self.cleaned_data['province']
+        return self.cleaned_data['address']
 
     class Meta:
         model = VulnerableAddress
-        fields = ('street', 'city', 'province')
-        exclude = ('address', 'address_lng', 'address_lat')
+        fields = ('address',)
+        exclude = ('address_lng', 'address_lat')
