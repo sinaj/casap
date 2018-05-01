@@ -79,6 +79,19 @@ class Notifications(models.Model):
             self.phone_notify, self.email_notify, self.twitter_dm_notify, self.twitter_public_notify)
 
 
+class EmergencyCall(models.Model):
+    hash = models.CharField(max_length=30, unique=True, blank=True)
+    phone_number = models.CharField(max_length=15, null=True, blank=True, default=911)
+
+    def save(self, *args, **kwargs):
+        if not self.hash:
+            self.hash = gen_unique_hash(self.__class__, 30)
+        super(self.__class__, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return u'%s' % self.phone_number
+
+
 class Volunteer(models.Model):
     profile = models.OneToOneField(Profile, related_name="volunteer")
     phone = models.CharField(max_length=15, null=True, blank=True)
