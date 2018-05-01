@@ -189,3 +189,18 @@ class VulnerableAddressForm(forms.ModelForm):
         model = VulnerableAddress
         fields = ('address',)
         exclude = ('address_lng', 'address_lat')
+
+
+class EmergencyCallForm(forms.ModelForm):
+
+    def clean_phone_number(self):
+        if self.cleaned_data.get('phone_number'):
+            standard_phone = get_standard_phone(self.cleaned_data['phone_number'])
+            if standard_phone:
+                return standard_phone
+            raise forms.ValidationError("Phone number is invalid.")
+
+    class Meta:
+        model = EmergencyCall
+        fields = ('phone_number',)
+        exclude = ('hash',)

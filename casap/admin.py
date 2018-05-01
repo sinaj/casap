@@ -108,3 +108,9 @@ class NotificationsAdmin(admin.ModelAdmin):
 class AlertsAdmin(admin.ModelAdmin):
     model = Alerts
     list_display = ("state", "lost_record", "seen_record", "notifications", "sent")
+
+
+@admin.register(EmergencyCall)
+class EmergencyCallAdmin(admin.ModelAdmin):
+    model = EmergencyCall
+    list_display = ("phone_number", "hash")

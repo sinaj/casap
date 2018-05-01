@@ -77,6 +77,8 @@ def gen_unique_hash(model_class, length, all_caps=None, field_name=None):
 
 
 def get_standard_phone(raw_phone, ignore_error=None):
+    if raw_phone in ("911", "999"):
+        return raw_phone
     try:
         non_decimal = re.compile(r'[^\d]+')
         if raw_phone.find("+1") != -1:

@@ -59,6 +59,7 @@
                             {% if request.user.is_staff %}
                                 <a class="dropdown-item" href="{% url "vulnerable_list" %}">All Vulnerable Persons</a>
                                 <a class="dropdown-item" href="{% url "adminView" %}">Admin Map Views</a>
+                                <a class="dropdown-item" href="{% url "coordinator-settings" %}">Coordinator Settings</a>
                                 {#                                <a class="dropdown-item" href="{% url "manage_notifications" %}">Manage#}
                                 {#                                    Notifications</a>#}
                             {% else %}
