@@ -49,15 +49,10 @@ def time_in_range(start, end, x):
 def lost_notification(notify_record, vol):
     link = "http://{}".format(notify_record.get_link())
     link = shorten_url(link)
-    if notify_record.description:
-        sms_text = "Dear %s,\nClient: %s has been lost near you with description:\n%s\n\n" % (vol.full_name,
-                                                                                              notify_record.vulnerable.full_name,
-                                                                                              notify_record.description) + \
-                   "For more details visit the link below:\n%s" % link
-    else:
-        sms_text = "Dear %s,\nClient: %s has been lost near you.\n" % (vol.full_name,
-                                                                       notify_record.vulnerable.full_name) + \
-                   "For more details visit the link below:\n%s" % link
+
+    sms_text = "Dear %s,\nClient: %s has been lost near you.\n" % (vol.full_name,
+                                                                   notify_record.vulnerable.full_name) + \
+               "For more details visit the link below:\n%s" % link
 
     mail_subject = "C-ASAP Client: %s has been lost near you " % notify_record.vulnerable.full_name
     if vol.phone:
@@ -134,9 +129,9 @@ def report_lost_view(request):
                     "%H:%M")
                 flag = 1
                 notify_volunteers(lost_record, flag)
-                send_tweet(
-                    tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(),
-                                 flag, lost_record.time))
+                # send_tweet(
+                #     tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(),
+                #                  flag, lost_record.time))
             add_message(request, messages.SUCCESS, "Success")
             return HttpResponseRedirect(reverse('index'))
         else:
@@ -382,7 +377,7 @@ def report_found_view(request, hash):
             if volunteer_list:
                 for i in volunteer_list:
                     send_found_alert(i, lost_record, v)
-            send_tweet(tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(), 2, v.time))
+            # send_tweet(tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(), 2, v.time))
             lost_record.save()
             found_activity = FoundActivity()
             found_activity.locLat = v.address_lat

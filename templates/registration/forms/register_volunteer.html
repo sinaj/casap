@@ -1,9 +1,14 @@
 {% load static %}
-<h5>Notification Channels <i class="fa fa-info-circle" data-toggle="popover" title="Notification Channels"
-                             data-content="Can choose to receive SMS texts via a cell phone, email from an email address, and/or Direct Message from Twitter."></i>
+<h5>Notification Channels <a tabindex="0" class="fa fa-info-circle" data-toggle="popover" title="Notification Channels"
+                             data-content="Can choose to receive SMS texts via a cell phone and/or email from an email address."></a>
 </h5><br>
+
+<p>I give consent to receive notifications via:</p>
 <div class="form-group row">
-    <label for="id_phone" class="col-sm-4 col-form-label">Cell Phone</label>
+    <label for="id_phone" class="col-sm-4 col-form-label">Cell Phone <span> <img id='phone_img'
+                                                                                 src='{% static "Image/x.png" %}'
+                                                                                 width="15" height="15"
+    /></span></label>
     {{ form.phone.errors }}
     <div class="col-sm-6">
         <input type="tel" id="id_phone" name="phone" class="form-control" placeholder="e.g. 780-123-4567"
@@ -12,7 +17,10 @@
 
 </div>
 <div class="form-group row">
-    <label for="id_email" class="col-sm-4 col-form-label">Email</label>
+    <label for="id_email" class="col-sm-4 col-form-label">Email<span> <img id='email_img'
+                                                                           src='{% static "Image/x.png" %}'
+                                                                           width="15" height="15"
+    /></span></label>
     {{ form.email.errors }}
     <div class="col-sm-6">
         <input type="text" id="id_email" name="email" class="form-control" placeholder="e.g. username@email.com"
@@ -20,18 +28,17 @@
     </div>
 </div>
 
-<div class="form-group row">
-    <label for="id_twitter" class="col-sm-4 col-form-label">Twitter Handle</label>
-    {{ form.twitter_handle.errors }}
-    <div class="col-sm-6">
-        <input type="text" id="id_twitter_handle" name="twitter_handle" class="form-control" placeholder="e.g. casap91"
-               value="{{ form.twitter_handle.value|default:"" }}" autofocus>
-    </div>
-
-</div>
+{#<div class="form-group row">#}
+{#    <label for="id_twitter" class="col-sm-4 col-form-label">Twitter Handle</label>#}
+{#    {{ form.twitter_handle.errors }}#}
+{#    <div class="col-sm-6">#}
+{#        <input type="text" id="id_twitter_handle" name="twitter_handle" class="form-control" placeholder="e.g. casap91"#}
+{#               value="{{ form.twitter_handle.value|default:"" }}" autofocus>#}
+{#    </div>#}
+{#</div>#}
 <hr>
-<h5>Areas of Availability <i class="fa fa-info-circle" data-toggle="popover" title="Areas of Availability"
-                             data-content="These areas are defined by the volunteer to receive notifications about missing persons within a set kilometer radius from the given address."></i>
+<h5>Areas of Availability <a tabindex="0" class="fa fa-info-circle" data-toggle="popover" title="Areas of Availability"
+                             data-content="These areas are defined by the volunteer to receive notifications about missing persons within a set kilometer radius from the given address."></a>
 </h5><br>
 {{ formset.management_form }}
 {% for form in formset.forms %}
@@ -41,26 +48,12 @@
 
         <div class="form-group row">
             <div class="col-sm-4 col-form-label">
-                Street<span class="text-danger">*</span>
+                Address<span class="text-danger">*</span>
             </div>
             <div class="col-sm-6">
-                {{ form.street }}
+                {{ form.address }}
             </div>
         </div>
-        <div class="form-group row">
-            <div class="col-sm-4 col-form-label">City<span class="text-danger">*</span></div>
-            <div class="col-sm-6">
-                {{ form.city }}
-            </div>
-        </div>
-
-        <div class="form-group row">
-            <div class="col-sm-4 col-form-label">Province<span class="text-danger">*</span></div>
-            <div class="col-sm-6">
-                {{ form.province }}
-            </div>
-        </div>
-
         <div class="form-group row">
             <div class="col-md-4 col-form-label">Km Radius<span class="text-danger">*</span></div>
 
@@ -75,6 +68,29 @@
         <hr>
     </div>
 {% endfor %}
+
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Address for Area of Availability</h4>
+            </div>
+            <div class="modal-body">
+                <div class="location">
+                    <input id="geocomplete" type="text" placeholder="Type in an address" size="90"
+                           class="form-control"/>
+                </div>
+                <div class="map_canvas"></div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close
+                </button>
+                <button type="button" class="btn btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
 <span>
     <center>
         <button class="btn btn-danger" type="button" id="remove_form">Remove Last Area</button>
@@ -82,24 +98,39 @@
     </center>
 </span>
 <hr>
+<style>
+    .pac-container {
+        /* put Google geocomplete list on top of Bootstrap modal */
+        z-index: 9999;
+    }
+
+    .map_canvas {
+        width: 100%;
+        height: 300px;
+        margin: 10px 20px 10px 0;
+    }
+</style>
+<script type="text/javascript"
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBgF1Ldq14xLP93KAh2ArF3-qr4hJ1CxcY&libraries=places"></script>
+<script type="text/javascript" src="/static/js/plugins/bootstrap.min.js"></script>
+<script src="{% static "js/plugins/jquery.geocomplete.js" %}"></script>
+
 <script>
+
+
     // language=JQuery-CSS
     $('#add_more').click(function () {
         cloneMore('div.table:last', 'volunteers');
+
     });
     // language=JQuery-CSS
     $('#remove_form').click(function () {
         removeForm('div.table:last', 'volunteers');
     });
 
-</script>
-
-<script type="text/javascript" src="/static/js/plugins/bootstrap.min.js"></script>
-
-<script>
 
     $(document).ready(function () {
-        $('[data-toggle="popover"]').popover({});
+        $('[data-toggle="popover"]').popover({trigger: 'focus'});
     });
 
     function cloneMore(selector, type) {
@@ -134,6 +165,80 @@
             lastElement.remove();
         }
     }
+
+    var i = $("#id_phone").val();
+    var k = $("#phone_img");
+    if (i.length > 0) {
+        k.attr('src', '{% static "Image/checkmark.png" %}');
+        k.show();
+    } else {
+        k.attr('src', '{% static "Image/x.png" %}');
+        k.show();
+    }
+
+    var l = $("#id_email").val();
+    var j = $("#email_img");
+    if (l.length > 0) {
+        j.attr('src', '{% static "Image/checkmark.png" %}');
+        j.show();
+    } else {
+        j.attr('src', '{% static "Image/x.png" %}');
+        j.show();
+    }
+
+
+    $('#id_phone').on('input', function () {
+        var i = $("#id_phone").val();
+        var k = $("#phone_img");
+        if (i.length > 0) {
+            k.attr('src', '{% static "Image/checkmark.png" %}');
+            k.show();
+        } else {
+            k.attr('src', '{% static "Image/x.png" %}');
+            k.show();
+        }
+    });
+
+    $('#id_email').on('input', function () {
+        var l = $("#id_email").val();
+        var j = $("#email_img");
+        if (l.length > 0) {
+            j.attr('src', '{% static "Image/checkmark.png" %}');
+            j.show();
+        } else {
+            j.attr('src', '{% static "Image/x.png" %}');
+            j.show();
+        }
+    });
+
+    $(function () {
+        $("#geocomplete").geocomplete({
+            map: ".map_canvas",
+            country: 'CA'
+        });
+    });
+
+    var add;
+
+    $(document).on('click', '.geocomplete', function () {
+        var id = $(this).attr('id');
+        add = id;
+        console.log(id);
+        $("#myModal").modal("show");
+    });
+
+    $("#myModal").on("click", ".btn-primary", function (e) {
+        var address = $("#geocomplete").val();
+        var new_id = '#' + add;
+        $(new_id).val(address);
+        console.log(new_id);
+        $("#myModal").modal("hide");
+    });
+
+    $('#myModal').on('hidden.bs.modal', function () {
+        $("#geocomplete").val("");
+    });
+
 
 </script>
 

@@ -16,11 +16,12 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.conf.urls.static import static
 from django.contrib import admin
+from rest_framework import routers
 
 from casap import settings
 from casap.utilities import vulnerable_info
 from casap.utilities.map_data import getData, get_lost_data, get_found_data
-from casap.views import views_report, views_dashboard, views, views_registration
+from casap.views import views_report, views_dashboard, views, views_registration, views_api
 
 dashboard_patterns = [
     url(r'^profile/edit/$', views_dashboard.profile_edit_view, name="profile_edit"),
@@ -51,6 +52,17 @@ report_patterns = [
     url(r'^alert/(?P<hash>[\w\d]+)/$', views_report.alert_view, name="report_alert"),
 ]
 
+# API routes
+router = routers.DefaultRouter()
+router.register(r'users', views_api.UserViewSet)
+router.register(r'profiles', views_api.ProfileViewSet)
+router.register(r'volunteers', views_api.VolunteerViewSet)
+router.register(r'volunteer_availability', views_api.VolunteerAvailabilityViewSet)
+router.register(r'vulnerable', views_api.VulnerableViewSet)
+router.register(r'vulnerable_address', views_api.VulnerableAddressViewSet)
+router.register(r'lost_person_record', views_api.LostPersonRecordViewSet)
+router.register(r'find_record', views_api.FindRecordViewSet)
+
 urlpatterns = [
     url(r'^$', views.index),
     url(r'^home/$', views.index, name="index"),
@@ -66,6 +78,9 @@ urlpatterns = [
     url(r'^get-lost-path/', get_lost_data.getPath),
     url(r'^get-found-path/', get_found_data.getPath),
     url(r'^get-vulnerable-info/', vulnerable_info.get_vulnerable),
+    url(r'^api/', include(router.urls)),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^coordinator-settings/', views.admin_settings_view, name='coordinator-settings')
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

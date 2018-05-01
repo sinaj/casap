@@ -60,25 +60,26 @@ class ManageNotificationsForm(forms.ModelForm):
 
 
 class VolunteerAvailabilityForm(forms.ModelForm):
-    street = forms.CharField(widget=forms.TextInput(attrs={'size': '30',
-                                                           'placeholder': "e.g. 15 Bermuda Rd NW",
-                                                           'class': 'form-control'}))
-    city = forms.CharField(widget=forms.TextInput(attrs={'size': '20',
-                                                         'placeholder': "e.g. Calgary",
-                                                         'class': 'form-control'
-                                                         }))
+    address = forms.CharField(widget=forms.TextInput(attrs={'size': '30',
+                                                            'placeholder': "Press here to find address",
+                                                            'class': 'form-control geocomplete'}))
 
     class Meta:
         model = VolunteerAvailability
-        fields = ['street', 'city', 'province', 'km_radius']
-        exclude = ('address_lat', 'address_lng', 'address')
+        fields = ['address', 'km_radius']
+        exclude = ('address_lat', 'address_lng')
 
-    def clean_personal_address(self):
+    def clean_address(self):
         if not self.cleaned_data['address']:
             return self.cleaned_data['address']
 
         address = self.cleaned_data['address']
         map_response = get_address_map_google(address)
+        if map_response is None:
+            for i in range(10):
+                map_response = get_address_map_google(address)
+                if map_response:
+                    break
         if map_response is None:
             raise forms.ValidationError("Address is invalid")
         else:
@@ -125,7 +126,7 @@ class VulnerableForm(forms.ModelForm):
         model = Vulnerable
         fields = (
             'first_name', 'last_name', 'nickname', 'birthday', 'picture', 'sex', 'race', 'hair_colour', 'height',
-            'weight', 'eye_colour', 'favourite_locations')
+            'weight', 'eye_colour', 'favourite_locations', 'transportation')
 
 
 class VulnerableReportForm(forms.ModelForm):
@@ -163,42 +164,43 @@ class VulnerableReportForm(forms.ModelForm):
 #         return instances
 
 class VulnerableAddressForm(forms.ModelForm):
-    street = forms.CharField(widget=forms.TextInput(attrs={'size': '30',
-                                                           'placeholder': "e.g. 15 Bermuda Rd NW",
-                                                           'class': 'form-control'}))
-    city = forms.CharField(widget=forms.TextInput(attrs={'size': '20',
-                                                         'placeholder': "e.g. Calgary",
-                                                         'class': 'form-control'
-                                                         }))
+    address = forms.CharField(widget=forms.TextInput(attrs={'size': '30',
+                                                            'placeholder': "Press here to add address",
+                                                            'class': 'form-control geocomplete'}))
 
-    def clean_street(self):
-        if not self.cleaned_data['street']:
-            raise forms.ValidationError("Street not provided")
-        return self.cleaned_data['street']
-
-    def clean_city(self):
-        if not self.cleaned_data['city']:
-            raise forms.ValidationError("City not provided")
-        return self.cleaned_data['city']
-
-    def clean_province(self):
-        if not self.cleaned_data['province']:
-            raise forms.ValidationError("Province not provided")
-        address = self.cleaned_data['street'] + " " + self.cleaned_data['city'] + " " + self.cleaned_data['province']
-        map_response = get_address_map_google(address)
+    def clean_address(self):
+        if not self.cleaned_data['address']:
+            raise forms.ValidationError("Address not provided")
+        add = self.cleaned_data['address']
+        map_response = get_address_map_google(add)
         for i in range(10):
             if map_response is None:
-                map_response = get_address_map_google(address)
+                map_response = get_address_map_google(add)
             else:
                 break
         if map_response is None:
             raise forms.ValidationError("Address is invalid")
         self.address_lat = map_response['lat']
         self.address_lng = map_response['lng']
-        self.address = address
-        return self.cleaned_data['province']
+        self.address = add
+        return self.cleaned_data['address']
 
     class Meta:
         model = VulnerableAddress
-        fields = ('street', 'city', 'province')
-        exclude = ('address', 'address_lng', 'address_lat')
+        fields = ('address',)
+        exclude = ('address_lng', 'address_lat')
+
+
+class EmergencyCallForm(forms.ModelForm):
+
+    def clean_phone_number(self):
+        if self.cleaned_data.get('phone_number'):
+            standard_phone = get_standard_phone(self.cleaned_data['phone_number'])
+            if standard_phone:
+                return standard_phone
+            raise forms.ValidationError("Phone number is invalid.")
+
+    class Meta:
+        model = EmergencyCall
+        fields = ('phone_number',)
+        exclude = ('hash',)

@@ -14,9 +14,8 @@ from casap.forms.forms import *
 
 
 def create_address(request, vulnerable, form):
-    if form.cleaned_data.get('street') and form.cleaned_data.get('city') and form.cleaned_data.get('province'):
-        address = "{} {} {}".format(form.cleaned_data['street'], form.cleaned_data['city'],
-                                    form.cleaned_data['province'])
+    if form.cleaned_data.get('address'):
+        address = form.cleaned_data.get('address')
         loc = get_address_map_google(address)
         for i in range(10):
             if loc is None:
@@ -31,9 +30,6 @@ def create_address(request, vulnerable, form):
             additional_address = VulnerableAddress()
             additional_address.vulnerable = vulnerable
             additional_address.address = address
-            additional_address.street = form.cleaned_data['street']
-            additional_address.city = form.cleaned_data['city']
-            additional_address.province = form.cleaned_data['province']
             additional_address.address_lng = loc['lng']
             additional_address.address_lat = loc['lat']
             additional_address.save()
@@ -177,23 +173,48 @@ def volunteer_edit_view(request):
                                                      form=VolunteerAvailabilityForm, fk_name="volunteer")
         list_of_avail = VolunteerAvailability.objects.filter(volunteer=profile.volunteer).values()
         item_forms = availability_formset(initial=list_of_avail, prefix='volunteers')
-        next = request.POST.get("next", reverse("index"))
+        next = request.POST.get("next", reverse("volunteer_edit"))
         form = VolunteerForm(request.POST, instance=profile.volunteer)
         if form.is_valid():
             volunteer = form.save(commit=False)
             volunteer.profile = profile
         formset = availability_formset(request.POST, instance=volunteer)
-        VolunteerAvailability.objects.filter(volunteer=volunteer).delete()
         formset.is_valid()
+
         for f in formset:
-            if f.cleaned_data.get('street') and f.cleaned_data.get('city') and f.cleaned_data.get(
-                    'province') and f.cleaned_data.get('km_radius'):  # Check if there is a provided address
-                add = f.cleaned_data.get('street') + " " + f.cleaned_data.get(
-                    'city') + " " + f.cleaned_data.get('province')
+            if f.cleaned_data.get('address'):
+                add = f.cleaned_data.get('address')
                 address = get_address_map_google(add)
-                for i in range(10):
+                for i in range(25):
                     if address is None:
-                        address = get_address_map_google(address)
+                        address = get_address_map_google(add)
+                    else:
+                        break
+                if address is None:
+                    for i in range(25):
+                        if address is None:
+                            address = get_address_map_google(add)
+                        else:
+                            break
+                if address is None:
+                    messages.error(request, 'Address entered cannot be found. Try again')
+                    return HttpResponseRedirect(request.path_info)
+            elif not f.cleaned_data.get('address'):
+                messages.error(request, 'Empty area of availability entered.')
+                return HttpResponseRedirect(request.path_info)
+            else:
+                messages.error(request, 'Incomplete area of availability entered. Please fill out all fields.')
+                return HttpResponseRedirect(request.path_info)
+
+        VolunteerAvailability.objects.filter(volunteer=volunteer).delete()
+
+        for f in formset:
+            if f.cleaned_data.get('address'):  # Check if there is a provided address
+                add = f.cleaned_data.get('address')
+                address = get_address_map_google(add)
+                for i in range(25):
+                    if address is None:
+                        address = get_address_map_google(add)
                     else:
                         break
                 if address is None:
@@ -201,16 +222,17 @@ def volunteer_edit_view(request):
                 else:
                     # Create new windows of availabilities for a volunteer
                     availability = VolunteerAvailability(volunteer=volunteer, address=add,
-                                                         street=f.cleaned_data['street'],
-                                                         city=f.cleaned_data['city'],
-                                                         province=f.cleaned_data['province'],
                                                          address_lat=address['lat'], address_lng=address['lng'],
                                                          km_radius=f.cleaned_data['km_radius'])
                     volunteer.save()
                     availability.save()
-                    add_message(request, messages.SUCCESS, "Changes saved successfully.")
+            else:
+                messages.error(request, 'Please fill out all of the fields.')
+                return HttpResponseRedirect(request.path_info)
 
         request.context['next'] = next
+        add_message(request, messages.SUCCESS, "Changes saved successfully.")
+        return HttpResponseRedirect(request.path_info)
     else:
         how_many = len(VolunteerAvailability.objects.filter(volunteer=profile.volunteer).values())
         if how_many == 0:
