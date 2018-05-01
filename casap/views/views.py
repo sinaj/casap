@@ -4,11 +4,13 @@ import simplejson as json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.messages import add_message
+from django.forms import model_to_dict
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 
-from casap.models import LostPersonRecord, VolunteerAvailability
+from casap.forms.forms import EmergencyCallForm
+from casap.models import LostPersonRecord, VolunteerAvailability, EmergencyCall
 from casap.models import SightingRecord
 from casap.models import Vulnerable
 from casap.utilities.utils import get_user_time
@@ -62,9 +64,11 @@ def index(request):
 @login_required
 def track_missing_view(request, hash):
     lost_record = LostPersonRecord.objects.filter(hash=hash).first()
+    emerg = EmergencyCall.objects.get()
     if not lost_record:
         add_message(request, messages.WARNING, "Record not found")
         return HttpResponseRedirect(reverse("index"))
+    request.context['emerg'] = emerg
     request.context['record'] = lost_record
     request.context['vulnerable'] = lost_record.vulnerable
     request.context['user_tz_name'] = 'Canada/Mountain'  # This needs to be changed when multiple timezones will be used
@@ -74,9 +78,11 @@ def track_missing_view(request, hash):
 @login_required
 def show_missing_view(request, hash):
     lost_record = LostPersonRecord.objects.filter(hash=hash).first()
+    emerg = EmergencyCall.objects.get()
     if not lost_record:
         add_message(request, messages.WARNING, "Record not found")
         return HttpResponseRedirect(reverse("index"))
+    request.context['emerg'] = emerg
     request.context['record'] = lost_record
     request.context['vulnerable'] = lost_record.vulnerable
     request.context['user_tz_name'] = 'Canada/Mountain'  # This needs to be changed when multiple timezones will be used
@@ -107,3 +113,19 @@ def admin_view(request):
     request.context['Vulnerable'] = Vulnerable
 
     return render(request, "adminView.html", request.context)
+
+
+def admin_settings_view(request):
+    if request.method == "POST":
+        emerg = EmergencyCall.objects.last()
+        form = EmergencyCallForm(request.POST, initial=model_to_dict(emerg))
+        if form.is_valid():
+            if form.cleaned_data.get('phone_number'):
+                print(form.cleaned_data.get('phone_number'))
+                emerg.phone_number = form.cleaned_data.get('phone_number')
+                emerg.save()
+                add_message(request, messages.SUCCESS, "Settings successfully updated.")
+    emerg = EmergencyCall.objects.last()
+    form = EmergencyCallForm(initial=model_to_dict(emerg))
+    request.context['form'] = form
+    return render(request, "admin_settings.html", request.context)
