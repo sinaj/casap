@@ -129,6 +129,20 @@
     </div>
 </div>
 
+<div class="form-group row">
+    <label for="id_instructions" class="col-sm-4 col-form-label">Instructions <a tabindex="0"
+                                                                                      class="fa fa-info-circle"
+                                                                                      data-placement="bottom"
+                                                                                      data-toggle="popover"
+                                                                                      title="Instructions"
+                                                                                      data-content="These are tips and instructions on what to do if a volunteer comes across the missing person."></a></label>
+    {{ form.instructions.errors }}
+    <div class="col-sm-6">
+        <textarea id="id_instructions" name="instructions" placeholder="Optional"
+                  class="form-control">{{ form.instructions.value|default:"" }}</textarea>
+    </div>
+</div>
+
 
 <hr>
 {{ formset.management_form }}
