@@ -108,60 +108,80 @@
                             </div>
                         </div>
                     </div>
-                    {% if record.state == "found" %}
-                        {% if record.find_records %}
-                            {% with record.find_records.last as found_record %}
-                                <div class="list-group-item list-group-item-success">
-                                    <div class="container-fluid p-0 clearfix">
-                                        Reported found at: <span
-                                            class="float-right text-dark">{{ found_record.time|timezone:user_tz_name|time }}</span>
-                                    </div>
-                                    <a href="{% url 'location' %}?lat={{ found_record.address_lat }}&{{ found_record.address_lng }}">{{ found_record.address }}</a>
-                                </div>
-                            {% endwith %}
-                        {% endif %}
-                    {% endif %}
-                    {% for sighting in record.get_sighting_records %}
-                        <div class="list-group-item list-group-item-warning">
-                            <div class="container-fluid p-0 clearfix">
-                                Located at: <span
-                                    class="float-right text-dark">{{ sighting.time|timezone:user_tz_name|time }}</span>
-                            </div>
-                            {{ sighting.address }}
-                            {% if sighting.description %}
-                                <div class="container-fluid p-0 text-dark">
-                                    {{ sighting.description }}
-                                </div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                    <div class="list-group-item list-group-item-danger">
-                        <div class="container-fluid p-0 clearfix">
-                            Reported missing at: <span
-                                class="float-right text-dark">{{ record.time|timezone:user_tz_name|time }}</span>
-                        </div>
-                        <a href="{% url 'location' %}?lat={{ record.address_lat }}&{{ record.address_lng }}">{{ record.address }}</a>
-                    </div>
-                    {% if record.state != "found" %}
-                        <div class="card-footer clearfix">
-                            {% if user_profile.coordinator_email %}
 
-                                {#                        <a href="{% url "report_sighting" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">#}
-                                {#                            <div class="btn btn-primary">Report Sighting</div>#}
-                                {#                        </a>#}
-                                <a href="{% url "report_found" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
-                                    <div class="btn btn-success btn-block">Report Found</div>
-                                </a>
-                            {% else %}
-                                <a href="tel:{{ emerg.phone_number }}">
-                                    <div class="btn btn-danger btn-block">Seen {{ vulnerable.full_name }}? Press to call
-                                        <i
-                                                class="fa fa-phone"></i>
-                                    </div>
-                                </a>
-                            {% endif %}
+                    <div class="modal fade" id="myModal2" role="dialog">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Instructions/Tips for {{ vulnerable.full_name }}</h4>
+                                </div>
+                                <div class="modal-body">
+                                    {{ vulnerable.instructions }}
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                    {% endif %}
+                    </div>
+
+                    <div class="list-group-flush">
+                        {% if record.state == "found" %}
+                            {% if record.find_records %}
+                                {% with record.find_records.last as found_record %}
+                                    <div class="list-group-item list-group-item-success">
+                                        <div class="container-fluid p-0 clearfix">
+                                            Reported found at: <span
+                                                class="float-right text-dark">{{ found_record.time|timezone:user_tz_name|time }}</span>
+                                        </div>
+                                        <a href="{% url 'location' %}?lat={{ found_record.address_lat }}&{{ found_record.address_lng }}">{{ found_record.address }}</a>
+                                    </div>
+                                {% endwith %}
+                            {% endif %}
+                        {% endif %}
+                        {% for sighting in record.get_sighting_records %}
+                            <div class="list-group-item list-group-item-warning">
+                                <div class="container-fluid p-0 clearfix">
+                                    Located at: <span
+                                        class="float-right text-dark">{{ sighting.time|timezone:user_tz_name|time }}</span>
+                                </div>
+                                {{ sighting.address }}
+                                {% if sighting.description %}
+                                    <div class="container-fluid p-0 text-dark">
+                                        {{ sighting.description }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        <div class="list-group-item list-group-item-danger">
+                            <div class="container-fluid p-0 clearfix">
+                                Reported missing at: <span
+                                    class="float-right text-dark">{{ record.time|timezone:user_tz_name|time }}</span>
+                            </div>
+                            <a href="{% url 'location' %}?lat={{ record.address_lat }}&{{ record.address_lng }}">{{ record.address }}</a>
+                        </div>
+                        {% if record.state != "found" %}
+                            <div class="card-footer clearfix">
+                                {% if user_profile.coordinator_email %}
+
+                                    {#                        <a href="{% url "report_sighting" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">#}
+                                    {#                            <div class="btn btn-primary">Report Sighting</div>#}
+                                    {#                        </a>#}
+                                    <a href="{% url "report_found" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                                        <div class="btn btn-success btn-block">Report Found</div>
+                                    </a>
+                                {% else %}
+                                    <a href="tel:{{ emerg.phone_number }}">
+                                        <div class="btn btn-danger btn-block">Seen {{ vulnerable.full_name }}? Press to
+                                            call
+                                            <i class="fa fa-phone"></i>
+                                        </div>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
