@@ -34,7 +34,6 @@
 {#                            </a>#}
 {#                        </li>#}
 {#                    {% endif %}#}
-
 {#                {% endif %}#}
                 {% if user_profile %}
                     {% if not user_profile.volunteer %}
@@ -44,6 +43,8 @@
                                 Become a Volunteer
                             </a>
                         </li>
+                    {% else %}
+                        <a class="nav-link" href="{% url "volunteer_edit" %}">Volunteer Preferences</a>
                     {% endif %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
@@ -52,10 +53,6 @@
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                             <a class="dropdown-item" href="{% url "profile_edit" %}">My Profile</a>
-                            {% if user_profile.volunteer %}
-                                <a class="dropdown-item" href="{% url "volunteer_edit" %}">My Volunteer Profile</a>
-                            {% endif %}
-
                             {% if request.user.is_staff %}
                                 <a class="dropdown-item" href="{% url "vulnerable_list" %}">All Vulnerable Persons</a>
                                 <a class="dropdown-item" href="{% url "adminView" %}">Admin Map Views</a>
