@@ -297,6 +297,13 @@
 {% endblock %}
 
 {% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url "index" %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url "vulnerable_list" %}">Vulnerable List</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Vulnerable Map History</li>
+        </ol>
+    </nav>
     <div id="mapContainer">
         <div id="map"></div>
     </div>

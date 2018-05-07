@@ -15,6 +15,13 @@
 {% block body_attributes %}ng-app="App" ng-controller="Ctrl"{% endblock %}
 
 {% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url "index" %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url "vulnerable_list" %}">Vulnerable List</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Add Vulnerable</li>
+        </ol>
+    </nav>
 
     <div class="container p-0">
         <div class="row justify-content-center">
@@ -49,10 +56,10 @@
 {% endblock %}
 
 {% block scripts %}
-{#    <script>#}
-{#        {% autoescape off %}#}
-{#            $.addresses = {{ addresses }};#}
-{#        {% endautoescape %}#}
-{#    </script>#}
+    {#    <script>#}
+    {#        {% autoescape off %}#}
+    {#            $.addresses = {{ addresses }};#}
+    {#        {% endautoescape %}#}
+    {#    </script>#}
     <script type="text/javascript" src="/static/js/dashboard/vulnerable/vulnerable_add.js"></script>
 {% endblock %}
