@@ -3,7 +3,12 @@
 {% load tz %}
 
 {% block content %}
-
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url "index" %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Missing Details</li>
+        </ol>
+    </nav>
     <div class="container p-0">
         <div class="row justify-content-center">
             <div class="col-sm-10 col-md-10 col-lg-8">
