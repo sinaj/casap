@@ -190,7 +190,7 @@ class Vulnerable(models.Model):
     height = models.IntegerField(choices=HEIGHT_CHOICES)
     weight = models.IntegerField(choices=WEIGHT_CHOICES)
     eye_colour = models.CharField(max_length=50, choices=EYE_COLOUR_CHOICES)
-    favourite_locations = models.TextField()
+    favourite_locations = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     instructions = models.TextField(null=True, blank=True)
     transportation = models.TextField(null=True, blank=True)
