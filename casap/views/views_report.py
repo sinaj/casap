@@ -145,7 +145,7 @@ def report_lost_view(request):
                 vulnerable.hair_colour = vul_form.data.get('hair_colour')
                 vulnerable.height = vul_form.data.get('height')
                 vulnerable.weight = vul_form.data.get('weight')
-                vulnerable.eye_colour = vul_form.cleaned_data.get('eye_colour')
+                vulnerable.eye_colour = vul_form.data.get('eye_colour')
                 vulnerable.favourite_locations = vul_form.data.get('favourite_locations')
                 if vul_form.data.get('transportation'):
                     vulnerable.transportation = vul_form.data.get('transportation')
