@@ -238,7 +238,7 @@ class LostPersonRecord(models.Model):
                                                      ("sighted", "Reported as sighted"),
                                                      ("found", "Reported found")])
     time = models.DateTimeField()
-    address = models.CharField(max_length=50)
+    address = models.CharField(max_length=100)
     address_lat = models.FloatField()
     address_lng = models.FloatField()
     description = models.TextField(blank=True)
