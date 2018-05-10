@@ -150,7 +150,8 @@ def report_lost_view(request):
                 if vul_form.data.get('transportation'):
                     vulnerable.transportation = vul_form.data.get('transportation')
                 vulnerable.save()
-                lost_record = new_lost_record(request.user, vulnerable, form.data.get('address'))
+                lost_record = new_lost_record(request.user, vulnerable, form.data.get('address'), form.data.get('time'),
+                                              request.context.get('user_tz_name'))
                 x = list(generate_volunteers(lost_record))
                 lost_record.volunteer_list = json.dumps(x)
                 lost_record.save()
@@ -187,13 +188,15 @@ def report_lost_view(request):
     return render(request, "report/report_lost.html", request.context)
 
 
-def new_lost_record(reporter, vulnerable, address):
+def new_lost_record(reporter, vulnerable, address, time, zone):
     """
     This function is used to create a new lost record, due to an error occuring on the server.
 
+    :param zone:
     :param reporter:
     :param vulnerable:
     :param address:
+    :param time:
     :return:
     """
     lost_rec = LostPersonRecord()
@@ -210,6 +213,7 @@ def new_lost_record(reporter, vulnerable, address):
     lost_rec.reporter = reporter
     lost_rec.vulnerable = vulnerable
     lost_rec.state = "reported"
+    lost_rec.time = pytz.timezone(zone).localize(time.replace(tzinfo=None))
     return lost_rec
 
 
