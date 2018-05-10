@@ -135,7 +135,40 @@ def report_lost_view(request):
             add_message(request, messages.SUCCESS, "Success")
             return HttpResponseRedirect(reverse('index'))
         else:
-            form.add_error("vulnerable", ValidationError("Vulnerable person not found"))
+            vulnerable = Vulnerable.objects.filter(hash=request.POST.get("vulnerable")).first()
+            if vulnerable:
+                vulnerable.nickname = vul_form.cleaned_data.get('nickname')
+                vulnerable.sex = vul_form.cleaned_data.get('sex')
+                vulnerable.race = vul_form.cleaned_data.get('race')
+                vulnerable.hair_colour = vul_form.cleaned_data.get('hair_colour')
+                vulnerable.height = vul_form.cleaned_data.get('height')
+                vulnerable.weight = vul_form.cleaned_data.get('weight')
+                vulnerable.eye_colour = vul_form.cleaned_data.get('eye_colour')
+                vulnerable.favourite_locations = vul_form.cleaned_data.get('favourite_locations')
+                vulnerable.save()
+                lost_record = form.save(request.user, vulnerable)
+                x = list(generate_volunteers(lost_record))
+                lost_record.volunteer_list = json.dumps(x)
+                lost_record.save()
+                lost_activity = LostActivity()
+                lost_activity.locLat = lost_record.address_lat
+                lost_activity.locLon = lost_record.address_lng
+                lost_activity.person_id = lost_record.vulnerable_id
+                lost_activity.time = lost_record.time
+                lost_activity.adminPoint = Point(float(lost_activity.locLon), float(lost_activity.locLat), srid=3857)
+                fence_loc = Location.objects.filter(fence__contains=lost_activity.adminPoint)
+                if fence_loc:
+                    lost_activity.location = fence_loc[0]
+                lost_activity.save()
+                time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime(
+                    "%H:%M")
+                flag = 1
+                notify_volunteers(lost_record, flag)
+                # send_tweet(
+                #     tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(),
+                #                  flag, lost_record.time))
+            add_message(request, messages.SUCCESS, "Success")
+            return HttpResponseRedirect(reverse('index'))
     else:
         form = LostPersonRecordForm(initial=dict(time=get_user_time(request)))
         vul_form = VulnerableReportForm()
