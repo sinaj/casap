@@ -20,7 +20,7 @@ from casap.models import Vulnerable, LostPersonRecord, Volunteer, Activity, Loca
     LostActivity, FoundActivity, Alerts, Notifications, Profile
 
 from casap.utilities.utils import get_user_time, send_sms, get_standard_phone, SimpleMailHelper, send_tweet, \
-    shorten_url, send_twitter_dm
+    shorten_url, send_twitter_dm, get_address_map_google
 
 
 def tweet_helper(name, link, flag, time):
@@ -150,8 +150,7 @@ def report_lost_view(request):
                 if vul_form.data.get('transportation'):
                     vulnerable.transportation = vul_form.data.get('transportation')
                 vulnerable.save()
-                form.is_valid()
-                lost_record = form.save(request.user, vulnerable)
+                lost_record = new_lost_record(request.user, vulnerable, form.data.get('address'))
                 x = list(generate_volunteers(lost_record))
                 lost_record.volunteer_list = json.dumps(x)
                 lost_record.save()
@@ -186,6 +185,32 @@ def report_lost_view(request):
     request.context['vulnerable_people'] = [dict(hash=vul.hash, name=vul.full_name) for vul in Vulnerable.objects.all()]
     request.context['user_tz_name'] = 'Canada/Mountain'  # This needs to be changed when multiple timezones will be used
     return render(request, "report/report_lost.html", request.context)
+
+
+def new_lost_record(reporter, vulnerable, address):
+    """
+    This function is used to create a new lost record, due to an error occuring on the server.
+
+    :param reporter:
+    :param vulnerable:
+    :param address:
+    :return:
+    """
+    lost_rec = LostPersonRecord()
+
+    map_response = get_address_map_google(address)
+    for i in range(10):
+        if map_response is None:
+            map_response = get_address_map_google(address)
+        else:
+            break
+    lost_rec.address_lat = map_response['lat']
+    lost_rec.address_lng = map_response['lng']
+    lost_rec.address = address
+    lost_rec.reporter = reporter
+    lost_rec.vulnerable = vulnerable
+    lost_rec.state = "reported"
+    return lost_rec
 
 
 @login_required
