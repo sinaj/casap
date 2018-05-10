@@ -150,6 +150,7 @@ def report_lost_view(request):
                 if vul_form.data.get('transportation'):
                     vulnerable.transportation = vul_form.data.get('transportation')
                 vulnerable.save()
+                form.is_valid()
                 lost_record = form.save(request.user, vulnerable)
                 x = list(generate_volunteers(lost_record))
                 lost_record.volunteer_list = json.dumps(x)
