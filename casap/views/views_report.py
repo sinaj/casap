@@ -110,6 +110,8 @@ def report_lost_view(request):
                 vulnerable.weight = vul_form.cleaned_data.get('weight')
                 vulnerable.eye_colour = vul_form.cleaned_data.get('eye_colour')
                 vulnerable.favourite_locations = vul_form.cleaned_data.get('favourite_locations')
+                if vul_form.cleaned_data.get('transportation'):
+                    vulnerable.transportation = vul_form.cleaned_data.get('transportation')
                 vulnerable.save()
                 lost_record = form.save(request.user, vulnerable)
                 x = list(generate_volunteers(lost_record))
@@ -137,14 +139,16 @@ def report_lost_view(request):
         else:
             vulnerable = Vulnerable.objects.filter(hash=request.POST.get("vulnerable")).first()
             if vulnerable:
-                vulnerable.nickname = vul_form.cleaned_data.get('nickname')
-                vulnerable.sex = vul_form.cleaned_data.get('sex')
-                vulnerable.race = vul_form.cleaned_data.get('race')
-                vulnerable.hair_colour = vul_form.cleaned_data.get('hair_colour')
-                vulnerable.height = vul_form.cleaned_data.get('height')
-                vulnerable.weight = vul_form.cleaned_data.get('weight')
+                vulnerable.nickname = vul_form.data.get('nickname')
+                vulnerable.sex = vul_form.data.get('sex')
+                vulnerable.race = vul_form.data.get('race')
+                vulnerable.hair_colour = vul_form.data.get('hair_colour')
+                vulnerable.height = vul_form.data.get('height')
+                vulnerable.weight = vul_form.data.get('weight')
                 vulnerable.eye_colour = vul_form.cleaned_data.get('eye_colour')
-                vulnerable.favourite_locations = vul_form.cleaned_data.get('favourite_locations')
+                vulnerable.favourite_locations = vul_form.data.get('favourite_locations')
+                if vul_form.data.get('transportation'):
+                    vulnerable.transportation = vul_form.data.get('transportation')
                 vulnerable.save()
                 lost_record = form.save(request.user, vulnerable)
                 x = list(generate_volunteers(lost_record))
