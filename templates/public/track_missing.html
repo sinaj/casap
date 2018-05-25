@@ -45,6 +45,12 @@
                                         <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal"
                                                 data-target="#myModal">Details
                                         </button>
+                                        {% if vulnerable.instructions %}
+                                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                                    data-toggle="modal"
+                                                    data-target="#myModal2">Tips
+                                            </button>
+                                        {% endif %}
                                     </center>
                                 {% endif %}
                             </div>
@@ -148,10 +154,10 @@
                         {% for sighting in record.get_sighting_records %}
                             <div class="list-group-item list-group-item-warning">
                                 <div class="container-fluid p-0 clearfix">
-                                    Located at: <span
+                                    Potential sighting at: <span
                                         class="float-right text-dark">{{ sighting.time|timezone:user_tz_name|time }}</span>
                                 </div>
-                                {{ sighting.address }}
+                                <a href="{% url 'location' %}?lat={{ sighting.address_lat }}&{{ sighting.address_lng }}">{{ sighting.address }}</a>
                                 {% if sighting.description %}
                                     <div class="container-fluid p-0 text-dark">
                                         {{ sighting.description }}
@@ -174,14 +180,19 @@
                                     {#                            <div class="btn btn-primary">Report Sighting</div>#}
                                     {#                        </a>#}
                                     <a href="{% url "report_found" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
-                                        <div class="btn btn-success btn-block">Report Found</div>
+                                        <div class="btn btn-success">Report Found</div>
+                                    </a>
+                                    <a href="{% url "report_sighting" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                                        <div class="btn btn-primary float-right ">Send Location Update</div>
                                     </a>
                                 {% else %}
                                     <a href="tel:{{ emerg.phone_number }}">
-                                        <div class="btn btn-danger btn-block">Seen {{ vulnerable.full_name }}? Press to
-                                            call
+                                        <div class="btn btn-danger">Call to update
                                             <i class="fa fa-phone"></i>
                                         </div>
+                                    </a>
+                                    <a href="{% url "report_sighting" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                                        <div class="btn btn-primary float-right ">Send Location Update</div>
                                     </a>
                                 {% endif %}
                             </div>

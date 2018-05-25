@@ -22,19 +22,19 @@
                     </li>
                 {% endif %}
 
-{#                {% if request.user.is_superuser %}#}
-{#                    {% if alert_len > 0 %}#}
-{#                        <li class="nav-item">#}
-{#                            <a class="nav-link"#}
-{#                               href="{% url "alert_list" %}">#}
-{#                                <button type="button" class="btn btn-warning btn-sm">#}
-{#                                    Notifications {% if alert_len > 0 %}#}
-{#                                    <span class="badge badge-danger">{{ alert_len }}</span>{% endif %}#}
-{#                                </button>#}
-{#                            </a>#}
-{#                        </li>#}
-{#                    {% endif %}#}
-{#                {% endif %}#}
+                {% if request.user.is_superuser %}
+                    {% if alert_len > 0 %}
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               href="{% url "alert_list" %}">
+                                <button type="button" class="btn btn-warning btn-sm">
+                                    Notifications {% if alert_len > 0 %}
+                                    <span class="badge badge-danger">{{ alert_len }}</span>{% endif %}
+                                </button>
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endif %}
                 {% if user_profile %}
                     {% if not user_profile.volunteer %}
                         <li class="nav-item">

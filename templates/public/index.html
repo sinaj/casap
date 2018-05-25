@@ -37,11 +37,6 @@
                             <div style="text-align: center;">{{ vul.address }}</div>
                             <br>
                         </h6>
-                        {% if request.user.is_authenticated %}
-                            <h5>
-                                <center>Press for more details</center>
-                            </h5>
-                        {% endif %}
                     </div>
                 </div>
                 <img class="card-img-top img-fit" src="{{ vul.vulnerable.picture.url }}">
