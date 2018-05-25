@@ -42,6 +42,12 @@ class SightingRecordAdmin(admin.ModelAdmin):
     list_display = ("reporter", "lost_record", "time", "address")
 
 
+@admin.register(TempSightingRecord)
+class TempSightingRecordAdmin(admin.ModelAdmin):
+    model = TempSightingRecord
+    list_display = ("reporter", "lost_record", "time", "address")
+
+
 @admin.register(FindRecord)
 class FindRecordAdmin(admin.ModelAdmin):
     model = FindRecord
@@ -107,7 +113,7 @@ class NotificationsAdmin(admin.ModelAdmin):
 @admin.register(Alerts)
 class AlertsAdmin(admin.ModelAdmin):
     model = Alerts
-    list_display = ("state", "lost_record", "seen_record", "notifications", "sent")
+    list_display = ("state", "lost_record", "seen_record", "sent")
 
 
 @admin.register(EmergencyCall)

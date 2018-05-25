@@ -51,6 +51,9 @@ class LostPersonRecordForm(forms.ModelForm):
 
 
 class SightingRecordForm(forms.ModelForm):
+    address = forms.CharField(widget=forms.TextInput(attrs={'size': '30',
+                                                            'placeholder': "Press here to find address",
+                                                            'class': 'form-control geocomplete'}))
     time = forms.DateTimeField(input_formats=['%Y-%m-%d %H:%M'])
 
     def clean_address(self):
@@ -87,7 +90,7 @@ class SightingRecordForm(forms.ModelForm):
         return instance
 
     class Meta:
-        model = SightingRecord
+        model = TempSightingRecord
         fields = ('address', 'time', 'description')
 
 

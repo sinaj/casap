@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load tz %}
 
 {% block page_title %}
     C-ASAP | Alert
@@ -32,7 +33,7 @@
                 <div class="card mr-auto">
                     <div class="card-body">
                         <h4 class="card-title">
-                            Send Notifications for: {{ alert.lost_record.vulnerable.full_name }} - {{ alert.state }}
+                            Update for: {{ alert.lost_record.vulnerable.full_name }} - {{ alert.state }}
                         </h4>
                         <hr>
                         <div class="media mb-2">
@@ -46,7 +47,8 @@
                                     <center><span class="badge badge-danger float-center">Reported Missing</span>
                                     </center>
                                 {% elif alert.lost_record.state == "sighted" %}
-                                    <center><span class="badge badge-warning float-center">Reported Seen</span></center>
+                                    <center><span class="badge badge-warning float-center">Recently Updated</span>
+                                    </center>
                                 {% else %}
                                     <center><span class="badge badge-success float-center">Reported Found</span>
                                     </center>
@@ -60,90 +62,49 @@
                         <hr>
                         <form action="" method="post">
                             {% csrf_token %}
-                            <center>
-                                <table class="table" style="width:75%" cellpadding="10">
-                                    <thead>
-                                    <tr>
-                                        <th scope="col" style="text-align:justify">Notification Channel</th>
-                                        <th scope="col" style="text-align:left">On/Off</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td style="text-align:left">
-                                            Cell Phone
-                                        </td>
-                                        <td style="text-align:left">
-                                            <div class="form-group">
-                                                <input type="checkbox" data-toggle="toggle" data-onstyle="success"
-                                                       data-offstyle="danger" data-size="small" data-width="85"
-                                                       data-height="40" id="id_phone"
-                                                       name="phone_notify" class="form-control"
-                                                       {% if notif.phone_notify %}checked{% endif %}/>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="text-align:justify">
-                                            E-mail
-                                        </td>
-                                        <td style="text-align:left">
-                                            <div class="form-group">
-                                                <input type="checkbox" data-toggle="toggle" data-onstyle="success"
-                                                       data-offstyle="danger" data-size="small" data-width="85"
-                                                       data-height="40" id="id_email"
-                                                       name="email_notify"
-                                                       class="form-control"
-                                                       {% if notif.email_notify %}checked{% endif %}/>
-                                            </div>
-                                        </td>
-                                    </tr>
+                            <div class="form-group row">
+                                <label for="id_address" class="col-sm-4 col-form-label">Address <span
+                                        class="text-danger">*</span></label>
+                                {{ form.address.errors }}
+                                <div class="col-sm-6">
+                                    <input type="text" id="id_address" name="address"
+                                           class="form-control geocomplete" placeholder="Optional"
+                                           value="{{ form.address.value|default:"" }}">
+                                </div>
+                            </div>
 
-                                    <tr>
-                                        <td style="text-align:left">
-                                            Twitter Direct Messages
-                                        </td>
-                                        <td style="text-align:left">
-                                            <div class="form-group">
-                                                <input type="checkbox" data-toggle="toggle" data-onstyle="success"
-                                                       data-offstyle="danger" data-size="small" data-width="85"
-                                                       data-height="40"
-                                                       id="id_twitter_dm" name="twitter_dm_notify" class="form-control"
-                                                       {% if notif.twitter_dm_notify %}checked{% endif %}/>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="text-align:left">
-                                            Twitter Public Tweet
-                                        </td>
-                                        <td style="text-align:left">
-                                            <div class="form-group">
-                                                <input type="checkbox" data-toggle="toggle" data-onstyle="success"
-                                                       data-offstyle="danger" data-size="small" data-width="85"
-                                                       data-height="40"
-                                                       id="id_twitter_public" name="twitter_public_notify"
-                                                       class="form-control"
-                                                       {% if notif.twitter_public_notify %}checked{% endif %}/>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </center>
+                            <div class="form-group row">
+                                <label for="id_time" class="col-sm-4 col-form-label">Time <span
+                                        class="text-danger">*</span></label>
+                                <div class="col-sm-6">
+                                    <input id="id_time" name="time" class="form-control" required
+                                           value="{{ form.time.value|timezone:user_tz_name|date:"Y-m-d"|default:"" }} {{ form.time.value|timezone:user_tz_name|time:"H:i"|default:"" }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="id_description" class="col-sm-4 col-form-label">Description</label>
+                                {{ form.description.errors }}
+                                <div class="col-sm-6">
+                                    <input type="text" id="id_description" name="description"
+                                           class="form-control" placeholder="Optional"
+                                           value="{{ form.description.value|default:"" }}">
+                                </div>
+                            </div>
+
                             <table class="table" style="width:100%" cellpadding="0">
                                 <tr>
                                     <td>
                                         <div class="form-group">
                                             <button class="btn btn btn-outline-danger" type="submit" name="ignoreAlert">
-                                                Ignore Alert
+                                                Ignore Update
                                             </button>
                                         </div>
                                     </td>
                                     <td style="align-items:right">
                                         <div class="form-group">
                                             <button class="btn btn-primary float-right" type="submit" name="sendAlert">
-                                                Send Alert
+                                                Send Update
                                             </button>
                                         </div>
                                     </td>
@@ -155,6 +116,33 @@
             </div>
         </div>
     </div>
+
+    <script>
+
+        $(function () {
+            $("#geocomplete").geocomplete({
+                map: ".map_canvas",
+                country: 'CA'
+            });
+        });
+
+        var add;
+
+        $(document).on('click', '.geocomplete', function () {
+            var id = $(this).attr('id');
+            add = id;
+            console.log(id);
+            $("#myModal").modal("show");
+        });
+
+        $("#myModal").on("click", ".btn-primary", function (e) {
+            var address = $("#geocomplete").val();
+            var new_id = '#' + add;
+            $(new_id).val(address);
+            console.log(new_id);
+            $("#myModal").modal("hide");
+        });
+    </script>
 {% endblock %}
 
 {% block scripts_other_origin %}

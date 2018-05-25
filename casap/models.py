@@ -269,9 +269,9 @@ class LostPersonRecord(models.Model):
         return u"%s reported %s" % (self.reporter, self.vulnerable)
 
 
-class SightingRecord(models.Model):
-    lost_record = models.ForeignKey(LostPersonRecord, related_name="sighting_records")
-    reporter = models.ForeignKey(User, related_name="sighting_records")
+class TempSightingRecord(models.Model):
+    lost_record = models.ForeignKey(LostPersonRecord, related_name="temp_sighting_records")
+    reporter = models.ForeignKey(User, related_name="temp_sighting_records")
     time = models.DateTimeField()
     address = models.TextField()
     address_lat = models.FloatField()
@@ -293,6 +293,29 @@ class SightingRecord(models.Model):
                                                            float(self.address_lat))
         except Exception as e:
             print(e)  # must be in correct coord system
+
+        super(self.__class__, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return u"%s sighted %s" % (self.reporter, self.lost_record)
+
+
+class SightingRecord(models.Model):
+    lost_record = models.ForeignKey(LostPersonRecord, related_name="sighting_records")
+    reporter = models.ForeignKey(User, related_name="sighting_records")
+    time = models.DateTimeField()
+    address = models.TextField()
+    address_lat = models.FloatField()
+    address_lng = models.FloatField()
+    description = models.TextField(blank=True)
+    hash = models.CharField(max_length=30, unique=True, blank=True)
+
+    def get_link(self):
+        return "%s%s" % (settings.DOMAIN, reverse("track_missing", kwargs=dict(hash=self.hash)))
+
+    def save(self, *args, **kwargs):
+        if not self.hash:
+            self.hash = gen_unique_hash(self.__class__, 30)
 
         super(self.__class__, self).save(*args, **kwargs)
 
@@ -502,14 +525,14 @@ class Location(models.Model):
 class Alerts(models.Model):
     state = models.CharField(max_length=15)
     lost_record = models.ForeignKey(LostPersonRecord, related_name="lost_records")
-    seen_record = models.ForeignKey(SightingRecord, blank=True, null=True, related_name="seen_records")
-    notifications = models.ForeignKey(Notifications, related_name="notifications")
+    seen_record = models.ForeignKey(TempSightingRecord, blank=True, null=True, related_name="temp_seen_records")
+    # notifications = models.ForeignKey(Notifications, related_name="notifications")
     sent = models.BooleanField(default=False)
     hash = models.CharField(max_length=30, unique=True, blank=True, null=True)
 
     def __str__(self):
-        return u'state: %s, lost: %s, seen: %s, notifications: %s' % (
-            self.state, self.lost_record, self.seen_record, self.notifications)
+        return u'state: %s, lost: %s, seen: %s' % (
+            self.state, self.lost_record, self.seen_record)
 
     def get_link(self):
         return "%s%s" % (settings.DOMAIN, reverse("report_alert", kwargs=dict(hash=self.hash)))

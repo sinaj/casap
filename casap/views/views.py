@@ -16,6 +16,7 @@ from casap.models import Vulnerable
 from casap.utilities.utils import get_user_time
 
 
+
 @login_required
 def index(request):
     profile = request.context['user_profile']
@@ -23,16 +24,18 @@ def index(request):
     time_now = datetime.datetime.now()
     two_days_ago = datetime.datetime.now() - datetime.timedelta(hours=48)
     week_ago = datetime.datetime.now() - datetime.timedelta(days=7)
-    missing_people = list(LostPersonRecord.objects.filter(state="reported").order_by("-time").all())
-    seen_people = list(SightingRecord.objects.order_by("-time").all().filter(lost_record__state__exact='sighted'))
+    combined_queryset = LostPersonRecord.objects.filter(state="reported") | LostPersonRecord.objects.filter(state="sighted")
+    missing_people = list(combined_queryset.order_by("-time").all())
+    # missing_people = list(LostPersonRecord.objects.filter(state="reported").order_by("-time").all())
+
 
     # Remove all duplicates but keep the most recently updated seen record
-    seen_id = []
-    seen_list = []
-    for i in seen_people:
-        if i.lost_record_id not in seen_id:
-            seen_id.append(i.lost_record_id)
-            seen_list.append(i)
+    # seen_id = []
+    # seen_list = []
+    # for i in seen_people:
+    #     if i.lost_record_id not in seen_id:
+    #         seen_id.append(i.lost_record_id)
+    #         seen_list.append(i)
 
     records = list()
     json_dec = json.decoder.JSONDecoder()
@@ -56,7 +59,7 @@ def index(request):
         request.context['missing_people'] = missing_people
     else:
         request.context['missing_people'] = records
-    request.context['seen_people'] = seen_list
+    # request.context['seen_people'] = seen_list
     request.context['user_tz_name'] = 'Canada/Mountain'  # This needs to be changed when multiple timezones will be used
     return render(request, "public/index.html", request.context)
 
