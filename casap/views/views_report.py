@@ -49,10 +49,15 @@ def time_in_range(start, end, x):
 def lost_notification(notify_record, vol):
     link = "http://{}".format(notify_record.get_link())
     link = shorten_url(link)
-
-    sms_text = "Dear %s,\nClient: %s has been lost near you.\n" % (vol.full_name,
-                                                                   notify_record.vulnerable.full_name) + \
-               "For more details visit the link below:\n%s" % link
+    if not notify_record.vulnerable.instructions:
+        sms_text = "Dear %s,\nClient: %s has been lost near you.\n" % (vol.full_name,
+                                                                       notify_record.vulnerable.full_name) + \
+                   "For more details visit the link below:\n%s" % link
+    else:
+        sms_text = "Dear %s,\nClient: %s has been lost near you.\n" % (vol.full_name,
+                                                                       notify_record.vulnerable.full_name) + \
+                   "For more details visit the link below:\n%s" % link + \
+                   "\nQuick Tip: %s" % notify_record.vulnerable.instructions
 
     mail_subject = "C-ASAP Client: %s has been lost near you " % notify_record.vulnerable.full_name
     if vol.phone:
@@ -68,8 +73,13 @@ def new_update_notification(notify_record, vol):
     link = "http://{}".format(notify_record.get_link())
     link = shorten_url(link)
 
-    sms_text = "C-ASAP Missing Client: %s has been recently updated at a location near you.\n" % notify_record.vulnerable.full_name + \
-               "You will now receive alerts. Original missing report:\n%s" % link
+    if not notify_record.vulnerable.instructions:
+        sms_text = "C-ASAP Missing Client: %s has been recently updated at a location near you.\n" % notify_record.vulnerable.full_name + \
+                   "You will now receive alerts. Original missing report:\n%s" % link
+    else:
+        sms_text = "C-ASAP Missing Client: %s has been recently updated at a location near you.\n" % notify_record.vulnerable.full_name + \
+                   "You will now receive alerts. Original missing report:\n%s" % link + \
+                   "\nQuick tip: %s" % notify_record.vulnerable.instructions
 
     mail_subject = "C-ASAP Client: %s has been recently updated at a location near you." % notify_record.vulnerable.full_name
     if vol.phone:
@@ -83,8 +93,13 @@ def update_notification(notify_record, vol):
     link = "http://{}".format(notify_record.get_link())
     link = shorten_url(link)
 
-    sms_text = "C-ASAP Missing Client: %s has been updated near you.\n" % notify_record.vulnerable.full_name + \
-               "For more details visit the link below:\n%s" % link
+    if not notify_record.vulnerable.instructions:
+        sms_text = "C-ASAP Missing Client: %s has been updated near you.\n" % notify_record.vulnerable.full_name + \
+                   "For more details visit the link below:\n%s" % link
+    else:
+        sms_text = "C-ASAP Missing Client: %s has been updated near you.\n" % notify_record.vulnerable.full_name + \
+                   "For more details visit the link below:\n%s" % link + \
+            "\nQuick tip: %s" % notify_record.vulnerable.instructions
 
     mail_subject = "C-ASAP Client: %s has been updated near you " % notify_record.vulnerable.full_name
     if vol.phone:
