@@ -36,7 +36,8 @@
                                     <center><span class="badge badge-danger float-center">Reported Missing</span>
                                     </center>
                                 {% elif record.state == "sighted" %}
-                                    <center><span class="badge badge-warning float-center">Recently Updated</span></center>
+                                    <center><span class="badge badge-warning float-center">Recently Updated</span>
+                                    </center>
                                 {% else %}
                                     <center><span class="badge badge-success float-center">Reported Found</span>
                                     </center>
@@ -46,13 +47,10 @@
                                         <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal"
                                                 data-target="#myModal">Details
                                         </button>
-                                        {% if vulnerable.instructions %}
-                                            <button type="button" class="btn btn-sm btn-outline-primary"
-                                                    data-toggle="modal"
-                                                    data-target="#myModal2">Tips
-                                            </button>
-                                        {% endif %}
-
+                                        <button type="button" class="btn btn-sm btn-outline-primary"
+                                                data-toggle="modal"
+                                                data-target="#myModal2">Tips
+                                        </button>
                                     </center>
                                 {% endif %}
                             </div>
@@ -125,10 +123,95 @@
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h4 class="modal-title">Instructions/Tips for {{ vulnerable.full_name }}</h4>
+                                        <h4 class="modal-title">What to do if you see someone who is missing</h4>
                                     </div>
                                     <div class="modal-body">
-                                        {{ vulnerable.instructions }}
+                                        <p>
+                                            The goal is to safely reunite the vulnerable missing person with their
+                                            family, while not putting anyone else at risk. Getting help is the most
+                                            important thing.
+                                        </p>
+                                        <p>
+                                            If you see the person who has been listed as missing, here are some steps
+                                            for what to do next:
+                                        </p>
+                                        <ul>
+                                            <li> Call Calgary Police Service at <a href="tel:+1-403-266-1234">403.266.1234</a>
+                                                and let them know where the
+                                                person is. Stay on the line with the communications officer and follow
+                                                their directions.
+                                            </li>
+                                            <li> If you feel comfortable and safe in doing so, you can approach the
+                                                person.
+                                            </li>
+                                        </ul>
+                                        <hr>
+                                        <b>A</b> ~ Approach
+                                        <ul>
+                                            <li>
+                                                Identify yourself and let them know you want to help them get where they
+                                                need to be.
+                                            </li>
+                                            <li>
+                                                Ask if they need help
+                                            </li>
+                                            <li>
+                                                Speak slowly and calmly; ask simple “Yes” or “No” questions; one
+                                                question at a time
+                                            </li>
+                                            <li>
+                                                Wait 15 – 30 seconds for a response
+                                            </li>
+                                        </ul>
+                                        <b>L</b> ~ Listen
+                                        <ul>
+                                            <li>
+                                                Avoid confrontation or argument
+                                            </li>
+                                            <li>
+                                                Listen for key words or phrases that will help
+                                            </li>
+                                            <li>
+                                                Be aware of their tone of voice and your tone of voice
+                                            </li>
+                                        </ul>
+                                        <b>E</b> ~ Engage
+                                        <ul>
+                                            <li>
+                                                Use good nonverbal communication – smile
+                                            </li>
+                                            <li>
+                                                Make eye contact and approach from the front
+                                            </li>
+                                            <li>
+                                                Stay with the person until help arrives
+                                            </li>
+                                        </ul>
+                                        <b>R</b> ~ React
+                                        <ul>
+                                            <li>
+                                                Getting help is most important
+                                            </li>
+                                            <li>
+                                                Call Calgary Police Services at 403.266.1234 and let them know where the
+                                                person is
+                                            </li>
+                                            <li>
+                                                Stay on the line with the communication officer and follow their
+                                                directions
+                                            </li>
+                                        </ul>
+                                        <b>T</b> ~ Talk
+                                        <ul>
+                                            <li> If your attempt to approach them is unsuccessful, back away and give
+                                                the person space. If possible stay close enough until help arrives.
+                                            </li>
+                                            <li>
+                                                After the situation is resolved you may feel upset or want to talk with
+                                                someone. Help is available 24/7 through the Distress Centre at <a
+                                                    href="tel:+1-403-266-4357">403.266.4357</a>.
+                                            </li>
+                                        </ul>
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-default" data-dismiss="modal">Close
