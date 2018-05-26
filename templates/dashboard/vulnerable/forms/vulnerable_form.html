@@ -115,7 +115,8 @@
             class="text-danger">*</span></label>
     {{ form.favourite_locations.errors }}
     <div class="col-sm-6">
-        <textarea id="id_favourite_locations" name="favourite_locations" placeholder="e.g. Rutherford Library, Corbett Hall"
+        <textarea id="id_favourite_locations" name="favourite_locations"
+                  placeholder="e.g. Rutherford Library, Corbett Hall"
                   class="form-control" required>{{ form.favourite_locations.value|default:"" }}</textarea>
     </div>
 </div>
@@ -130,15 +131,15 @@
 </div>
 
 <div class="form-group row">
-    <label for="id_instructions" class="col-sm-4 col-form-label">Instructions <a tabindex="0"
-                                                                                      class="fa fa-info-circle"
-                                                                                      data-placement="bottom"
-                                                                                      data-toggle="popover"
-                                                                                      title="Instructions"
-                                                                                      data-content="These are tips and instructions on what to do if a volunteer comes across the missing person."></a></label>
+    <label for="id_instructions" class="col-sm-4 col-form-label">SMS Tip <a tabindex="0"
+                                                                                 class="fa fa-info-circle"
+                                                                                 data-placement="bottom"
+                                                                                 data-toggle="popover"
+                                                                                 title="SMS Tips"
+                                                                                 data-content="These are tips and instructions on what to do if a volunteer comes across the missing person."></a></label>
     {{ form.instructions.errors }}
     <div class="col-sm-6">
-        <textarea id="id_instructions" name="instructions" placeholder="Optional"
+        <textarea id="id_instructions" name="instructions" placeholder="Optional 15 Characters max" onkeyup="EnforceMaximumLength(this,15)"
                   class="form-control">{{ form.instructions.value|default:"" }}</textarea>
     </div>
 </div>
@@ -323,5 +324,12 @@
     $('#myModal').on('hidden.bs.modal', function () {
         $("#geocomplete").val("");
     });
+
+
+    function EnforceMaximumLength(fld, len) {
+        if (fld.value.length > len) {
+            fld.value = fld.value.substr(0, len);
+        }
+    }
 
 </script>
