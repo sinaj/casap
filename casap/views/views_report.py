@@ -47,8 +47,8 @@ def time_in_range(start, end, x):
 
 
 def lost_notification(notify_record, vol):
-    link = "http://{}".format(notify_record.get_link())
-    link = shorten_url(link)
+    # link = "http://{}".format(notify_record.get_link())
+    link = shorten_url(notify_record.get_link())
     if not notify_record.vulnerable.instructions:
         sms_text = "Dear %s,\nClient: %s has been lost near you.\n" % (vol.full_name,
                                                                        notify_record.vulnerable.full_name) + \
@@ -70,8 +70,8 @@ def lost_notification(notify_record, vol):
 
 def new_update_notification(notify_record, vol):
     vol = Volunteer.objects.get(id=vol)
-    link = "http://{}".format(notify_record.get_link())
-    link = shorten_url(link)
+    # link = "http://{}".format(notify_record.get_link())
+    link = shorten_url(notify_record.get_link())
 
     if not notify_record.vulnerable.instructions:
         sms_text = "C-ASAP Missing Client: %s has been recently updated at a location near you.\n" % notify_record.vulnerable.full_name + \
@@ -90,8 +90,8 @@ def new_update_notification(notify_record, vol):
 
 def update_notification(notify_record, vol):
     vol = Volunteer.objects.get(id=vol)
-    link = "http://{}".format(notify_record.get_link())
-    link = shorten_url(link)
+    # link = "http://{}".format(notify_record.get_link())
+    link = shorten_url(notify_record.get_link())
 
     if not notify_record.vulnerable.instructions:
         sms_text = "C-ASAP Missing Client: %s has been updated near you.\n" % notify_record.vulnerable.full_name + \
