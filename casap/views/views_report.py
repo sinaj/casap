@@ -99,7 +99,7 @@ def update_notification(notify_record, vol):
     else:
         sms_text = "C-ASAP Missing Client: %s has been updated near you.\n" % notify_record.vulnerable.full_name + \
                    "For more details visit the link below:\n%s" % link + \
-            "\nQuick tip: %s" % notify_record.vulnerable.instructions
+                   "\nQuick tip: %s" % notify_record.vulnerable.instructions
 
     mail_subject = "C-ASAP Client: %s has been updated near you " % notify_record.vulnerable.full_name
     if vol.phone:
@@ -136,6 +136,8 @@ def report_lost_view(request):
                 vulnerable.favourite_locations = vul_form.cleaned_data.get('favourite_locations')
                 if vul_form.cleaned_data.get('transportation'):
                     vulnerable.transportation = vul_form.cleaned_data.get('transportation')
+                if vul_form.cleaned_data.get('instructions'):
+                    vulnerable.instructions = vul_form.cleaned_data.get('instructions')
                 vulnerable.save()
                 lost_record = form.save(request.user, vulnerable)
                 x = list(generate_volunteers(lost_record))
@@ -173,6 +175,8 @@ def report_lost_view(request):
                 vulnerable.favourite_locations = vul_form.data.get('favourite_locations')
                 if vul_form.data.get('transportation'):
                     vulnerable.transportation = vul_form.data.get('transportation')
+                if vul_form.cleaned_data.get('instructions'):
+                    vulnerable.instructions = vul_form.cleaned_data.get('instructions')
                 vulnerable.save()
                 lost_record = new_lost_record(request.user, vulnerable, form.data.get('address'), form.data.get('time'),
                                               request.context.get('user_tz_name'))
