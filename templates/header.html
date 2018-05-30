@@ -60,11 +60,11 @@
 <div id="mySidenav" class="sidenav">
     <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
     {% if request.user.is_staff %}
-            <a href="{% url "report_lost" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
-                <button type="button" class="btn btn-danger btn-sm">
-                    Report Missing Person
-                </button>
-            </a>
+        <a href="{% url "report_lost" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+            <button type="button" class="btn btn-danger btn-sm">
+                Report Missing Person
+            </button>
+        </a>
     {% endif %}
     <hr>
     <a href="{% url "profile_edit" %}">My Profile</a>
@@ -105,21 +105,19 @@
         <a class="navbar-brand" href="{% url "index" %}">C-ASAP</a>
         <ul class="navbar-nav mr-auto">
         </ul>
-        <ul class="navbar-nav">
+        {% if request.user.is_superuser %}
+            {% if alert_len > 0 %}
+                <a class="nav-link"
+                   href="{% url "alert_list" %}">
+                    <button type="button" class="btn btn-warning btn-sm">
+                        Updates {% if alert_len > 0 %}
+                        <span class="badge badge-danger">{{ alert_len }}</span>{% endif %}
+                    </button>
+                </a>
 
-            {% if request.user.is_superuser %}
-                {% if alert_len > 0 %}
-                    <li class="nav-item">
-                        <a class="nav-link"
-                           href="{% url "alert_list" %}">
-                            <button type="button" class="btn btn-warning btn-sm">
-                                Updates {% if alert_len > 0 %}
-                                <span class="badge badge-danger">{{ alert_len }}</span>{% endif %}
-                            </button>
-                        </a>
-                    </li>
-                {% endif %}
             {% endif %}
+        {% endif %}
+        <ul class="navbar-nav">
             <a class="nav-item" style="color:#7c9ad5;font-size:30px;cursor:pointer" onclick="openNav()">&#9776</a>
 
         </ul>
