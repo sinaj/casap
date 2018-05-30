@@ -19,6 +19,14 @@
 
 {% block content %}
 
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url "index" %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url "vulnerable_list" %}">Vulnerable List</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit Vulnerable</li>
+        </ol>
+    </nav>
+
     <div class="container p-0">
         <div class="row justify-content-center">
             <div class="col-sm-12 col-md-8 col-lg-12">
@@ -33,7 +41,7 @@
                                 {% csrf_token %}
                                 {% include "dashboard/vulnerable/forms/vulnerable_form.html" with include_ids=True %}
                                 <div class="form-group">
-                                        <input type="hidden" name="next" value="{{ next }}"/>
+                                    <input type="hidden" name="next" value="{{ next }}"/>
                                     <a href="{{ next }}">
                                         <div class="btn btn-link float-left">
                                             Cancel

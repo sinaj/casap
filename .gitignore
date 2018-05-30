@@ -51,3 +51,9 @@ wheels/
 /.idea
 templates/.DS_Store
 
+# CASAP related Items
+casap/migrations/
+OSMdataProcess/
+media/
+settings_server.py
+

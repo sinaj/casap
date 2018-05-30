@@ -3,8 +3,12 @@
 {% load tz %}
 
 {% block content %}
-
-
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url "index" %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Report Missing</li>
+        </ol>
+    </nav>
     <div class="container p-0">
         <div class="row justify-content-center">
             <div class="col-sm-8 col-md-12 col-lg-8">
@@ -130,6 +134,18 @@
                                 </div>
                             </div>
                             <div class="form-group row">
+                                <label for="id_instructions" class="col-sm-4 col-form-label">SMS Tip
+                                    <a tabindex="0" class="fa fa-info-circle" data-toggle="popover"
+                                       title="SMS Tip"
+                                       data-content="A short 15 character description of what to do when encountering the missing person."></a>
+                                </label>
+                                <div class="col-sm-6">
+                                    <textarea id="id_instructions" class="form-control" name="instructions"
+                                              placeholder="Optional 15 Characters max"
+                                              onkeyup="EnforceMaximumLength(this,15)">{{ form.instructions.value|default:"" }}</textarea>
+                                </div>
+                            </div>
+                            <div class="form-group row">
                                 <label for="id_description" class="col-sm-4 col-form-label">Description of Clothing<span
                                         class="text-danger">*</span>
                                     <a tabindex="0" class="fa fa-info-circle" data-toggle="popover"
@@ -141,7 +157,6 @@
                                               required>{{ form.description.value|default:"" }}</textarea>
                                 </div>
                             </div>
-
                             <hr>
                             <h6>Last Known Address</h6>
                             <div class="form-group row">
@@ -255,6 +270,7 @@
                     $("#id_eye_colour").val(response[6][0]);
                     $("#id_favourite_locations").val(response[7][0]);
                     $("#id_transportation").val(response[8][0]);
+                    $("#id_instructions").val(response[9][0]);
                 }
             });
         });
@@ -282,6 +298,13 @@
             console.log(new_id);
             $("#myModal").modal("hide");
         });
+
+        function EnforceMaximumLength(fld, len) {
+            if (fld.value.length > len) {
+                fld.value = fld.value.substr(0, len);
+            }
+        }
+
 
     </script>
 
