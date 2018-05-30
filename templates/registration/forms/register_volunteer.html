@@ -77,7 +77,8 @@
             </div>
             <div class="modal-body">
                 <div class="location">
-                    <input id="geocomplete" type="text" placeholder="Type in an address" size="90"
+                    <input id="geocomplete" autofocus="autofocus" onfocus="this.select()" type="text"
+                           placeholder="Type in an address" size="90"
                            class="form-control"/>
                 </div>
                 <div class="map_canvas"></div>
@@ -226,6 +227,10 @@
         console.log(id);
         $("#myModal").modal("show");
     });
+
+    $('#myModal').on('shown.bs.modal', function () {
+        $('#geocomplete').focus();
+    })
 
     $("#myModal").on("click", ".btn-primary", function (e) {
         var address = $("#geocomplete").val();
