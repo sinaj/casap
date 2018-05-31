@@ -279,7 +279,10 @@
         $(function () {
             $("#geocomplete").geocomplete({
                 map: ".map_canvas",
+                types:[],
                 country: 'CA'
+            }).bind("geocode:error", function(event, result) {
+                console.log(result);
             });
         });
 
