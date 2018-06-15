@@ -71,11 +71,9 @@
     <hr>
     {% if user_profile %}
         {% if not user_profile.volunteer %}
-            <li class="nav-item">
-                <a href="{% url "register_volunteer" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
-                    Become a Volunteer
-                </a>
-            </li>
+            <a href="{% url "register_volunteer" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
+                Become a Volunteer
+            </a>
         {% else %}
             <a href="{% url "volunteer_edit" %}">Volunteer Preferences</a>
         {% endif %}
