@@ -89,6 +89,8 @@
             <a href="{% url "vulnerable_list" %}">My Vulnerable Persons</a>
             <hr>
         {% endif %}
+        <a href="{% url "tips" %}">Tips When Finding Someone</a>
+        <hr>
         <a href="{% url "logout" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">Logout</a>
         <hr>
     {% else %}
