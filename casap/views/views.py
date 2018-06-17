@@ -16,7 +16,6 @@ from casap.models import Vulnerable
 from casap.utilities.utils import get_user_time
 
 
-
 @login_required
 def index(request):
     profile = request.context['user_profile']
@@ -24,10 +23,10 @@ def index(request):
     time_now = datetime.datetime.now()
     two_days_ago = datetime.datetime.now() - datetime.timedelta(hours=48)
     week_ago = datetime.datetime.now() - datetime.timedelta(days=7)
-    combined_queryset = LostPersonRecord.objects.filter(state="reported") | LostPersonRecord.objects.filter(state="sighted")
+    combined_queryset = LostPersonRecord.objects.filter(state="reported") | LostPersonRecord.objects.filter(
+        state="sighted")
     missing_people = list(combined_queryset.order_by("-time").all())
     # missing_people = list(LostPersonRecord.objects.filter(state="reported").order_by("-time").all())
-
 
     # Remove all duplicates but keep the most recently updated seen record
     # seen_id = []
@@ -132,3 +131,7 @@ def admin_settings_view(request):
     form = EmergencyCallForm(initial=model_to_dict(emerg))
     request.context['form'] = form
     return render(request, "admin_settings.html", request.context)
+
+
+def tips_view(request):
+    return render(request, "tips.html", request.context)
