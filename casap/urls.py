@@ -80,7 +80,8 @@ urlpatterns = [
     url(r'^get-vulnerable-info/', vulnerable_info.get_vulnerable),
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^coordinator-settings/', views.admin_settings_view, name='coordinator-settings')
+    url(r'^coordinator-settings/', views.admin_settings_view, name='coordinator-settings'),
+    url(r'^tips/', views.tips_view, name='tips')
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
