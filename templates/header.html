@@ -118,8 +118,7 @@
             {% endif %}
         {% endif %}
         <ul class="navbar-nav">
-            <a class="nav-item" style="color:#7c9ad5;font-size:30px;cursor:pointer" onclick="openNav()">&#9776</a>
-
+            <a class="nav-item" id='slide_text' style="color:#7c9ad5;font-size:20px;cursor:pointer" onclick="openNav()" onMouseOver="this.style.color='#ffffff'" onMouseOut="this.style.color='#7c9ad5'">{{ request.user.first_name }} &#32; &#9776</a>
         </ul>
     </nav>
 </header>
