@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+{% load tz %}
+
+{% block page_title %}
+    C-ASAP | Tips/Instructions
+{% endblock %}
+
+{% block content %}
+
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url "index" %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Redirect</li>
+        </ol>
+    </nav>
+
+    <div class="container p-0">
+        <div class="row justify-content-center">
+            <div class="col-sm-10 col-md-10 col-lg-8">
+                <div class="card mr-auto">
+                    <div class="card-body">
+                        <h4 class="card-title">
+                            {{ vulnerable.first_name }} {{ vulnerable.last_name }} has been found
+                        </h4>
+                        Redirecting back to home in 3 seconds...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.setTimeout(function () {
+            window.location.href = "{% url "index" %}";
+        }, 3000);
+    </script>
+
+{% endblock %}
