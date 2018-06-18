@@ -358,7 +358,7 @@ def vulnerable_edit_view(request, hash):
                                                 extra=how_many)
         form = VulnerableForm(instance=vulnerable)
         formset = address_formset(initial=address_list, prefix='addresses')
-        next = request.GET.get("next", reverse("vulnerable_list"))
+    next = request.GET.get("next", reverse("vulnerable_list"))
     request.context['next'] = next
     request.context['form'] = form
     request.context['formset'] = formset

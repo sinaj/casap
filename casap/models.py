@@ -194,6 +194,7 @@ class Vulnerable(models.Model):
     description = models.TextField(null=True, blank=True)
     instructions = models.TextField(null=True, blank=True)
     transportation = models.TextField(null=True, blank=True)
+    work_action = models.TextField(null=True, blank=True)
 
     hash = models.CharField(max_length=30, unique=True, blank=True)
 

@@ -21,6 +21,7 @@ def get_vulnerable(request):
             [person.favourite_locations],
             [person.transportation],
             [person.instructions],
+            [person.work_action],
             [person.hash],
         ]
     else:
@@ -35,6 +36,7 @@ def get_vulnerable(request):
             [person.favourite_locations],
             [person.transportation],
             [person.instructions],
+            [person.work_action],
             [person.hash],
         ]
 
