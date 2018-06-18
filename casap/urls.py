@@ -81,7 +81,8 @@ urlpatterns = [
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^coordinator-settings/', views.admin_settings_view, name='coordinator-settings'),
-    url(r'^tips/', views.tips_view, name='tips')
+    url(r'^tips/', views.tips_view, name='tips'),
+    url(r'^redirect/', views.show_missing_view, name='redirect')
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

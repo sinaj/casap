@@ -65,6 +65,7 @@ def index(request):
 
 @login_required
 def track_missing_view(request, hash):
+    profile = request.context['user_profile']
     lost_record = LostPersonRecord.objects.filter(hash=hash).first()
     emerg = EmergencyCall.objects.get()
     if not lost_record:
@@ -74,11 +75,15 @@ def track_missing_view(request, hash):
     request.context['record'] = lost_record
     request.context['vulnerable'] = lost_record.vulnerable
     request.context['user_tz_name'] = 'Canada/Mountain'  # This needs to be changed when multiple timezones will be used
-    return render(request, "public/track_missing.html", request.context)
+    if lost_record.state == "found" and not profile.user.is_staff:
+        return render(request, "redirect.html", request.context)
+    else:
+        return render(request, "public/track_missing.html", request.context)
 
 
 @login_required
 def show_missing_view(request, hash):
+    profile = request.context['user_profile']
     lost_record = LostPersonRecord.objects.filter(hash=hash).first()
     emerg = EmergencyCall.objects.get()
     if not lost_record:
@@ -88,7 +93,10 @@ def show_missing_view(request, hash):
     request.context['record'] = lost_record
     request.context['vulnerable'] = lost_record.vulnerable
     request.context['user_tz_name'] = 'Canada/Mountain'  # This needs to be changed when multiple timezones will be used
-    return render(request, "public/show_missing.html", request.context)
+    if lost_record.state == "found" and not profile.user.is_staff:
+        return render(request, "redirect.html", request.context)
+    else:
+        return render(request, "public/show_missing.html", request.context)
 
 
 def location_view(request):
