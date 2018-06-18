@@ -48,7 +48,7 @@
 
                                         <button type="button" class="btn btn-sm btn-outline-primary"
                                                 data-toggle="modal"
-                                                data-target="#myModal2">Tips
+                                                data-target="#myModal3">Action
                                         </button>
                                     </center>
                                 {% endif %}
@@ -118,7 +118,22 @@
                             </div>
                         </div>
                     </div>
-
+                    <div class="modal fade" id="myModal3" role="dialog">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Action for {{ vulnerable.full_name }}</h4>
+                                </div>
+                                <div class="modal-body">
+                                    {{ vulnerable.work_action }}
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="modal fade" id="myModal2" role="dialog">
                         <div class="modal-dialog">
                             <div class="modal-content">
@@ -268,7 +283,7 @@
                                         <div class="btn btn-success">Report Found</div>
                                     </a>
                                     <a href="{% url "report_sighting" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
-                                        <div class="btn btn-primary float-right ">Send Location Update</div>
+                                        <div class="btn btn-primary float-right ">Send Update</div>
                                     </a>
                                 {% else %}
                                     <a href="tel:{{ emerg.phone_number }}">
@@ -277,7 +292,7 @@
                                         </div>
                                     </a>
                                     <a href="{% url "report_sighting" hash=record.hash %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">
-                                        <div class="btn btn-primary float-right ">Send Location Update</div>
+                                        <div class="btn btn-primary float-right ">Send Update</div>
                                     </a>
                                 {% endif %}
                             </div>
@@ -287,6 +302,17 @@
             </div>
         </div>
     </div>
+
+        <center><br><b>
+        <a data-toggle="modal" style="text-decoration: underline" href="#myModal2">What should I do if I find someone?
+        </a></b>
+    </center>
+
+        <script>
+        $(function () {
+            $('[data-toggle="popover"]').popover({html: true, trigger: 'focus'})
+        });
+    </script>
 
 
 {% endblock %}
