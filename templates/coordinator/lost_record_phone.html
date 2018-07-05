@@ -10,6 +10,12 @@
 {% endblock %}
 
 {% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url "index" %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Lost Record Phone Number</li>
+        </ol>
+    </nav>
     <div class="container p-0">
         <div class="row justify-content-center">
             <div class="col-sm-10 col-md-10 col-lg-8">
@@ -52,10 +58,11 @@
                 </div>
                 <div class="modal-body">
                     This is the number that volunteers will be using to directly contact either the coordinator or
-                    authorities. <hr>
+                    authorities.
+                    <hr>
                     <center><img id='call_img'
-                         src='{% static "Image/missing-details-callbutton-mobile.jpg" %}'
-                         width="250" height="400"
+                                 src='{% static "Image/missing-details-callbutton-mobile.jpg" %}'
+                                 width="250" height="400"
                     /></center>
                 </div>
                 <div class="modal-footer">
