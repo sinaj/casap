@@ -32,6 +32,9 @@ dashboard_patterns = [
     url(r'^vulnerable/delete/(?P<hash>[\w\d]+)/$', views_dashboard.vulnerable_delete_view, name="vulnerable_delete"),
     url(r'^vulnerable/history/(?P<hash>[\w\d]+)/$', views_dashboard.vulnerable_history_view, name="vulnerable_history"),
     url(r'^manage-notifications/', views_dashboard.manage_notifications_view, name="manage_notifications"),
+
+    url(r'^remove_volunteer/delete/(?P<hash>[\w\d]+)/$', views_dashboard.coordinator_delete_volunteer,
+        name='coordinator_delete_volunteer')
 ]
 
 register_patterns = [
@@ -80,9 +83,10 @@ urlpatterns = [
     url(r'^get-vulnerable-info/', vulnerable_info.get_vulnerable),
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^coordinator-settings/', views.admin_settings_view, name='coordinator-settings'),
+    url(r'^coordinator-lost-phone/', views.coordinator_lost_phone_view, name='coordinator-lost-phone'),
     url(r'^tips/', views.tips_view, name='tips'),
-    url(r'^redirect/', views.show_missing_view, name='redirect')
+    url(r'^redirect/', views.show_missing_view, name='redirect'),
+    url(r'^remove-volunteer', views_dashboard.coordinator_remove_volunteer_view, name='coordinator-remove-volunteer'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

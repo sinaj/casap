@@ -386,3 +386,22 @@ def vulnerable_delete_view(request, hash):
     vulnerable.delete()
     add_message(request, messages.SUCCESS, "Vulnerable person has been deleted successfully.")
     return HttpResponseRedirect(reverse("vulnerable_list"))
+
+
+@login_required
+def coordinator_delete_volunteer(request, hash):
+    profile = request.context['user_profile']
+    volunteer = Volunteer.objects.filter(hash=hash).first()
+    if not volunteer:
+        add_message(request, messages.WARNING, "Volunteer not found.")
+        return HttpResponseRedirect(reverse("coordinator_remove_volunteer"))
+    volunteer.delete()
+    add_message(request, messages.SUCCESS, "Volunteer has been deleted successfully.")
+    return HttpResponseRedirect(reverse("coordinator_remove_volunteer"))
+
+
+@login_required
+def coordinator_remove_volunteer_view(request):
+    request.context['volunteer_list'] = Volunteer.objects.all()
+    return render(request, 'coordinator/remove_volunteer.html', request.context)
+
