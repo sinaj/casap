@@ -122,10 +122,10 @@ def admin_view(request):
     request.context['LostPersonName'] = list(set(LostPersonName))
     request.context['Vulnerable'] = Vulnerable
 
-    return render(request, "adminView.html", request.context)
+    return render(request, "coordinator/adminView.html", request.context)
 
 
-def admin_settings_view(request):
+def coordinator_lost_phone_view(request):
     if request.method == "POST":
         emerg = EmergencyCall.objects.last()
         form = EmergencyCallForm(request.POST, initial=model_to_dict(emerg))
@@ -138,7 +138,7 @@ def admin_settings_view(request):
     emerg = EmergencyCall.objects.last()
     form = EmergencyCallForm(initial=model_to_dict(emerg))
     request.context['form'] = form
-    return render(request, "admin_settings.html", request.context)
+    return render(request, "coordinator/lost_record_phone.html", request.context)
 
 
 def tips_view(request):
