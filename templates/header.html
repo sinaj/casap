@@ -59,14 +59,6 @@
 
 <div id="mySidenav" class="sidenav">
     <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-{#    {% if request.user.is_staff %}#}
-{#        <a href="{% url "report_lost" %}?next={{ request.path|add:'?'|add:request.GET.urlencode|urlencode }}">#}
-{#            <button type="button" class="btn btn-danger btn-sm">#}
-{#                Report Missing Person#}
-{#            </button>#}
-{#        </a>#}
-{#    {% endif %}#}
-{#    <hr>#}
     <a href="{% url "profile_edit" %}">My Profile</a>
     <hr>
     {% if user_profile %}
@@ -81,9 +73,7 @@
         {% if request.user.is_staff %}
             <a href="{% url "vulnerable_list" %}">All Vulnerable Persons</a>
             <hr>
-            <a href="{% url "adminView" %}">Admin Map Views</a>
-            <hr>
-            <a href="{% url "coordinator-settings" %}">Coordinator Settings</a>
+            <a data-toggle="modal" href="#coordModal">Coordinator Options</a>
             <hr>
         {% else %}
             <a href="{% url "vulnerable_list" %}">My Vulnerable Persons</a>
@@ -118,10 +108,33 @@
             {% endif %}
         {% endif %}
         <ul class="navbar-nav">
-            <a class="nav-item" id='slide_text' style="color:#7c9ad5;font-size:30px;cursor:pointer" onclick="openNav()" onMouseOver="this.style.color='#ffffff'" onMouseOut="this.style.color='#7c9ad5'">&#9776</a>
+            <a class="nav-item" id='slide_text' style="color:#7c9ad5;font-size:30px;cursor:pointer" onclick="openNav()"
+               onMouseOver="this.style.color='#ffffff'" onMouseOut="this.style.color='#7c9ad5'">&#9776</a>
         </ul>
     </nav>
 </header>
+
+
+<div class="modal fade" id="coordModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Coordinator Options</h4>
+            </div>
+            <div class="modal-body">
+                <a href="{% url "adminView" %}">Map Views</a>
+                <hr>
+                <a href="{% url "coordinator-lost-phone" %}">Change Lost Record Phone Number</a>
+                <hr>
+                <a href="{% url "coordinator-remove-volunteer" %}">Remove Volunteers</a>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     function openNav() {
