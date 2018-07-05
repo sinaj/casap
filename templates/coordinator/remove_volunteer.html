@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load static %}
+{% load tz %}
+
+{% block page_title %}
+    C-ASAP | Remove Volunteer
+{% endblock %}
+
+{% block content %}
+
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url "index" %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Remove Volunteers</li>
+        </ol>
+    </nav>
+
+    <div class="container p-0">
+        <div class="row justify-content-center">
+            <div class="col-sm-10 col-md-10 col-lg-8">
+                <div class="card mr-auto">
+                    <div class="card-body">
+                        <h4 class="card-title">
+                            Volunteer List
+                        </h4>
+                        <div class="container-fluid p-0">
+                            {% for vol in volunteer_list %}
+                                {% if forloop.first %}
+                                    <table class="table">
+                                    <thead>
+                                    <tr>
+                                        {#                                        <th scope="col">#</th>#}
+                                        <th scope="col">Volunteer</th>
+                                        <th scope="col">Delete <a tabindex="0"
+                                                                   class="fa fa-info-circle"
+                                                                   data-placement="bottom"
+                                                                   data-toggle="popover"
+                                                                   data-trigger="focus"
+                                                                   title="Options"
+                                                                   data-content="Options include: <br><br> <li>Edit Vulnerable</li><li>Delete Vulnerable</li><li>Map Views</li>"></a>
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                {% endif %}
+                            <tr>
+                                {#                                <th scope="row">{{ forloop.counter }}</th>#}
+                                <td>{{ vol.full_name }}</td>
+                                {#                                <td>#}
+                                {#                                    <div class="dropdown">#}
+                                {#                                        <button class="btn btn-secondary dropdown-toggle" type="button"#}
+                                {#                                                id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true"#}
+                                {#                                                aria-expanded="false">#}
+                                {#                                            Options#}
+                                {#                                        </button>#}
+                                {#                                        <div class="dropdown-menu" aria-labelledby="dropdownMenu2">#}
+                                {#                                            <a class="dropdown-item" href="{% url "vulnerable_edit" hash=vul.hash %}">Edit</a>#}
+                                {#                                            <span class="dropdown-item">#}
+                                {#                                                <form action="{% url "vulnerable_delete" hash=vul.hash %}" method="post"#}
+                                {#                                                      class="d-inline"#}
+                                {#                                                      onsubmit="return confirm('Delete vulnerable client?')">#}
+                                {#                                            {% csrf_token %}#}
+                                {#                                            <input type="hidden" name="hash" value="{{ vul.hash }}">#}
+                                {#                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>#}
+                                {#                                        </form>#}
+                                {#                                            </span>#}
+                                {#                                            <a class="dropdown-item"#}
+                                {#                                               href="{% url "vulnerable_history" hash=vul.hash %}">Map Views</a>#}
+                                {#                                        </div>#}
+                                {#                                    </div>#}
+                                {#                                </td>#}
+                                <td>
+                                    <form action="{% url "coordinator_delete_volunteer" hash=vol.hash %}" method="post" }
+                                          class="d-inline"
+                                          onsubmit="return confirm('Delete volunteer??')">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="hash" value="{{ vol.hash }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% if forloop.last %}
+                                </tbody>
+                                </table>
+                            {% endif %}
+                            {% empty %}
+                                <div class="container-fluid text-center">
+                                    You have not created any vulnerable people.
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
