@@ -98,6 +98,7 @@ def geofence_record(activity, fence, an_activity, time='', person=''):
 def profile_edit_view(request):
     if request.method == 'POST':
         form = UserEditForm(request.POST, instance=request.user)
+        profile_form = ProfileForm(request.POST, instance=request.user.profile)
         if form.is_valid():
             user = form.save(request)
             user.refresh_from_db()  # load the profile instance created by the signal
@@ -106,8 +107,10 @@ def profile_edit_view(request):
             add_message(request, messages.SUCCESS, "Changes saved successfully.")
     else:
         form = UserEditForm(instance=request.user)
+        profile_form = ProfileForm(instance=request.user.profile)
         request.context['next'] = request.GET.get('next', reverse("index"))
     request.context['form'] = form
+    request.context['profile_form'] = profile_form
     return render(request, 'dashboard/profile/profile_edit.html', request.context)
 
 
