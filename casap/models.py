@@ -25,6 +25,7 @@ class Profile(models.Model):
     email_confirmed = models.BooleanField(default=False)
     phone_validated = models.BooleanField(default=False)
     coordinator_email = models.BooleanField(default=False)
+    phone_number = models.CharField(max_length=15, null=True, blank=True)
     hash = models.CharField(max_length=30, unique=True, blank=True)
 
     @property
