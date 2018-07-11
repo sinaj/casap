@@ -31,7 +31,9 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'django.contrib.humanize',
     'casap',
-    'rest_framework'
+    'rest_framework',
+    'rest_framework.authtoken',
+    'rest_auth',
 ]
 
 MIDDLEWARE = [

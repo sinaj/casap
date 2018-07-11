@@ -83,6 +83,7 @@ urlpatterns = [
     url(r'^get-vulnerable-info/', vulnerable_info.get_vulnerable),
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^api/rest-auth/', include('rest_auth.urls')),
     url(r'^coordinator-lost-phone/', views.coordinator_lost_phone_view, name='coordinator-lost-phone'),
     url(r'^tips/', views.tips_view, name='tips'),
     url(r'^redirect/', views.show_missing_view, name='redirect'),
