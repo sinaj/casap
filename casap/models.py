@@ -1,4 +1,6 @@
 import os
+import json
+import requests
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -243,6 +245,11 @@ class LostPersonRecord(models.Model):
     address = models.CharField(max_length=100)
     address_lat = models.FloatField()
     address_lng = models.FloatField()
+    intersection = models.CharField(max_length=150, null=True, blank=True)
+    intersection_lat = models.FloatField(null=True)
+    intersection_lng = models.FloatField(null=True)
+    city = models.CharField(max_length=150, null=True, blank=True)
+    province = models.CharField(max_length=150, null=True, blank=True)
     description = models.TextField(blank=True)
     hash = models.CharField(max_length=30, unique=True, blank=True)
     volunteer_list = models.TextField(null=True)  # JSON-serialized (text) version of relevant volunteer ids
@@ -259,6 +266,24 @@ class LostPersonRecord(models.Model):
 
         inProj = Proj(init='epsg:4326')
         outProj = Proj(init='epsg:3857')
+
+        if not self.intersection:
+            orig_lat = self.address_lat
+            orig_lng = self.address_lng
+
+            endpoint = 'http://api.geonames.org/findNearestIntersectionOSMJSON?lat={}&lng={}&username=casap'.format(
+                orig_lat, orig_lng)
+
+            resp = requests.get(endpoint)
+            results = resp.json()
+
+            intersection_string = '{} & {}, {}, {}'.format(results['intersection']['street2'],
+                                                       results['intersection']['street1'], self.city, self.province)
+            self.intersection = intersection_string
+            self.intersection_lng, self.intersection_lat = transform(inProj, outProj,
+                                                                     float(results['intersection']['lng']),
+                                                                     float(results['intersection']['lat']))
+
         try:
             self.address_lng, self.address_lat = transform(inProj, outProj, float(self.address_lng),
                                                            float(self.address_lat))

@@ -31,8 +31,6 @@ dashboard_patterns = [
     url(r'^vulnerable/edit/(?P<hash>[\w\d]+)/$', views_dashboard.vulnerable_edit_view, name="vulnerable_edit"),
     url(r'^vulnerable/delete/(?P<hash>[\w\d]+)/$', views_dashboard.vulnerable_delete_view, name="vulnerable_delete"),
     url(r'^vulnerable/history/(?P<hash>[\w\d]+)/$', views_dashboard.vulnerable_history_view, name="vulnerable_history"),
-    url(r'^manage-notifications/', views_dashboard.manage_notifications_view, name="manage_notifications"),
-
     url(r'^remove_volunteer/delete/(?P<hash>[\w\d]+)/$', views_dashboard.coordinator_delete_volunteer,
         name='coordinator_delete_volunteer')
 ]

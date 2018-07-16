@@ -270,7 +270,7 @@
                                 Reported missing at: <span
                                     class="float-right text-dark">{{ record.time|timezone:user_tz_name|time }}</span>
                             </div>
-                            <a href="{% url 'location' %}?lat={{ record.address_lat }}&{{ record.address_lng }}">{{ record.address }}</a>
+                            <a href="{% url 'location' %}?lat={{ record.intersection_lat }}&{{ record.intersection_lng }}">{{ record.intersection }}</a>
                         </div>
                     </div>
                     {% if record.state != "found" %}
