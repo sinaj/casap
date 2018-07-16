@@ -115,10 +115,55 @@ def send_alert_email(profile, lost_alert):
     SimpleMailHelper(mail_subject, text, text, profile.user.email).send_email()
 
 
+def update_clean_vulnerable(vulnerable, vul_form):
+    vulnerable.nickname = vul_form.cleaned_data.get('nickname')
+    vulnerable.sex = vul_form.cleaned_data.get('sex')
+    vulnerable.race = vul_form.cleaned_data.get('race')
+    vulnerable.hair_colour = vul_form.cleaned_data.get('hair_colour')
+    vulnerable.height = vul_form.cleaned_data.get('height')
+    vulnerable.weight = vul_form.cleaned_data.get('weight')
+    vulnerable.eye_colour = vul_form.cleaned_data.get('eye_colour')
+    vulnerable.favourite_locations = vul_form.cleaned_data.get('favourite_locations')
+    vulnerable.work_action = vul_form.cleaned_data.get('work_action')
+    if vul_form.cleaned_data.get('transportation'):
+        vulnerable.transportation = vul_form.cleaned_data.get('transportation')
+    if vul_form.cleaned_data.get('instructions'):
+        vulnerable.instructions = vul_form.cleaned_data.get('instructions')
+    vulnerable.save()
+
+
+def update_vulnerable(vulnerable, vul_form):
+    vulnerable.nickname = vul_form.data.get('nickname')
+    vulnerable.sex = vul_form.data.get('sex')
+    vulnerable.race = vul_form.data.get('race')
+    vulnerable.hair_colour = vul_form.data.get('hair_colour')
+    vulnerable.height = vul_form.data.get('height')
+    vulnerable.weight = vul_form.data.get('weight')
+    vulnerable.eye_colour = vul_form.data.get('eye_colour')
+    vulnerable.favourite_locations = vul_form.data.get('favourite_locations')
+    vulnerable.work_action = vul_form.cleaned_data.get('work_action')
+    if vul_form.data.get('transportation'):
+        vulnerable.transportation = vul_form.data.get('transportation')
+    if vul_form.cleaned_data.get('instructions'):
+        vulnerable.instructions = vul_form.cleaned_data.get('instructions')
+    vulnerable.save()
+
+
+def create_lost_activity(lost_record):
+    lost_activity = LostActivity()
+    lost_activity.locLat = lost_record.address_lat
+    lost_activity.locLon = lost_record.address_lng
+    lost_activity.person_id = lost_record.vulnerable_id
+    lost_activity.time = lost_record.time
+    lost_activity.adminPoint = Point(float(lost_activity.locLon), float(lost_activity.locLat), srid=3857)
+    fence_loc = Location.objects.filter(fence__contains=lost_activity.adminPoint)
+    if fence_loc:
+        lost_activity.location = fence_loc[0]
+    lost_activity.save()
+
+
 @login_required
 def report_lost_view(request):
-    coordinators = Profile.objects.filter(coordinator_email=True)
-    profile = request.context['user_profile']
     if request.method == "POST":
         form = LostPersonRecordForm(request.POST)
         vul_form = VulnerableReportForm(request.POST)
@@ -126,35 +171,13 @@ def report_lost_view(request):
         if form.is_valid() and vul_form.is_valid():
             vulnerable = Vulnerable.objects.filter(hash=request.POST.get("vulnerable")).first()
             if vulnerable:
-                vulnerable.nickname = vul_form.cleaned_data.get('nickname')
-                vulnerable.sex = vul_form.cleaned_data.get('sex')
-                vulnerable.race = vul_form.cleaned_data.get('race')
-                vulnerable.hair_colour = vul_form.cleaned_data.get('hair_colour')
-                vulnerable.height = vul_form.cleaned_data.get('height')
-                vulnerable.weight = vul_form.cleaned_data.get('weight')
-                vulnerable.eye_colour = vul_form.cleaned_data.get('eye_colour')
-                vulnerable.favourite_locations = vul_form.cleaned_data.get('favourite_locations')
-                if vul_form.cleaned_data.get('transportation'):
-                    vulnerable.transportation = vul_form.cleaned_data.get('transportation')
-                if vul_form.cleaned_data.get('instructions'):
-                    vulnerable.instructions = vul_form.cleaned_data.get('instructions')
-                vulnerable.save()
+                update_clean_vulnerable(vulnerable, vul_form)
                 lost_record = form.save(request.user, vulnerable)
+                # Save the list of volunteer ids to the lost record
                 x = list(generate_volunteers(lost_record))
                 lost_record.volunteer_list = json.dumps(x)
                 lost_record.save()
-                lost_activity = LostActivity()
-                lost_activity.locLat = lost_record.address_lat
-                lost_activity.locLon = lost_record.address_lng
-                lost_activity.person_id = lost_record.vulnerable_id
-                lost_activity.time = lost_record.time
-                lost_activity.adminPoint = Point(float(lost_activity.locLon), float(lost_activity.locLat), srid=3857)
-                fence_loc = Location.objects.filter(fence__contains=lost_activity.adminPoint)
-                if fence_loc:
-                    lost_activity.location = fence_loc[0]
-                lost_activity.save()
-                time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime(
-                    "%H:%M")
+                create_lost_activity(lost_record)
                 flag = 1
                 notify_volunteers(lost_record, flag)
                 # send_tweet(
@@ -165,34 +188,13 @@ def report_lost_view(request):
         else:
             vulnerable = Vulnerable.objects.filter(hash=request.POST.get("vulnerable")).first()
             if vulnerable:
-                vulnerable.nickname = vul_form.data.get('nickname')
-                vulnerable.sex = vul_form.data.get('sex')
-                vulnerable.race = vul_form.data.get('race')
-                vulnerable.hair_colour = vul_form.data.get('hair_colour')
-                vulnerable.height = vul_form.data.get('height')
-                vulnerable.weight = vul_form.data.get('weight')
-                vulnerable.eye_colour = vul_form.data.get('eye_colour')
-                vulnerable.favourite_locations = vul_form.data.get('favourite_locations')
-                if vul_form.data.get('transportation'):
-                    vulnerable.transportation = vul_form.data.get('transportation')
-                if vul_form.cleaned_data.get('instructions'):
-                    vulnerable.instructions = vul_form.cleaned_data.get('instructions')
-                vulnerable.save()
+                update_vulnerable(vulnerable, vul_form)
                 lost_record = new_lost_record(request.user, vulnerable, form.data.get('address'), form.data.get('time'),
                                               request.context.get('user_tz_name'))
                 x = list(generate_volunteers(lost_record))
                 lost_record.volunteer_list = json.dumps(x)
                 lost_record.save()
-                lost_activity = LostActivity()
-                lost_activity.locLat = lost_record.address_lat
-                lost_activity.locLon = lost_record.address_lng
-                lost_activity.person_id = lost_record.vulnerable_id
-                lost_activity.time = lost_record.time
-                lost_activity.adminPoint = Point(float(lost_activity.locLon), float(lost_activity.locLat), srid=3857)
-                fence_loc = Location.objects.filter(fence__contains=lost_activity.adminPoint)
-                if fence_loc:
-                    lost_activity.location = fence_loc[0]
-                lost_activity.save()
+                create_lost_activity(lost_record)
                 time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime(
                     "%H:%M")
                 flag = 1
