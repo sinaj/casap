@@ -8,7 +8,7 @@ from casap.models import Profile, Volunteer, VolunteerAvailability, Vulnerable, 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ('url', 'username', 'email', 'first_name', 'last_name', 'is_staff')
+        fields = ('url', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'id')
 
 
 class ProfileSerializer(serializers.HyperlinkedModelSerializer):

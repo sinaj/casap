@@ -30,10 +30,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'django.contrib.humanize',
+    'django.contrib.sites',
     'casap',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_auth',
+    'allauth',
+    'allauth.account',
+    'rest_auth.registration',
 ]
 
 MIDDLEWARE = [
@@ -119,3 +123,4 @@ MESSAGE_TAGS = {
 GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH')
 GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH')
 
+SITE_ID = 1
