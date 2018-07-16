@@ -18,6 +18,12 @@ from casap.utilities.utils import get_user_time
 
 @login_required
 def index(request):
+    """
+    The index page of the C-ASAP web application.
+
+    :param request:
+    :return: render
+    """
     profile = request.context['user_profile']
     current_date = datetime.date.today()
     time_now = datetime.datetime.now()
@@ -26,6 +32,10 @@ def index(request):
     combined_queryset = LostPersonRecord.objects.filter(state="reported") | LostPersonRecord.objects.filter(
         state="sighted")
     missing_people = list(combined_queryset.order_by("-time").all())
+
+    # -------------------------------------------------------------------------------------------------- #
+    # This block of code was commented out when the last seen row was removed from the index page.
+
     # missing_people = list(LostPersonRecord.objects.filter(state="reported").order_by("-time").all())
 
     # Remove all duplicates but keep the most recently updated seen record
@@ -35,6 +45,8 @@ def index(request):
     #     if i.lost_record_id not in seen_id:
     #         seen_id.append(i.lost_record_id)
     #         seen_list.append(i)
+
+    # -------------------------------------------------------------------------------------------------- #
 
     records = list()
     json_dec = json.decoder.JSONDecoder()
@@ -65,6 +77,12 @@ def index(request):
 
 @login_required
 def track_missing_view(request, hash):
+    """
+    The view that is called when viewing a missing persons detail. This view is only called from the alerts.
+    :param request:
+    :param hash: The hash of the lost person record
+    :return: render
+    """
     profile = request.context['user_profile']
     lost_record = LostPersonRecord.objects.filter(hash=hash).first()
     emerg = EmergencyCall.objects.get()
@@ -83,6 +101,12 @@ def track_missing_view(request, hash):
 
 @login_required
 def show_missing_view(request, hash):
+    """
+    The view that is called from pressing on a missing person from the index page.
+    :param request:
+    :param hash: Hash of the lost record.
+    :return: render
+    """
     profile = request.context['user_profile']
     lost_record = LostPersonRecord.objects.filter(hash=hash).first()
     emerg = EmergencyCall.objects.get()
@@ -100,10 +124,17 @@ def show_missing_view(request, hash):
 
 
 def location_view(request):
+    # Old unused view
     return render(request, "LocationView.html", request.context)
 
 
+@login_required
 def admin_view(request):
+    """
+    The view to pass data to the coordinator map view.
+    :param request:
+    :return: render
+    """
     avail = list()
     for each in VolunteerAvailability.objects.all():
         vol_details = [each.address_lat, each.address_lng, each.km_radius, each.address, each.volunteer.full_name,
@@ -125,7 +156,13 @@ def admin_view(request):
     return render(request, "coordinator/adminView.html", request.context)
 
 
+@login_required
 def coordinator_lost_phone_view(request):
+    """
+    The view for the coordinator to change the phone number for a volunteer to call in about a missing person.
+    :param request:
+    :return: render
+    """
     if request.method == "POST":
         emerg = EmergencyCall.objects.last()
         form = EmergencyCallForm(request.POST, initial=model_to_dict(emerg))
@@ -141,5 +178,11 @@ def coordinator_lost_phone_view(request):
     return render(request, "coordinator/lost_record_phone.html", request.context)
 
 
+@login_required
 def tips_view(request):
+    """
+    View for the tips template.
+    :param request:
+    :return: render
+    """
     return render(request, "tips.html", request.context)
