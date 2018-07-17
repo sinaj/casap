@@ -59,7 +59,8 @@ class LostPersonRecordViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows lost person records to be viewed or edited.
     """
-    queryset = LostPersonRecord.objects.all().order_by('id')
+    queryset = LostPersonRecord.objects.filter(state="reported") | LostPersonRecord.objects.filter(
+        state="sighted")
     serializer_class = LostPersonRecordSerializer
 
 
