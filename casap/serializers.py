@@ -52,7 +52,7 @@ class LostPersonRecordSerializer(serializers.HyperlinkedModelSerializer):
         model = LostPersonRecord
         fields = (
             'url', 'id', 'state', 'time', 'address', 'address_lat', 'address_lng', 'description', 'hash', 'reporter',
-            'vulnerable', 'city', 'province', 'street', 'volunteer_list')
+            'vulnerable', 'city', 'province', 'intersection', 'intersection_lat', 'intersection_lng', 'volunteer_list')
 
 
 class FindRecordSerializer(serializers.HyperlinkedModelSerializer):
@@ -60,4 +60,4 @@ class FindRecordSerializer(serializers.HyperlinkedModelSerializer):
         model = FindRecord
         fields = (
             'url', 'id', 'lost_record', 'reporter', 'time', 'address', 'address_lat', 'address_lng', 'description',
-            'hash', 'city', 'province', 'street')
+            'hash')
