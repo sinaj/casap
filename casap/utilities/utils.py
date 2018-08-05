@@ -238,7 +238,8 @@ def create_payload_data(data):
             filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
 
     payload = {"app_id": settings.ONESIGNAL_APP_ID,
-               "filters": filter_list
+               "filters": filter_list,
+               "contents": {"template_id": settings.ONESIGNAL_MISSING_ID}
                }
 
     return payload
