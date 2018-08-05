@@ -225,3 +225,32 @@ def send_twitter_dm(message, user):
                       access_token_key=settings.TWITTER_ACCESS_KEY, access_token_secret=settings.TWITTER_ACCESS_SECRET)
 
     api.PostDirectMessage(message, screen_name=user)
+
+
+def create_payload_data(data):
+    filter_list = list()
+
+    for i, item in enumerate(data):
+        if i < len(data) - 1:
+            filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
+            filter_list.append({"operator": "OR"})
+        else:
+            filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
+
+    payload = {"app_id": settings.ONESIGNAL_APP_ID,
+               "filters": filter_list
+               }
+
+    return payload
+
+
+def send_onesignal_notification(data):
+    payload_data = create_payload_data(data)
+
+    header = {"Content-Type": "application/json; charset=utf-8",
+              "Authorization": "Basic " + settings.ONESIGNAL_API_KEY}
+
+    payload = payload_data
+
+    req = requests.post("https://onesignal.com/api/v1/notifications", headers=header, data=json.dumps(payload))
+    print(req.status_code, req.reason)

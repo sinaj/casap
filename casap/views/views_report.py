@@ -20,7 +20,7 @@ from casap.models import Vulnerable, LostPersonRecord, Volunteer, Activity, Loca
     LostActivity, FoundActivity, Alerts, Notifications, Profile, TempSightingRecord, SightingRecord
 
 from casap.utilities.utils import get_user_time, send_sms, get_standard_phone, SimpleMailHelper, send_tweet, \
-    shorten_url, send_twitter_dm, get_address_map_google
+    shorten_url, send_twitter_dm, get_address_map_google, send_onesignal_notification
 
 
 def tweet_helper(name, link, flag, time):
@@ -370,11 +370,16 @@ def notify_volunteers(notify_record, flag):
     outProj = Proj(init='epsg:4326')
     lng, lat = transform(inProj, outProj, float(lng), float(lat))
     close_volunteers = set()
+    user_ids = []
     for vol in Volunteer.objects.all():
         availability = VolunteerAvailability.objects.filter(volunteer=vol)
         for x in availability:
             if (vincenty((x.address_lat, x.address_lng), (lat, lng)).kilometers <= x.km_radius):
                 close_volunteers.add(vol)
+                user_ids.append(vol.profile.user.id)
+
+    # Onesignal notifications
+    send_onesignal_notification(user_ids)
 
     for vol in close_volunteers:
         # if flag == 1:
