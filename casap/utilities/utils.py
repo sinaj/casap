@@ -240,7 +240,6 @@ def create_payload_data(data):
     payload = {"app_id": settings.ONESIGNAL_APP_ID,
                "filters": filter_list,
                "template_id": settings.ONESIGNAL_MISSING_ID,
-               "contents": {"en": "English Message"},
                }
 
     return payload
