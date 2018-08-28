@@ -61,7 +61,7 @@ router.register(r'volunteers', views_api.VolunteerViewSet)
 router.register(r'volunteer_availability', views_api.VolunteerAvailabilityViewSet)
 router.register(r'vulnerable', views_api.VulnerableViewSet)
 router.register(r'vulnerable_address', views_api.VulnerableAddressViewSet)
-router.register(r'lost_person_record', views_api.LostPersonRecordViewSet)
+router.register(r'lost_person_record', views_api.LostPersonRecordViewSet, base_name='lost_person_record')
 router.register(r'find_record', views_api.FindRecordViewSet)
 
 urlpatterns = [

@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
+
+import simplejson as json
 
 from casap.models import Profile, Volunteer, VolunteerAvailability, Vulnerable, VulnerableAddress, LostPersonRecord, \
     FindRecord
@@ -59,8 +61,25 @@ class LostPersonRecordViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows lost person records to be viewed or edited.
     """
-    queryset = LostPersonRecord.objects.filter(state="reported") | LostPersonRecord.objects.filter(
-        state="sighted")
+
+    def get_queryset(self):
+        json_dec = json.decoder.JSONDecoder()
+        records = list()
+        user = self.request.user
+        profile = Profile.objects.filter(id=user.id).first()
+        missing_people = LostPersonRecord.objects.filter(state="reported") | LostPersonRecord.objects.filter(
+            state="sighted")
+        if profile.volunteer.id:
+            for i in missing_people:
+                try:
+                    vol_list = json_dec.decode(i.volunteer_list)
+                    if int(profile.volunteer.id) in vol_list:
+                        records.append(i)
+                except:
+                    pass
+
+        return records
+
     serializer_class = LostPersonRecordSerializer
 
 

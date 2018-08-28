@@ -48,6 +48,8 @@ class VulnerableAddressSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class LostPersonRecordSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name="lost_person_record-detail")
+
     class Meta:
         model = LostPersonRecord
         fields = (
