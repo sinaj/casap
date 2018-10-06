@@ -41,6 +41,27 @@ def create_address(request, vulnerable, form):
             additional_address.address_lat = loc['lat']
             additional_address.save()
     else:
+        for i in range(5):
+            address = 'addresses-{}-address'.format(i)
+            if form.data.get(address):
+                loc = get_address_map_google(address)
+                for i in range(10):
+                    if loc is None:
+                        loc = get_address_map_google(address)
+                    else:
+                        break
+                if loc is None:
+                    add_message(request, messages.ERROR, "Problem with the inputted address.")
+                    vulnerable.delete()
+                    return render(request, 'dashboard/vulnerable/vulnerable_add.html', request.context)
+                else:
+                    additional_address = VulnerableAddress()
+                    additional_address.vulnerable = vulnerable
+                    additional_address.address = address
+                    additional_address.address_lng = loc['lng']
+                    additional_address.address_lat = loc['lat']
+                    additional_address.save()
+
         add_message(request, messages.ERROR, "Problem with the inputted address.")
         vulnerable.delete()
         return render(request, 'dashboard/vulnerable/vulnerable_add.html', request.context)
@@ -266,6 +287,8 @@ def vulnerable_add_view(request):
             if not vulnerable.creation_time:
                 vulnerable.creation_time = timezone.now()
             vulnerable.save()
+        else:
+            messages.error(request, "Error")
         formset = address_formset(request.POST, queryset=VulnerableAddress.objects.all())
         if formset.is_valid():
             for form in formset:
@@ -273,7 +296,10 @@ def vulnerable_add_view(request):
             add_message(request, messages.SUCCESS, "Vulnerable added successfully.")
             return HttpResponseRedirect(next)
         else:
-            vulnerable.delete()
+            for form in formset:
+                create_address(request, vulnerable, form)
+            add_message(request, messages.SUCCESS, "Vulnerable added successfully.")
+            return HttpResponseRedirect(next)
     else:
         address_formset = inlineformset_factory(Vulnerable,
                                                 VulnerableAddress, form=VulnerableAddressForm, fk_name="vulnerable",

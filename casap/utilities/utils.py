@@ -98,7 +98,8 @@ def get_address_map_google(address):
         address.replace(",", " ")
         address.replace("'", "")
         endpoint = 'https://maps.googleapis.com/maps/api/geocode/json'
-        resp = requests.get(endpoint, params=dict(address=address))
+        api = 'AIzaSyCaiM53DTZi0ASuIIGY6yudqE9nPoThVsE'
+        resp = requests.get(endpoint, params=dict(address=address, key=api))
 
         ans = dict()
         results = json.loads(resp.text)['results']
