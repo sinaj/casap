@@ -71,7 +71,7 @@ def index(request):
     else:
         request.context['missing_people'] = records
     # request.context['seen_people'] = seen_list
-    request.context['user_tz_name'] = 'Canada/Mountain'  # This needs to be changed when multiple timezones will be used
+    request.context['user_tz_name'] = 'Canada/Pacific'  # This needs to be changed when multiple timezones will be used
     return render(request, "public/index.html", request.context)
 
 
