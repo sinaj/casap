@@ -214,7 +214,7 @@ def report_lost_view(request):
     request.context['vul_form'] = vul_form
     request.context['all_timezones'] = pytz.all_timezones
     request.context['vulnerable_people'] = [dict(hash=vul.hash, name=vul.full_name) for vul in Vulnerable.objects.all()]
-    request.context['user_tz_name'] = 'Canada/Mountain'  # This needs to be changed when multiple timezones will be used
+    request.context['user_tz_name'] = 'Canada/Pacific'  # This needs to be changed when multiple timezones will be used
     return render(request, "report/report_lost.html", request.context)
 
 
@@ -287,7 +287,7 @@ def report_sighting_view(request, hash):
 def alert_list_view(request):
     alerts = Alerts.objects.all()
     request.context['alerts'] = alerts
-    request.context['user_tz_name'] = 'Canada/Mountain'
+    request.context['user_tz_name'] = 'Canada/Pacific'
     return render(request, 'alertList.html', request.context)
 
 
@@ -360,7 +360,7 @@ def alert_view(request, hash):
     request.context['alert'] = alert
     request.context['rec'] = update_rec
     request.context['all_timezones'] = pytz.all_timezones
-    request.context['user_tz_name'] = 'Canada/Mountain'
+    request.context['user_tz_name'] = 'Canada/Pacific'
     return render(request, "alert_view.html", request.context)
 
 
@@ -474,14 +474,14 @@ def report_found_view(request, hash):
     request.context['vulnerable'] = lost_record.vulnerable
     request.context['record'] = lost_record
     request.context['all_timezones'] = pytz.all_timezones
-    request.context['user_tz_name'] = 'Canada/Mountain'  # This needs to be changed when multiple timezones will be used
+    request.context['user_tz_name'] = 'Canada/Pacific'  # This needs to be changed when multiple timezones will be used
     return render(request, "report/report_found.html", request.context)
 
 
 def send_found_alert(vol_id, record, v):
     vol = Volunteer.objects.get(id=vol_id)
-    link = "http://{}".format(record.get_link())
-    # link = shorten_url(link)
+    # link = "http://{}".format(record.get_link())
+    link = shorten_url(record.get_link())
     message = "Dear {}: {} has been found at {}. For more details visit the link below: {}".format(vol.full_name,
                                                                                                    record.vulnerable.full_name,
                                                                                                    v.time.time().strftime(
