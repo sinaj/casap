@@ -273,9 +273,10 @@ def send_missing_onesignal_notification(data, notify_record):
                                                                           notify_record.description)})
     new_notification.set_parameter("headings", {"en": "MISSING: {}".format(notify_record.vulnerable.full_name)})
     new_notification.set_parameter("template_id", settings.ONESIGNAL_MISSING_TEMPLATE_ID)
+    print("{}/media/{}".format(settings.DOMAIN, notify_record.vulnerable.picture))
     new_notification.set_parameter("ios_attachments",
                                    {
-                                       "id": "".format(notify_record.vulnerable.picture)})
+                                       "id": "{}/media/{}".format(settings.DOMAIN, notify_record.vulnerable.picture)})
 
     # set filters
     new_notification.set_filters(filter_list)
