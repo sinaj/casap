@@ -19,6 +19,7 @@ import phonenumbers as phonenumbers
 import pytz
 import requests
 from django.core.mail import send_mail
+import onesignal as onesignal_sdk
 
 from casap import settings
 from django.utils import timezone
@@ -251,12 +252,30 @@ def create_payload_data(data):
 
 
 def send_onesignal_notification(data):
-    payload_data = create_payload_data(data)
+    filter_list = list()
 
-    header = {"Content-Type": "application/json; charset=utf-8",
-              "Authorization": "Basic " + settings.ONESIGNAL_API_KEY}
+    for i, item in enumerate(data):
+        if i < len(data) - 1:
+            filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
+            filter_list.append({"operator": "OR"})
+        else:
+            filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
+    onesignal_client = onesignal_sdk.Client(user_auth_key=settings.ONESIGNAL_AUTH_KEY,
+                                            app={"app_auth_key": settings.ONESIGNAL_REST_KEY,
+                                                 "app_id": settings.ONESIGNAL_APP_ID})
 
-    payload = payload_data
+    # create a notification
+    new_notification = onesignal_sdk.Notification()
+    new_notification.set_parameter("headings", {"en": "Community-ASAP"})
+    new_notification.set_parameter("template_id", settings.ONESIGNAL_MISSING_TEMPLATE_ID)
+    new_notification.set_parameter("ios_attachments",
+                                   {
+                                       "id": "http://10.0.1.4:8000/media/users/vulnerable/9640401a562491aa2541bcde469b1c/profile_picture.jpg"})
 
-    req = requests.post("https://onesignal.com/api/v1/notifications", headers=header, data=json.dumps(payload))
-    print(req.status_code, req.reason)
+    # set filters
+    new_notification.set_filters(filter_list)
+
+    # send notification, it will return a response
+    onesignal_response = onesignal_client.send_notification(new_notification)
+    print(onesignal_response.status_code)
+    print(onesignal_response.json())

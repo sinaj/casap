@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from casap.models import Profile, Volunteer, VolunteerAvailability, Vulnerable, VulnerableAddress, LostPersonRecord, \
     FindRecord
+from casap.utilities.utils import get_standard_phone, normalize_email
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -11,10 +12,32 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'id')
 
 
-class ProfileSerializer(serializers.HyperlinkedModelSerializer):
+class ProfileSerializer(serializers.ModelSerializer):
+    """
+    Serializer to create a user and profile in parallel.
+    """
+    username = serializers.CharField(source='user.username')
+    password = serializers.CharField(source='user.password')
+    first_name = serializers.CharField(source='user.first_name')
+    last_name = serializers.CharField(source='user.last_name')
+
     class Meta:
         model = Profile
-        fields = ('url', 'user_id', 'user', 'hash')
+        fields = ('hash', 'username', 'password', 'first_name',
+                  'last_name','phone_number')
+
+    def create(self, validated_data):
+        x = validated_data.get('user')
+        user = User.objects.create_user(username=normalize_email(x['username']),
+                                        email=x['username'],
+                                        password=x['password'],
+                                        first_name=x['first_name'],
+                                        last_name=x['last_name'],
+                                        )
+        profile = Profile.objects.get(user=user)
+        profile.phone_number = get_standard_phone(validated_data['phone_number'])
+        profile.save()
+        return profile
 
 
 class VolunteerSerializer(serializers.HyperlinkedModelSerializer):
