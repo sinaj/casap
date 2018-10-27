@@ -233,7 +233,25 @@ def send_twitter_dm(message, user):
     api.PostDirectMessage(message, screen_name=user)
 
 
-def create_payload_data(data):
+# def create_payload_data(data):
+#     filter_list = list()
+#
+#     for i, item in enumerate(data):
+#         if i < len(data) - 1:
+#             filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
+#             filter_list.append({"operator": "OR"})
+#         else:
+#             filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
+#
+#     payload = {"app_id": settings.ONESIGNAL_APP_ID,
+#                "filters": filter_list,
+#                "template_id": settings.ONESIGNAL_MISSING_ID,
+#                }
+#
+#     return payload
+
+
+def send_missing_onesignal_notification(data, notify_record):
     filter_list = list()
 
     for i, item in enumerate(data):
@@ -243,34 +261,21 @@ def create_payload_data(data):
         else:
             filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
 
-    payload = {"app_id": settings.ONESIGNAL_APP_ID,
-               "filters": filter_list,
-               "template_id": settings.ONESIGNAL_MISSING_ID,
-               }
-
-    return payload
-
-
-def send_onesignal_notification(data):
-    filter_list = list()
-
-    for i, item in enumerate(data):
-        if i < len(data) - 1:
-            filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
-            filter_list.append({"operator": "OR"})
-        else:
-            filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
     onesignal_client = onesignal_sdk.Client(user_auth_key=settings.ONESIGNAL_AUTH_KEY,
                                             app={"app_auth_key": settings.ONESIGNAL_REST_KEY,
                                                  "app_id": settings.ONESIGNAL_APP_ID})
 
     # create a notification
     new_notification = onesignal_sdk.Notification()
-    new_notification.set_parameter("headings", {"en": "Community-ASAP"})
+    new_notification.set_parameter("contents", {
+        "en": "Last seen near: {}. Has {} hair and is wearing {}.".format(notify_record.intersection,
+                                                                          notify_record.vulnerable.hair_colour,
+                                                                          notify_record.description)})
+    new_notification.set_parameter("headings", {"en": "MISSING: {}".format(notify_record.vulnerable.full_name)})
     new_notification.set_parameter("template_id", settings.ONESIGNAL_MISSING_TEMPLATE_ID)
     new_notification.set_parameter("ios_attachments",
                                    {
-                                       "id": "http://10.0.1.4:8000/media/users/vulnerable/9640401a562491aa2541bcde469b1c/profile_picture.jpg"})
+                                       "id": "".format(notify_record.vulnerable.picture)})
 
     # set filters
     new_notification.set_filters(filter_list)
