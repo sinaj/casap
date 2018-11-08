@@ -24,6 +24,9 @@ import onesignal as onesignal_sdk
 from casap import settings
 from django.utils import timezone
 
+import sendgrid
+from sendgrid.helpers.mail import *
+
 
 def url_with_params(path, parameters_dict=None):
     if parameters_dict is None:
@@ -285,3 +288,16 @@ def send_missing_onesignal_notification(data, notify_record):
     onesignal_response = onesignal_client.send_notification(new_notification)
     print(onesignal_response.status_code)
     print(onesignal_response.json())
+
+
+def send_email(email_add, header_subject, data):
+    sg = sendgrid.SendGridAPIClient(apikey=settings.SENDGRID_API)
+    from_email = Email(settings.EMAIL)
+    to_email = Email(email_add)
+    subject = header_subject
+    content = Content("text/plain", data)
+    mail = Mail(from_email, subject, to_email, content)
+    response = sg.client.mail.send.post(request_body=mail.get())
+    print(response.status_code)
+    print(response.body)
+    print(response.headers)
