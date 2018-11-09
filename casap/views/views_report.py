@@ -20,7 +20,7 @@ from casap.models import Vulnerable, LostPersonRecord, Volunteer, Activity, Loca
     LostActivity, FoundActivity, Alerts, Notifications, Profile, TempSightingRecord, SightingRecord
 
 from casap.utilities.utils import get_user_time, send_sms, get_standard_phone, SimpleMailHelper, send_tweet, \
-    shorten_url, send_twitter_dm, get_address_map_google, send_missing_onesignal_notification, send_email
+    shorten_url, send_twitter_dm, get_address_map_google, send_missing_onesignal_notification
 
 
 def tweet_helper(name, link, flag, time):
@@ -63,8 +63,7 @@ def lost_notification(notify_record, vol):
     if vol.phone:
         send_sms(get_standard_phone(vol.phone), sms_text)
     if vol.email:
-        # SimpleMailHelper(mail_subject, sms_text, sms_text, vol.email).send_email()
-        send_email(vol.email, mail_subject, sms_text)
+        SimpleMailHelper(mail_subject, sms_text, sms_text, vol.email).send_email()
     # if vol.twitter_handle:
     #     send_twitter_dm(sms_text, vol.twitter_handle)
 
@@ -86,8 +85,7 @@ def new_update_notification(notify_record, vol):
     if vol.phone:
         send_sms(get_standard_phone(vol.phone), sms_text)
     if vol.email:
-        # SimpleMailHelper(mail_subject, sms_text, sms_text, vol.email).send_email()
-        send_email(vol.email, mail_subject, sms_text)
+        SimpleMailHelper(mail_subject, sms_text, sms_text, vol.email).send_email()
 
 
 def update_notification(notify_record, vol):
@@ -107,16 +105,14 @@ def update_notification(notify_record, vol):
     if vol.phone:
         send_sms(get_standard_phone(vol.phone), sms_text)
     if vol.email:
-        # SimpleMailHelper(mail_subject, sms_text, sms_text, vol.email).send_email()
-        send_email(vol.email, mail_subject, sms_text)
+        SimpleMailHelper(mail_subject, sms_text, sms_text, vol.email).send_email()
 
 
 def send_alert_email(profile, lost_alert):
     text = "%s: a new notification needs your attention. Please click the link below to view it. \n %s" % (
         profile.full_name, lost_alert.get_link())
     mail_subject = "C-ASAP Admin: New Notification Alert"
-    # SimpleMailHelper(mail_subject, text, text, profile.user.email).send_email()
-    send_email(profile.user.email, mail_subject, text)
+    SimpleMailHelper(mail_subject, text, text, profile.user.email).send_email()
 
 
 def update_clean_vulnerable(vulnerable, vul_form):
@@ -494,8 +490,6 @@ def send_found_alert(vol_id, record, v):
         send_sms(get_standard_phone(vol.phone), message)
     if vol.email:
         mail_subject = "C-ASAP Client: {} has been found".format(record.vulnerable.full_name)
-        # SimpleMailHelper(mail_subject, message, message, vol.email).send_email()
-        send_email(vol.email, mail_subject, message)
-
+        SimpleMailHelper(mail_subject, message, message, vol.email).send_email()
     # if vol.twitter_handle:
     #     send_twitter_dm(message, vol.twitter_handle)
