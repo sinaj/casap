@@ -275,10 +275,16 @@ class LostPersonRecord(models.Model):
                 orig_lat, orig_lng)
 
             resp = requests.get(endpoint)
+            for i in range(10):
+                if resp is None:
+                    resp = requests.get(endpoint)
+                else:
+                    break
+
             results = resp.json()
 
             intersection_string = '{} & {}, {}, {}'.format(results['intersection']['street2'],
-                                                       results['intersection']['street1'], self.city, self.province)
+                                                           results['intersection']['street1'], self.city, self.province)
             self.intersection = intersection_string
             self.intersection_lng, self.intersection_lat = transform(inProj, outProj,
                                                                      float(results['intersection']['lng']),
