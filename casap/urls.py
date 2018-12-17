@@ -56,7 +56,7 @@ report_patterns = [
 # API routes
 router = routers.DefaultRouter()
 router.register(r'users', views_api.UserViewSet)
-router.register(r'profiles', views_api.ProfileViewSet)
+router.register(r'profiles', views_api.ProfileViewSet, base_name='profiles')
 router.register(r'volunteers', views_api.VolunteerViewSet)
 router.register(r'volunteer_availability', views_api.VolunteerAvailabilityViewSet)
 router.register(r'vulnerable', views_api.VulnerableViewSet)

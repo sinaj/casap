@@ -6,10 +6,10 @@ from casap.models import Profile, Volunteer, VolunteerAvailability, Vulnerable, 
 from casap.utilities.utils import get_standard_phone, normalize_email
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('url', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'id')
+        fields = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'id')
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -24,7 +24,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ('hash', 'username', 'password', 'first_name',
-                  'last_name','phone_number')
+                  'last_name', 'phone_number', 'id')
 
     def create(self, validated_data):
         x = validated_data.get('user')
@@ -39,44 +39,56 @@ class ProfileSerializer(serializers.ModelSerializer):
         profile.save()
         return profile
 
+    def update(self, instance, validated_data):
+        user_data = validated_data['user']
+        user = User.objects.get(username=instance.user.username)
+        user.username = user_data['username']
+        user.email = user_data['username']
+        user.first_name = user_data['first_name']
+        user.last_name = user_data['last_name']
+        user.save()
 
-class VolunteerSerializer(serializers.HyperlinkedModelSerializer):
+        instance.phone_number = validated_data['phone_number']
+        instance.save()
+        return instance
+
+
+class VolunteerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Volunteer
-        fields = ('url', 'id', 'profile', 'phone', 'email')
+        fields = ('id', 'profile', 'phone', 'email')
 
 
-class VolunteerAvailabilitySerializer(serializers.HyperlinkedModelSerializer):
+class VolunteerAvailabilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = VolunteerAvailability
         fields = (
-            'url', 'id', 'volunteer', 'address', 'address_lat', 'address_lng', 'km_radius', 'city', 'province',
+            'id', 'volunteer', 'address', 'address_lat', 'address_lng', 'km_radius', 'city', 'province',
             'street')
 
 
-class VulnerableSerializer(serializers.HyperlinkedModelSerializer):
+class VulnerableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vulnerable
         fields = (
-            'url', 'id', 'creation_time', 'first_name', 'last_name', 'nickname', 'birthday', 'picture', 'hash',
+            'id', 'creation_time', 'first_name', 'last_name', 'nickname', 'birthday', 'picture', 'hash',
             'creator_id',
             'sex', 'race', 'eye_colour', 'hair_colour', 'height', 'weight', 'favourite_locations'
         )
 
 
-class VulnerableAddressSerializer(serializers.HyperlinkedModelSerializer):
+class VulnerableAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = VulnerableAddress
-        fields = ('url', 'id', 'vulnerable', 'address', 'address_lat', 'address_lng', 'city', 'province', 'street')
+        fields = ('id', 'vulnerable', 'address', 'address_lat', 'address_lng', 'city', 'province', 'street')
 
 
-class LostPersonRecordSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="lost_person_record-detail")
+class LostPersonRecordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LostPersonRecord
         fields = (
-            'url', 'id', 'state', 'time', 'address', 'address_lat', 'address_lng', 'description', 'hash', 'reporter',
+            'id', 'state', 'time', 'address', 'address_lat', 'address_lng', 'description', 'hash', 'reporter',
             'vulnerable', 'city', 'province', 'intersection', 'intersection_lat', 'intersection_lng', 'volunteer_list')
         depth = 1
 

@@ -21,8 +21,16 @@ class ProfileViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows profiles to be viewed or edited.
     """
-    queryset = Profile.objects.all().order_by('user_id')
+    # queryset = Profile.objects.all().order_by('user_id')
     serializer_class = ProfileSerializer
+
+    def get_queryset(self):
+        queryset = Profile.objects.all()
+        user = self.request.user
+        profile = queryset.get(user=user)
+        queryset = queryset.filter(id=profile.id).all()
+
+        return queryset
 
 
 class VolunteerViewSet(viewsets.ModelViewSet):
@@ -62,6 +70,8 @@ class LostPersonRecordViewSet(viewsets.ModelViewSet):
     API endpoint that allows lost person records to be viewed or edited.
     """
 
+    serializer_class = LostPersonRecordSerializer
+
     def get_queryset(self):
         json_dec = json.decoder.JSONDecoder()
         records = list()
@@ -69,18 +79,20 @@ class LostPersonRecordViewSet(viewsets.ModelViewSet):
         profile = Profile.objects.filter(id=user.id).first()
         missing_people = LostPersonRecord.objects.filter(state="reported") | LostPersonRecord.objects.filter(
             state="sighted")
-        if profile.volunteer.id:
-            for i in missing_people:
-                try:
-                    vol_list = json_dec.decode(i.volunteer_list)
-                    if int(profile.volunteer.id) in vol_list:
-                        records.append(i)
-                except:
-                    pass
+        try:
+            if profile.volunteer.id:
+                for i in missing_people:
+                    try:
+                        vol_list = json_dec.decode(i.volunteer_list)
+                        if int(profile.volunteer.id) in vol_list:
+                            records.append(i)
+                    except:
+                        pass
+        except:
+            return []
 
         return records
 
-    serializer_class = LostPersonRecordSerializer
 
 
 class FindRecordViewSet(viewsets.ModelViewSet):
