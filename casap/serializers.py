@@ -54,17 +54,58 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class VolunteerSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer(read_only=True)
+
     class Meta:
         model = Volunteer
         fields = ('id', 'profile', 'phone', 'email')
 
+    def update(self, instance, validated_data):
+        x = validated_data
+        if x.get('phone'):
+            instance.phone = x.get('phone')
+        if x.get('email'):
+            instance.email = x.get('email')
+        instance.save()
+        return instance
+
+    def create(self, validated_data):
+        _profile = self.context['request'].user.profile
+        volunteer = Volunteer.objects.create(
+            profile=_profile,
+        )
+        return volunteer
+
 
 class VolunteerAvailabilitySerializer(serializers.ModelSerializer):
+    volunteer = VolunteerSerializer(read_only=True)
+
     class Meta:
         model = VolunteerAvailability
         fields = (
-            'id', 'volunteer', 'address', 'address_lat', 'address_lng', 'km_radius', 'city', 'province',
-            'street')
+            'id', 'volunteer', 'address', 'address_lat', 'address_lng', 'km_radius')
+
+    def create(self, validated_data):
+        x = validated_data
+        _vol = self.context['request'].user.profile.volunteer
+
+        availability = VolunteerAvailability.objects.create(
+            volunteer=_vol,
+            address=x.get('address'),
+            address_lat=x.get('address_lat'),
+            address_lng=x.get('address_lng'),
+            km_radius=x.get('km_radius')
+        )
+        return availability
+
+    def update(self, instance, validated_data):
+        x = validated_data
+        instance.address = x.get('address')
+        instance.address_lat = x.get('address_lat')
+        instance.address_lng = x.get('address_lng')
+        instance.km_radius = x.get('km_radius')
+        instance.save()
+        return instance
 
 
 class VulnerableSerializer(serializers.ModelSerializer):
@@ -84,7 +125,6 @@ class VulnerableAddressSerializer(serializers.ModelSerializer):
 
 
 class LostPersonRecordSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = LostPersonRecord
         fields = (

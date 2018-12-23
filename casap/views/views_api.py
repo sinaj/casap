@@ -1,7 +1,9 @@
 from django.contrib.auth.models import User
-from rest_framework import viewsets, generics
+from django.http import Http404
+from rest_framework import viewsets, generics, status
 
 import simplejson as json
+from rest_framework.response import Response
 
 from casap.models import Profile, Volunteer, VolunteerAvailability, Vulnerable, VulnerableAddress, LostPersonRecord, \
     FindRecord
@@ -37,16 +39,46 @@ class VolunteerViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows volunteers to be viewed or edited.
     """
-    queryset = Volunteer.objects.all().order_by('id')
+    # queryset = Volunteer.objects.all().order_by('id')
     serializer_class = VolunteerSerializer
+
+    def get_queryset(self):
+        queryset = Volunteer.objects.all().order_by('id')
+        user = self.request.user
+        try:
+            vol = user.profile.volunteer
+            queryset = queryset.filter(id=vol.id).all()
+            return queryset
+        except:
+            vol = None
+            return []
 
 
 class VolunteerAvailabilityViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows volunteer availabilities to be viewed or edited.
     """
-    queryset = VolunteerAvailability.objects.all().order_by('id')
     serializer_class = VolunteerAvailabilitySerializer
+
+    def get_queryset(self):
+        queryset = VolunteerAvailability.objects.all().order_by('id')
+        vol = None
+        user = self.request.user
+        try:
+            vol = user.profile.volunteer
+            queryset = queryset.filter(volunteer=vol).order_by('id')
+            return queryset
+        except:
+            vol = None
+            return []
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            self.perform_destroy(instance)
+        except Http404:
+            pass
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class VulnerableViewSet(viewsets.ModelViewSet):
@@ -92,7 +124,6 @@ class LostPersonRecordViewSet(viewsets.ModelViewSet):
             return []
 
         return records
-
 
 
 class FindRecordViewSet(viewsets.ModelViewSet):
