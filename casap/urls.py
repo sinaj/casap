@@ -63,6 +63,7 @@ router.register(r'vulnerable', views_api.VulnerableViewSet)
 router.register(r'vulnerable_address', views_api.VulnerableAddressViewSet)
 router.register(r'lost_person_record', views_api.LostPersonRecordViewSet, base_name='lost_person_record')
 router.register(r'find_record', views_api.FindRecordViewSet)
+router.register(r'emergency_call', views_api.EmergencyCallViewSet, base_name='emergency_call')
 
 urlpatterns = [
     url(r'^$', views.index),

@@ -1,8 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from casap.models import Profile, Volunteer, VolunteerAvailability, Vulnerable, VulnerableAddress, LostPersonRecord, \
-    FindRecord
+from casap.models import *
 from casap.utilities.utils import get_standard_phone, normalize_email
 
 
@@ -139,3 +138,11 @@ class FindRecordSerializer(serializers.HyperlinkedModelSerializer):
         fields = (
             'url', 'id', 'lost_record', 'reporter', 'time', 'address', 'address_lat', 'address_lng', 'description',
             'hash')
+
+
+class EmergencyCallSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmergencyCall
+        fields = (
+            'phone_number',
+        )

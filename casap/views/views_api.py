@@ -5,10 +5,8 @@ from rest_framework import viewsets, generics, status
 import simplejson as json
 from rest_framework.response import Response
 
-from casap.models import Profile, Volunteer, VolunteerAvailability, Vulnerable, VulnerableAddress, LostPersonRecord, \
-    FindRecord
-from casap.serializers import UserSerializer, ProfileSerializer, VolunteerSerializer, VolunteerAvailabilitySerializer, \
-    VulnerableSerializer, VulnerableAddressSerializer, LostPersonRecordSerializer, FindRecordSerializer
+from casap.models import *
+from casap.serializers import *
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -132,3 +130,8 @@ class FindRecordViewSet(viewsets.ModelViewSet):
     """
     queryset = FindRecord.objects.all().order_by('id')
     serializer_class = FindRecordSerializer
+
+
+class EmergencyCallViewSet(viewsets.ModelViewSet):
+    queryset = EmergencyCall.objects.all()
+    serializer_class = EmergencyCallSerializer
