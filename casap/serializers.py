@@ -146,3 +146,13 @@ class EmergencyCallSerializer(serializers.ModelSerializer):
         fields = (
             'phone_number',
         )
+
+
+class SightingRecordSerializer(serializers.ModelSerializer):
+    reporter = UserSerializer(read_only=True)
+    lost_record = LostPersonRecordSerializer(read_only=True)
+
+    class Meta:
+        model = SightingRecord
+        fields = (
+            'id', 'lost_record', 'time', 'address', 'address_lat', 'address_lng', 'description', 'hash', 'reporter',)

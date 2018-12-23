@@ -135,3 +135,17 @@ class FindRecordViewSet(viewsets.ModelViewSet):
 class EmergencyCallViewSet(viewsets.ModelViewSet):
     queryset = EmergencyCall.objects.all()
     serializer_class = EmergencyCallSerializer
+
+
+class SightingRecordViewSet(viewsets.ModelViewSet):
+    queryset = SightingRecord.objects.all()
+    serializer_class = SightingRecordSerializer
+
+    def get_queryset(self):
+        _lost_id = self.request.query_params.get('lost')
+        lost = LostPersonRecord.objects.all().filter(id=int(_lost_id)).first()
+        sighting = lost.get_sighting_records()
+        if sighting:
+            return sighting
+        else:
+            return []
