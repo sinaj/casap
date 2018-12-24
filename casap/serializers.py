@@ -113,10 +113,64 @@ class VulnerableSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vulnerable
         fields = (
-            'id', 'creation_time', 'first_name', 'last_name', 'nickname', 'birthday', 'picture', 'hash',
-            'creator_id',
-            'sex', 'race', 'eye_colour', 'hair_colour', 'height', 'weight', 'favourite_locations'
+            'id', 'first_name', 'last_name', 'nickname', 'birthday', 'picture', 'sex', 'race', 'eye_colour',
+            'hair_colour', 'height', 'weight', 'favourite_locations', 'instructions', 'transportation',
+            'work_action'
         )
+
+    def update(self, instance, validated_data):
+        x = validated_data
+        instance.picture = x.get('picture')
+        instance.first_name = x.get('first_name')
+        instance.last_name = x.get('last_name')
+        if x.get('nickname'):
+            instance.nickname = x.get('nickname')
+        instance.birthday = x.get('birthday')
+        instance.sex = x.get('sex')
+        instance.race = x.get('race')
+        instance.eye_colour = x.get('eye_colour')
+        instance.hair_colour = x.get('hair_colour')
+        instance.height = x.get('height')
+        instance.weight = x.get('weight')
+        instance.favourite_locations = x.get('favourite_locations')
+        if x.get('instructions'):
+            instance.instructions = x.get('instructions')
+        if x.get('transportation'):
+            instance.transportation = x.get('transportation')
+        instance.work_action = x.get('work_action')
+        instance.save()
+        return instance
+
+    def create(self, validated_data):
+        x = validated_data
+        _prof = self.context['request'].user.profile
+        time = datetime.datetime.now()
+        vulnerable = Vulnerable.objects.create(
+            creator=_prof,
+            creation_time=time,
+            first_name=x.get('first_name'),
+            last_name=x.get('last_name'),
+            birthday=x.get('birthday'),
+            sex=x.get('sex'),
+            race=x.get('race'),
+            hair_colour=x.get('hair_colour'),
+            eye_colour=x.get('eye_colour'),
+            height=x.get('height'),
+            weight=x.get('weight'),
+            favourite_locations=x.get('favourite_locations'),
+            work_action=x.get('work_action'),
+            picture=x.get('picture')
+        )
+
+        if x.get('nickname'):
+            vulnerable.nickname = x.get('nickname')
+        if x.get('instructions'):
+            vulnerable.instructions = x.get('instructions')
+        if x.get('transportation'):
+            vulnerable.transportation = x.get('transportation')
+
+        vulnerable.save()
+        return vulnerable
 
 
 class VulnerableAddressSerializer(serializers.ModelSerializer):

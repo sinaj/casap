@@ -81,8 +81,18 @@ class VulnerableViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows vulnerables to be viewed or edited.
     """
-    queryset = Vulnerable.objects.all().order_by('id')
     serializer_class = VulnerableSerializer
+
+    def get_queryset(self):
+        queryset = Vulnerable.objects.all().order_by('-first_name')
+
+        if self.request.user.is_superuser:
+            return queryset
+        else:
+            x = self.request.user.profile
+            queryset = queryset.filter(creator=x).order_by('-first_name')
+
+            return queryset
 
 
 class VulnerableAddressViewSet(viewsets.ModelViewSet):
