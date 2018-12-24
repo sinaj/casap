@@ -65,8 +65,12 @@ class VolunteerSerializer(serializers.ModelSerializer):
         x = validated_data
         if x.get('phone'):
             instance.phone = x.get('phone')
+        else:
+            instance.phone = None
         if x.get('email'):
             instance.email = x.get('email')
+        else:
+            instance.email = None
         instance.save()
         return instance
 
@@ -125,6 +129,8 @@ class VulnerableSerializer(serializers.ModelSerializer):
         instance.last_name = x.get('last_name')
         if x.get('nickname'):
             instance.nickname = x.get('nickname')
+        else:
+            instance.nickname = None
         instance.birthday = x.get('birthday')
         instance.sex = x.get('sex')
         instance.race = x.get('race')
@@ -135,8 +141,12 @@ class VulnerableSerializer(serializers.ModelSerializer):
         instance.favourite_locations = x.get('favourite_locations')
         if x.get('instructions'):
             instance.instructions = x.get('instructions')
+        else:
+            instance.instructions = None
         if x.get('transportation'):
             instance.transportation = x.get('transportation')
+        else:
+            instance.transportation = None
         instance.work_action = x.get('work_action')
         instance.save()
         return instance
