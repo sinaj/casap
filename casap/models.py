@@ -258,7 +258,7 @@ class LostPersonRecord(models.Model):
         return "%s%s" % (settings.DOMAIN, reverse("track_missing", kwargs=dict(hash=self.hash)))
 
     def get_sighting_records(self):
-        return self.sighting_records.order_by("time").all()
+        return self.sighting_records.order_by("-time").all()
 
     def save(self, *args, **kwargs):
         if not self.hash:

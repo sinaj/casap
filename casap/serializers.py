@@ -1,8 +1,10 @@
 from django.contrib.auth.models import User
+import datetime
 from rest_framework import serializers
 
 from casap.models import *
 from casap.utilities.utils import get_standard_phone, normalize_email
+from casap.views.views_report import send_alert_email
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -156,3 +158,39 @@ class SightingRecordSerializer(serializers.ModelSerializer):
         model = SightingRecord
         fields = (
             'id', 'lost_record', 'time', 'address', 'address_lat', 'address_lng', 'description', 'hash', 'reporter',)
+
+
+class TempSightingRecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        lost_record = LostPersonRecordSerializer(read_only=True)
+
+        model = TempSightingRecord
+        fields = (
+            'id', 'lost_record', 'address', 'address_lat', 'address_lng', 'description'
+        )
+
+    def create(self, validated_data):
+        x = validated_data
+        _vol = self.context['request'].user
+        time = datetime.datetime.now()
+        lost_record = x.get('lost_record')
+        temp_sighting = TempSightingRecord.objects.create(
+            lost_record=lost_record,
+            reporter=_vol,
+            time=time,
+            address=x.get('address'),
+            address_lng=x.get('address_lng'),
+            address_lat=x.get('address_lat'),
+            description=x.get('description')
+        )
+
+        lost_alert = Alerts(
+            state='Sighted', lost_record=lost_record, seen_record=temp_sighting
+        )
+        lost_alert.save()
+
+        coordinators = Profile.objects.filter(coordinator_email=True)
+        for coord in coordinators:
+            send_alert_email(coord, lost_alert)
+
+        return temp_sighting

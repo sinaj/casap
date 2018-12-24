@@ -60,14 +60,12 @@ class VolunteerAvailabilityViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = VolunteerAvailability.objects.all().order_by('id')
-        vol = None
         user = self.request.user
         try:
             vol = user.profile.volunteer
             queryset = queryset.filter(volunteer=vol).order_by('id')
             return queryset
         except:
-            vol = None
             return []
 
     def destroy(self, request, *args, **kwargs):
@@ -149,3 +147,8 @@ class SightingRecordViewSet(viewsets.ModelViewSet):
             return sighting
         else:
             return []
+
+
+class TempSightingRecordViewSet(viewsets.ModelViewSet):
+    queryset = TempSightingRecord.objects.all()
+    serializer_class = TempSightingRecordSerializer

@@ -65,6 +65,7 @@ router.register(r'lost_person_record', views_api.LostPersonRecordViewSet, base_n
 router.register(r'find_record', views_api.FindRecordViewSet)
 router.register(r'emergency_call', views_api.EmergencyCallViewSet, base_name='emergency_call')
 router.register(r'sighting_record', views_api.SightingRecordViewSet, base_name='sighting_record')
+router.register(r'temp_sighting_record', views_api.TempSightingRecordViewSet, base_name='temp_sighting_record')
 
 urlpatterns = [
     url(r'^$', views.index),
