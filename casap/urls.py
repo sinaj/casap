@@ -90,6 +90,7 @@ urlpatterns = [
     url(r'^tips/', views.tips_view, name='tips'),
     url(r'^redirect/', views.show_missing_view, name='redirect'),
     url(r'^remove-volunteer', views_dashboard.coordinator_remove_volunteer_view, name='coordinator-remove-volunteer'),
+    url(r'^privacy/', views.privacy_view, name='privacy'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

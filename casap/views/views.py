@@ -186,3 +186,7 @@ def tips_view(request):
     :return: render
     """
     return render(request, "tips.html", request.context)
+
+
+def privacy_view(request):
+    return render(request, 'privacy.html')
