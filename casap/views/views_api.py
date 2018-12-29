@@ -117,6 +117,7 @@ class LostPersonRecordViewSet(viewsets.ModelViewSet):
         profile = Profile.objects.filter(id=user.id).first()
         missing_people = LostPersonRecord.objects.filter(state="reported") | LostPersonRecord.objects.filter(
             state="sighted")
+        missing_people = missing_people.order_by('time')
         try:
             if profile.volunteer.id:
                 for i in missing_people:
@@ -130,6 +131,11 @@ class LostPersonRecordViewSet(viewsets.ModelViewSet):
             return []
 
         return records
+
+
+class AllLostPersonRecordViewSet(viewsets.ModelViewSet):
+    serializer_class = LostPersonRecordSerializer
+    queryset = LostPersonRecord.objects.all().order_by('id')
 
 
 class FindRecordViewSet(viewsets.ModelViewSet):
