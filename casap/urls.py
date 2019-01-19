@@ -56,13 +56,17 @@ report_patterns = [
 # API routes
 router = routers.DefaultRouter()
 router.register(r'users', views_api.UserViewSet)
-router.register(r'profiles', views_api.ProfileViewSet)
-router.register(r'volunteers', views_api.VolunteerViewSet)
-router.register(r'volunteer_availability', views_api.VolunteerAvailabilityViewSet)
-router.register(r'vulnerable', views_api.VulnerableViewSet)
+router.register(r'profiles', views_api.ProfileViewSet, base_name='profiles')
+router.register(r'volunteers', views_api.VolunteerViewSet, base_name='volunteers')
+router.register(r'volunteer_availability', views_api.VolunteerAvailabilityViewSet, base_name='volunteer_availability')
+router.register(r'vulnerable', views_api.VulnerableViewSet, base_name='vulnerable')
 router.register(r'vulnerable_address', views_api.VulnerableAddressViewSet)
 router.register(r'lost_person_record', views_api.LostPersonRecordViewSet, base_name='lost_person_record')
 router.register(r'find_record', views_api.FindRecordViewSet)
+router.register(r'emergency_call', views_api.EmergencyCallViewSet, base_name='emergency_call')
+router.register(r'sighting_record', views_api.SightingRecordViewSet, base_name='sighting_record')
+router.register(r'temp_sighting_record', views_api.TempSightingRecordViewSet, base_name='temp_sighting_record')
+router.register(r'all_lost_person_record', views_api.AllLostPersonRecordViewSet, base_name='all_lost_person_record')
 
 urlpatterns = [
     url(r'^$', views.index),
@@ -87,6 +91,7 @@ urlpatterns = [
     url(r'^tips/', views.tips_view, name='tips'),
     url(r'^redirect/', views.show_missing_view, name='redirect'),
     url(r'^remove-volunteer', views_dashboard.coordinator_remove_volunteer_view, name='coordinator-remove-volunteer'),
+    url(r'^privacy/', views.privacy_view, name='privacy'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -71,7 +71,7 @@ def index(request):
     else:
         request.context['missing_people'] = records
     # request.context['seen_people'] = seen_list
-    request.context['user_tz_name'] = 'Canada/Pacific'  # This needs to be changed when multiple timezones will be used
+    request.context['user_tz_name'] = 'Canada/Mountain'  # This needs to be changed when multiple timezones will be used
     return render(request, "public/index.html", request.context)
 
 
@@ -186,3 +186,7 @@ def tips_view(request):
     :return: render
     """
     return render(request, "tips.html", request.context)
+
+
+def privacy_view(request):
+    return render(request, 'privacy.html')

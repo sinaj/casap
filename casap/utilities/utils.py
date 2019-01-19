@@ -19,9 +19,13 @@ import phonenumbers as phonenumbers
 import pytz
 import requests
 from django.core.mail import send_mail
+import onesignal as onesignal_sdk
 
 from casap import settings
 from django.utils import timezone
+
+import sendgrid
+from sendgrid.helpers.mail import *
 
 
 def url_with_params(path, parameters_dict=None):
@@ -230,3 +234,177 @@ def send_twitter_dm(message, user):
                       access_token_key=settings.TWITTER_ACCESS_KEY, access_token_secret=settings.TWITTER_ACCESS_SECRET)
 
     api.PostDirectMessage(message, screen_name=user)
+
+
+# def create_payload_data(data):
+#     filter_list = list()
+#
+#     for i, item in enumerate(data):
+#         if i < len(data) - 1:
+#             filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
+#             filter_list.append({"operator": "OR"})
+#         else:
+#             filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
+#
+#     payload = {"app_id": settings.ONESIGNAL_APP_ID,
+#                "filters": filter_list,
+#                "template_id": settings.ONESIGNAL_MISSING_ID,
+#                }
+#
+#     return payload
+
+
+def send_missing_onesignal_notification(data, notify_record):
+    filter_list = list()
+
+    for i, item in enumerate(data):
+        if i < len(data) - 1:
+            filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
+            filter_list.append({"operator": "OR"})
+        else:
+            filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
+
+    onesignal_client = onesignal_sdk.Client(user_auth_key=settings.ONESIGNAL_AUTH_KEY,
+                                            app={"app_auth_key": settings.ONESIGNAL_REST_KEY,
+                                                 "app_id": settings.ONESIGNAL_APP_ID})
+
+    # create a notification
+    new_notification = onesignal_sdk.Notification()
+    new_notification.set_parameter("contents", {
+        "en": "Last seen near: {}. Has {} hair and is wearing {}.".format(notify_record.intersection,
+                                                                          notify_record.vulnerable.hair_colour,
+                                                                          notify_record.description)})
+    new_notification.set_parameter("headings", {"en": "MISSING: {}".format(notify_record.vulnerable.full_name)})
+    new_notification.set_parameter("template_id", settings.ONESIGNAL_MISSING_TEMPLATE_ID)
+    print("{}/media/{}".format(settings.DOMAIN, notify_record.vulnerable.picture))
+    new_notification.set_parameter("ios_attachments",
+                                   {
+                                       "id": "{}/media/{}".format(settings.DOMAIN, notify_record.vulnerable.picture)})
+    new_notification.set_parameter("big_picture",
+                                   "{}/media/{}".format(settings.DOMAIN, notify_record.vulnerable.picture))
+
+    # set filters
+    new_notification.set_filters(filter_list)
+
+    # send notification, it will return a response
+    onesignal_response = onesignal_client.send_notification(new_notification)
+    print(onesignal_response.status_code)
+    print(onesignal_response.json())
+
+
+def send_sighting_onesignal_notification(data, notify_record, add_seen):
+    filter_list = list()
+
+    for i, item in enumerate(data):
+        if i < len(data) - 1:
+            filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
+            filter_list.append({"operator": "OR"})
+        else:
+            filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
+
+    onesignal_client = onesignal_sdk.Client(user_auth_key=settings.ONESIGNAL_AUTH_KEY,
+                                            app={"app_auth_key": settings.ONESIGNAL_REST_KEY,
+                                                 "app_id": settings.ONESIGNAL_APP_ID})
+
+    # create a notification
+    new_notification = onesignal_sdk.Notification()
+    new_notification.set_parameter("contents", {
+        "en": "Potentially seen at {}. {}".format(add_seen.address, add_seen.description)})
+    new_notification.set_parameter("headings",
+                                   {"en": "POTENTIAL SIGHTING: {}".format(notify_record.vulnerable.full_name)})
+    new_notification.set_parameter("template_id", settings.ONESIGNAL_SIGHTING_TEMPLATE_ID)
+    print("{}/media/{}".format(settings.DOMAIN, notify_record.vulnerable.picture))
+    new_notification.set_parameter("ios_attachments",
+                                   {
+                                       "id": "{}/media/{}".format(settings.DOMAIN, notify_record.vulnerable.picture)})
+    new_notification.set_parameter("big_picture",
+                                   "{}/media/{}".format(settings.DOMAIN, notify_record.vulnerable.picture))
+
+    # set filters
+    new_notification.set_filters(filter_list)
+
+    # send notification, it will return a response
+    onesignal_response = onesignal_client.send_notification(new_notification)
+    print(onesignal_response.status_code)
+    print(onesignal_response.json())
+
+
+def send_new_sighting_onesignal_notification(data, notify_record, add_seen):
+    filter_list = list()
+
+    for i, item in enumerate(data):
+        if i < len(data) - 1:
+            filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
+            filter_list.append({"operator": "OR"})
+        else:
+            filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
+
+    onesignal_client = onesignal_sdk.Client(user_auth_key=settings.ONESIGNAL_AUTH_KEY,
+                                            app={"app_auth_key": settings.ONESIGNAL_REST_KEY,
+                                                 "app_id": settings.ONESIGNAL_APP_ID})
+
+    # create a notification
+    new_notification = onesignal_sdk.Notification()
+    new_notification.set_parameter("contents", {
+        "en": "Potentially seen within your area of availability at {}. {}. You will now receive alerts for {}".format(
+            add_seen.address, add_seen.description, notify_record.vulnerable.full_name)})
+    new_notification.set_parameter("headings",
+                                   {"en": "POTENTIAL SIGHTING: {}".format(notify_record.vulnerable.full_name)})
+    new_notification.set_parameter("template_id", settings.ONESIGNAL_SIGHTING_TEMPLATE_ID)
+    print("{}/media/{}".format(settings.DOMAIN, notify_record.vulnerable.picture))
+    new_notification.set_parameter("ios_attachments",
+                                   {
+                                       "id": "{}/media/{}".format(settings.DOMAIN, notify_record.vulnerable.picture)})
+    new_notification.set_parameter("big_picture",
+                                   "{}/media/{}".format(settings.DOMAIN, notify_record.vulnerable.picture))
+
+    # set filters
+    new_notification.set_filters(filter_list)
+
+    # send notification, it will return a response
+    onesignal_response = onesignal_client.send_notification(new_notification)
+    print(onesignal_response.status_code)
+    print(onesignal_response.json())
+
+
+def send_found_onesignal_notification(data, notify_record):
+    filter_list = list()
+
+    for i, item in enumerate(data):
+        if i < len(data) - 1:
+            filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
+            filter_list.append({"operator": "OR"})
+        else:
+            filter_list.append({"field": "tag", "key": "id", "relation": "=", "value": str(item)})
+
+    onesignal_client = onesignal_sdk.Client(user_auth_key=settings.ONESIGNAL_AUTH_KEY,
+                                            app={"app_auth_key": settings.ONESIGNAL_REST_KEY,
+                                                 "app_id": settings.ONESIGNAL_APP_ID})
+
+    # create a notification
+    new_notification = onesignal_sdk.Notification()
+    new_notification.set_parameter("contents", {
+        "en": "{} has been found".format(notify_record.vulnerable.full_name)})
+    new_notification.set_parameter("headings", {"en": "FOUND: {}".format(notify_record.vulnerable.full_name)})
+    new_notification.set_parameter("template_id", settings.ONESIGNAL_FOUND_TEMPLATE_ID)
+
+    # set filters
+    new_notification.set_filters(filter_list)
+
+    # send notification, it will return a response
+    onesignal_response = onesignal_client.send_notification(new_notification)
+    print(onesignal_response.status_code)
+    print(onesignal_response.json())
+
+
+def send_email(email_add, header_subject, data):
+    sg = sendgrid.SendGridAPIClient(apikey=settings.SENDGRID_API)
+    from_email = Email(settings.EMAIL)
+    to_email = Email(email_add)
+    subject = header_subject
+    content = Content("text/plain", data)
+    mail = Mail(from_email, subject, to_email, content)
+    response = sg.client.mail.send.post(request_body=mail.get())
+    print(response.status_code)
+    print(response.body)
+    print(response.headers)
