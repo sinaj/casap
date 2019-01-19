@@ -28,6 +28,8 @@ class LostPersonRecordForm(forms.ModelForm):
             raise forms.ValidationError("Address is invalid")
         self.address_lat = map_response['lat']
         self.address_lng = map_response['lng']
+        self.city = map_response['city']
+        self.province = map_response['province']
         self.address = address
         return self.cleaned_data['address']
 
@@ -38,6 +40,8 @@ class LostPersonRecordForm(forms.ModelForm):
         instance.state = "reported"
         instance.address_lat = self.address_lat
         instance.address_lng = self.address_lng
+        instance.city = self.city
+        instance.province = self.province
         instance.address = self.address
 
         if commit:
@@ -47,7 +51,7 @@ class LostPersonRecordForm(forms.ModelForm):
     class Meta:
         model = LostPersonRecord
         fields = ('time', 'address', 'description')
-        exclude = ('address_lng', 'address_lat')
+        # exclude = ('address_lng', 'address_lat')
 
 
 class SightingRecordForm(forms.ModelForm):

@@ -1,4 +1,6 @@
 import os
+import json
+import requests
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -25,6 +27,7 @@ class Profile(models.Model):
     email_confirmed = models.BooleanField(default=False)
     phone_validated = models.BooleanField(default=False)
     coordinator_email = models.BooleanField(default=False)
+    phone_number = models.CharField(max_length=15, null=True, blank=True)
     hash = models.CharField(max_length=30, unique=True, blank=True)
 
     @property
@@ -194,6 +197,7 @@ class Vulnerable(models.Model):
     description = models.TextField(null=True, blank=True)
     instructions = models.TextField(null=True, blank=True)
     transportation = models.TextField(null=True, blank=True)
+    work_action = models.TextField(null=True, blank=True)
 
     hash = models.CharField(max_length=30, unique=True, blank=True)
 
@@ -241,6 +245,11 @@ class LostPersonRecord(models.Model):
     address = models.CharField(max_length=100)
     address_lat = models.FloatField()
     address_lng = models.FloatField()
+    intersection = models.CharField(max_length=150, null=True, blank=True)
+    intersection_lat = models.FloatField(null=True)
+    intersection_lng = models.FloatField(null=True)
+    city = models.CharField(max_length=150, null=True, blank=True)
+    province = models.CharField(max_length=150, null=True, blank=True)
     description = models.TextField(blank=True)
     hash = models.CharField(max_length=30, unique=True, blank=True)
     volunteer_list = models.TextField(null=True)  # JSON-serialized (text) version of relevant volunteer ids
@@ -249,7 +258,7 @@ class LostPersonRecord(models.Model):
         return "%s%s" % (settings.DOMAIN, reverse("track_missing", kwargs=dict(hash=self.hash)))
 
     def get_sighting_records(self):
-        return self.sighting_records.order_by("time").all()
+        return self.sighting_records.order_by("-time").all()
 
     def save(self, *args, **kwargs):
         if not self.hash:
@@ -257,6 +266,30 @@ class LostPersonRecord(models.Model):
 
         inProj = Proj(init='epsg:4326')
         outProj = Proj(init='epsg:3857')
+
+        if not self.intersection:
+            orig_lat = self.address_lat
+            orig_lng = self.address_lng
+
+            endpoint = 'http://api.geonames.org/findNearestIntersectionOSMJSON?lat={}&lng={}&username=casap'.format(
+                orig_lat, orig_lng)
+
+            resp = requests.get(endpoint)
+            for i in range(10):
+                if resp is None:
+                    resp = requests.get(endpoint)
+                else:
+                    break
+
+            results = resp.json()
+
+            intersection_string = '{} & {}, {}, {}'.format(results['intersection']['street2'],
+                                                           results['intersection']['street1'], self.city, self.province)
+            self.intersection = intersection_string
+            self.intersection_lng, self.intersection_lat = transform(inProj, outProj,
+                                                                     float(results['intersection']['lng']),
+                                                                     float(results['intersection']['lat']))
+
         try:
             self.address_lng, self.address_lat = transform(inProj, outProj, float(self.address_lng),
                                                            float(self.address_lat))

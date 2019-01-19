@@ -122,6 +122,17 @@
 </div>
 
 <div class="form-group row">
+    <label for="id_work_action" class="col-sm-4 col-form-label">Work Action <span
+            class="text-danger">*</span></label>
+    {{ form.work_action.errors }}
+    <div class="col-sm-6">
+        <textarea id="id_work_action" name="work_action"
+                  placeholder="e.g. Do not approach Jane Doe. If you encounter her, call 911 immediately."
+                  class="form-control" required>{{ form.work_action.value|default:"" }}</textarea>
+    </div>
+</div>
+
+<div class="form-group row">
     <label for="id_transportation" class="col-sm-4 col-form-label">Method of transportation </label>
     {{ form.transportation.errors }}
     <div class="col-sm-6">
@@ -202,7 +213,7 @@
             </div>
             <div class="modal-body">
                 <div class="location">
-                    <input id="geocomplete" type="text" placeholder="Type in an address" size="90"
+                    <input id="geocomplete"  autofocus="autofocus" onfocus="this.select()" type="text" placeholder="Type in an address" size="90"
                            class="form-control"/>
                 </div>
                 <div class="map_canvas"></div>
@@ -300,6 +311,7 @@
     $(function () {
         $("#geocomplete").geocomplete({
             map: ".map_canvas",
+            types:[],
             country: 'CA'
         });
     });
@@ -324,6 +336,10 @@
     $('#myModal').on('hidden.bs.modal', function () {
         $("#geocomplete").val("");
     });
+
+        $('#myModal').on('shown.bs.modal', function () {
+        $('#geocomplete').focus();
+    })
 
 
     function EnforceMaximumLength(fld, len) {

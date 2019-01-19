@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+{% load tz %}
+
+{% block page_title %}
+    C-ASAP | Remove Volunteer
+{% endblock %}
+
+{% block content %}
+
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url "index" %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Remove Volunteers</li>
+        </ol>
+    </nav>
+
+    <div class="container p-0">
+        <div class="row justify-content-center">
+            <div class="col-sm-10 col-md-10 col-lg-8">
+                <div class="card mr-auto">
+                    <div class="card-body">
+                        <h4 class="card-title">
+                            Volunteer List
+                        </h4>
+                        <div class="container-fluid p-0">
+                            {% for vol in volunteer_list %}
+                                {% if forloop.first %}
+                                    <table class="table">
+                                    <thead>
+                                    <tr>
+                                        {#                                        <th scope="col">#</th>#}
+                                        <th scope="col">Volunteer</th>
+                                        <th scope="col">Delete
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                {% endif %}
+                            <tr>
+                                <td>{{ vol.full_name }}</td>
+                                <td>
+                                    <form action="{% url "coordinator_delete_volunteer" hash=vol.hash %}" method="post"
+                                          class="d-inline"
+                                          onsubmit="return confirm('Delete volunteer??')">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="hash" value="{{ vol.hash }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% if forloop.last %}
+                                </tbody>
+                                </table>
+                            {% endif %}
+                            {% empty %}
+                                <div class="container-fluid text-center">
+                                    You have not created any vulnerable people.
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

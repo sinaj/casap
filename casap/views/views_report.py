@@ -19,8 +19,7 @@ from casap.forms.forms_report import LostPersonRecordForm, SightingRecordForm, F
 from casap.models import Vulnerable, LostPersonRecord, Volunteer, Activity, Location, VolunteerAvailability, \
     LostActivity, FoundActivity, Alerts, Notifications, Profile, TempSightingRecord, SightingRecord
 
-from casap.utilities.utils import get_user_time, send_sms, get_standard_phone, SimpleMailHelper, send_tweet, \
-    shorten_url, send_twitter_dm, get_address_map_google
+from casap.utilities.utils import *
 
 
 def tweet_helper(name, link, flag, time):
@@ -64,8 +63,8 @@ def lost_notification(notify_record, vol):
         send_sms(get_standard_phone(vol.phone), sms_text)
     if vol.email:
         SimpleMailHelper(mail_subject, sms_text, sms_text, vol.email).send_email()
-    if vol.twitter_handle:
-        send_twitter_dm(sms_text, vol.twitter_handle)
+    # if vol.twitter_handle:
+    #     send_twitter_dm(sms_text, vol.twitter_handle)
 
 
 def new_update_notification(notify_record, vol):
@@ -115,10 +114,55 @@ def send_alert_email(profile, lost_alert):
     SimpleMailHelper(mail_subject, text, text, profile.user.email).send_email()
 
 
+def update_clean_vulnerable(vulnerable, vul_form):
+    vulnerable.nickname = vul_form.cleaned_data.get('nickname')
+    vulnerable.sex = vul_form.cleaned_data.get('sex')
+    vulnerable.race = vul_form.cleaned_data.get('race')
+    vulnerable.hair_colour = vul_form.cleaned_data.get('hair_colour')
+    vulnerable.height = vul_form.cleaned_data.get('height')
+    vulnerable.weight = vul_form.cleaned_data.get('weight')
+    vulnerable.eye_colour = vul_form.cleaned_data.get('eye_colour')
+    vulnerable.favourite_locations = vul_form.cleaned_data.get('favourite_locations')
+    vulnerable.work_action = vul_form.cleaned_data.get('work_action')
+    if vul_form.cleaned_data.get('transportation'):
+        vulnerable.transportation = vul_form.cleaned_data.get('transportation')
+    if vul_form.cleaned_data.get('instructions'):
+        vulnerable.instructions = vul_form.cleaned_data.get('instructions')
+    vulnerable.save()
+
+
+def update_vulnerable(vulnerable, vul_form):
+    vulnerable.nickname = vul_form.data.get('nickname')
+    vulnerable.sex = vul_form.data.get('sex')
+    vulnerable.race = vul_form.data.get('race')
+    vulnerable.hair_colour = vul_form.data.get('hair_colour')
+    vulnerable.height = vul_form.data.get('height')
+    vulnerable.weight = vul_form.data.get('weight')
+    vulnerable.eye_colour = vul_form.data.get('eye_colour')
+    vulnerable.favourite_locations = vul_form.data.get('favourite_locations')
+    vulnerable.work_action = vul_form.cleaned_data.get('work_action')
+    if vul_form.data.get('transportation'):
+        vulnerable.transportation = vul_form.data.get('transportation')
+    if vul_form.cleaned_data.get('instructions'):
+        vulnerable.instructions = vul_form.cleaned_data.get('instructions')
+    vulnerable.save()
+
+
+def create_lost_activity(lost_record):
+    lost_activity = LostActivity()
+    lost_activity.locLat = lost_record.address_lat
+    lost_activity.locLon = lost_record.address_lng
+    lost_activity.person_id = lost_record.vulnerable_id
+    lost_activity.time = lost_record.time
+    lost_activity.adminPoint = Point(float(lost_activity.locLon), float(lost_activity.locLat), srid=3857)
+    fence_loc = Location.objects.filter(fence__contains=lost_activity.adminPoint)
+    if fence_loc:
+        lost_activity.location = fence_loc[0]
+    lost_activity.save()
+
+
 @login_required
 def report_lost_view(request):
-    coordinators = Profile.objects.filter(coordinator_email=True)
-    profile = request.context['user_profile']
     if request.method == "POST":
         form = LostPersonRecordForm(request.POST)
         vul_form = VulnerableReportForm(request.POST)
@@ -126,35 +170,13 @@ def report_lost_view(request):
         if form.is_valid() and vul_form.is_valid():
             vulnerable = Vulnerable.objects.filter(hash=request.POST.get("vulnerable")).first()
             if vulnerable:
-                vulnerable.nickname = vul_form.cleaned_data.get('nickname')
-                vulnerable.sex = vul_form.cleaned_data.get('sex')
-                vulnerable.race = vul_form.cleaned_data.get('race')
-                vulnerable.hair_colour = vul_form.cleaned_data.get('hair_colour')
-                vulnerable.height = vul_form.cleaned_data.get('height')
-                vulnerable.weight = vul_form.cleaned_data.get('weight')
-                vulnerable.eye_colour = vul_form.cleaned_data.get('eye_colour')
-                vulnerable.favourite_locations = vul_form.cleaned_data.get('favourite_locations')
-                if vul_form.cleaned_data.get('transportation'):
-                    vulnerable.transportation = vul_form.cleaned_data.get('transportation')
-                if vul_form.cleaned_data.get('instructions'):
-                    vulnerable.instructions = vul_form.cleaned_data.get('instructions')
-                vulnerable.save()
+                update_clean_vulnerable(vulnerable, vul_form)
                 lost_record = form.save(request.user, vulnerable)
+                # Save the list of volunteer ids to the lost record
                 x = list(generate_volunteers(lost_record))
                 lost_record.volunteer_list = json.dumps(x)
                 lost_record.save()
-                lost_activity = LostActivity()
-                lost_activity.locLat = lost_record.address_lat
-                lost_activity.locLon = lost_record.address_lng
-                lost_activity.person_id = lost_record.vulnerable_id
-                lost_activity.time = lost_record.time
-                lost_activity.adminPoint = Point(float(lost_activity.locLon), float(lost_activity.locLat), srid=3857)
-                fence_loc = Location.objects.filter(fence__contains=lost_activity.adminPoint)
-                if fence_loc:
-                    lost_activity.location = fence_loc[0]
-                lost_activity.save()
-                time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime(
-                    "%H:%M")
+                create_lost_activity(lost_record)
                 flag = 1
                 notify_volunteers(lost_record, flag)
                 # send_tweet(
@@ -165,34 +187,13 @@ def report_lost_view(request):
         else:
             vulnerable = Vulnerable.objects.filter(hash=request.POST.get("vulnerable")).first()
             if vulnerable:
-                vulnerable.nickname = vul_form.data.get('nickname')
-                vulnerable.sex = vul_form.data.get('sex')
-                vulnerable.race = vul_form.data.get('race')
-                vulnerable.hair_colour = vul_form.data.get('hair_colour')
-                vulnerable.height = vul_form.data.get('height')
-                vulnerable.weight = vul_form.data.get('weight')
-                vulnerable.eye_colour = vul_form.data.get('eye_colour')
-                vulnerable.favourite_locations = vul_form.data.get('favourite_locations')
-                if vul_form.data.get('transportation'):
-                    vulnerable.transportation = vul_form.data.get('transportation')
-                if vul_form.cleaned_data.get('instructions'):
-                    vulnerable.instructions = vul_form.cleaned_data.get('instructions')
-                vulnerable.save()
+                update_vulnerable(vulnerable, vul_form)
                 lost_record = new_lost_record(request.user, vulnerable, form.data.get('address'), form.data.get('time'),
                                               request.context.get('user_tz_name'))
                 x = list(generate_volunteers(lost_record))
                 lost_record.volunteer_list = json.dumps(x)
                 lost_record.save()
-                lost_activity = LostActivity()
-                lost_activity.locLat = lost_record.address_lat
-                lost_activity.locLon = lost_record.address_lng
-                lost_activity.person_id = lost_record.vulnerable_id
-                lost_activity.time = lost_record.time
-                lost_activity.adminPoint = Point(float(lost_activity.locLon), float(lost_activity.locLat), srid=3857)
-                fence_loc = Location.objects.filter(fence__contains=lost_activity.adminPoint)
-                if fence_loc:
-                    lost_activity.location = fence_loc[0]
-                lost_activity.save()
+                create_lost_activity(lost_record)
                 time_seen = datetime.datetime.now(pytz.timezone(request.context.get('user_tz_name'))).strftime(
                     "%H:%M")
                 flag = 1
@@ -324,13 +325,17 @@ def alert_view(request, hash):
                 volunteer_list = json_dec.decode(lost_rec.volunteer_list)
             except:
                 volunteer_list = list()
-            new_volunteers = generate_updated_volunteers(add_seen, volunteer_list)
+            new_volunteers, user_ids = generate_updated_volunteers(add_seen, volunteer_list)
             for i in new_volunteers:
                 new_update_notification(lost_rec, i)
             for j in volunteer_list:
                 update_notification(lost_rec, j)
+                # Send sighting to original list
+            send_onesignal_sighting(lost_rec, add_seen, volunteer_list)
             if new_volunteers:
                 volunteer_list.extend(new_volunteers)
+                # Send sighting to new list
+                send_new_sighting_onesignal_notification(lost_rec, add_seen, user_ids)
             lost_rec.volunteer_list = json.dumps(volunteer_list)
             lost_rec.save()
             add_message(request, messages.SUCCESS, "Update successfully sent.")
@@ -362,17 +367,40 @@ def alert_view(request, hash):
     return render(request, "alert_view.html", request.context)
 
 
+def send_onesignal_sighting(lost_rec, add_seen, vol_list):
+    user_list = list()
+    for i in vol_list:
+        vol = Volunteer.objects.get(id=i)
+        user_list.append(vol.profile.user.id)
+
+    send_sighting_onesignal_notification(user_list, lost_rec, add_seen)
+
+
+def send_onesignal_found(lost_rec, vol_list):
+    user_list = list()
+    for i in vol_list:
+        vol = Volunteer.objects.get(id=i)
+        user_list.append(vol.profile.user.id)
+
+    send_found_onesignal_notification(user_list, lost_rec)
+
+
 def notify_volunteers(notify_record, flag):
     lat, lng = notify_record.address_lat, notify_record.address_lng
     inProj = Proj(init='epsg:3857')
     outProj = Proj(init='epsg:4326')
     lng, lat = transform(inProj, outProj, float(lng), float(lat))
     close_volunteers = set()
+    user_ids = []
     for vol in Volunteer.objects.all():
         availability = VolunteerAvailability.objects.filter(volunteer=vol)
         for x in availability:
             if (vincenty((x.address_lat, x.address_lng), (lat, lng)).kilometers <= x.km_radius):
                 close_volunteers.add(vol)
+                user_ids.append(vol.profile.user.id)
+
+    # Onesignal notifications
+    send_missing_onesignal_notification(user_ids, notify_record)
 
     for vol in close_volunteers:
         # if flag == 1:
@@ -394,6 +422,7 @@ def generate_updated_volunteers(notify_record, volunteer_list):
     outProj = Proj(init='epsg:4326')
     lng, lat = transform(inProj, outProj, float(lng), float(lat))
     close_volunteers = set()
+    user_ids = list()
 
     for vol in Volunteer.objects.all():
         if vol.id not in volunteer_list:
@@ -401,8 +430,9 @@ def generate_updated_volunteers(notify_record, volunteer_list):
             for x in availability:
                 if vincenty((x.address_lat, x.address_lng), (lat, lng)).kilometers <= x.km_radius:
                     close_volunteers.add(vol.id)
+                    user_ids.append(vol.profile.user.id)
 
-    return close_volunteers
+    return close_volunteers, user_ids
 
 
 def generate_volunteers(notify_record):
@@ -446,6 +476,7 @@ def report_found_view(request, hash):
             if volunteer_list:
                 for i in volunteer_list:
                     send_found_alert(i, lost_record, v)
+                send_onesignal_found(lost_record, volunteer_list)
             # send_tweet(tweet_helper(lost_record.vulnerable.full_name, lost_record.get_link(), 2, v.time))
             lost_record.save()
             found_activity = FoundActivity()
@@ -473,8 +504,8 @@ def report_found_view(request, hash):
 
 def send_found_alert(vol_id, record, v):
     vol = Volunteer.objects.get(id=vol_id)
-    link = "http://{}".format(record.get_link())
-    # link = shorten_url(link)
+    # link = "http://{}".format(record.get_link())
+    link = shorten_url(record.get_link())
     message = "Dear {}: {} has been found at {}. For more details visit the link below: {}".format(vol.full_name,
                                                                                                    record.vulnerable.full_name,
                                                                                                    v.time.time().strftime(
@@ -484,5 +515,5 @@ def send_found_alert(vol_id, record, v):
     if vol.email:
         mail_subject = "C-ASAP Client: {} has been found".format(record.vulnerable.full_name)
         SimpleMailHelper(mail_subject, message, message, vol.email).send_email()
-    if vol.twitter_handle:
-        send_twitter_dm(message, vol.twitter_handle)
+    # if vol.twitter_handle:
+    #     send_twitter_dm(message, vol.twitter_handle)

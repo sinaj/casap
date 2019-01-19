@@ -48,6 +48,20 @@ class UserEditForm(forms.ModelForm):
         fields = ('first_name', 'last_name', 'username')
 
 
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        exclude = ('email_confirmed', 'phone_validated', 'coordinator_email')
+        fields = ('phone_number',)
+
+    def clean_phone_number(self):
+        if self.cleaned_data.get('phone_number'):
+            standard_phone = get_standard_phone(self.cleaned_data['phone_number'])
+            if standard_phone:
+                return standard_phone
+            raise forms.ValidationError("Phone number is invalid.")
+
+
 class ManageNotificationsForm(forms.ModelForm):
     phone_notify = forms.BooleanField()
     email_notify = forms.BooleanField()
@@ -126,7 +140,7 @@ class VulnerableForm(forms.ModelForm):
         model = Vulnerable
         fields = (
             'first_name', 'last_name', 'nickname', 'birthday', 'picture', 'sex', 'race', 'hair_colour', 'height',
-            'weight', 'eye_colour', 'favourite_locations', 'transportation', 'instructions')
+            'weight', 'eye_colour', 'favourite_locations', 'transportation', 'instructions', 'work_action')
 
 
 class VulnerableReportForm(forms.ModelForm):
@@ -134,7 +148,7 @@ class VulnerableReportForm(forms.ModelForm):
         model = Vulnerable
         fields = (
             'nickname', 'sex', 'race', 'hair_colour', 'height',
-            'weight', 'eye_colour', 'favourite_locations', 'transportation', 'instructions', )
+            'weight', 'eye_colour', 'favourite_locations', 'transportation', 'instructions', 'work_action')
 
 
 # class VulnerableAddressFormSet(BaseInlineFormSet):

@@ -31,7 +31,7 @@
             var time = moment(feat.attributes.time).toDate();
             var point = new OpenLayers.LonLat(poplon, poplat).transform('EPSG:3857', 'EPSG:4326');
 
-            fetch('http://nominatim.openstreetmap.org/reverse?format=json&lon=' + point["lon"] + '&lat=' + point["lat"]).then(function (response) {
+            fetch('https://nominatim.openstreetmap.org/reverse?format=json&lon=' + point["lon"] + '&lat=' + point["lat"]).then(function (response) {
                 return response.json();
             }).then(function (json) {
                 var name = feat.attributes.owner.split("[")[0];

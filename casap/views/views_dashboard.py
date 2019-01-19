@@ -14,6 +14,13 @@ from casap.forms.forms import *
 
 
 def create_address(request, vulnerable, form):
+    """
+    This is used to add in an additional address to a vulnerable person.
+    :param request:
+    :param vulnerable:
+    :param form:
+    :return:
+    """
     if form.cleaned_data.get('address'):
         address = form.cleaned_data.get('address')
         loc = get_address_map_google(address)
@@ -34,6 +41,27 @@ def create_address(request, vulnerable, form):
             additional_address.address_lat = loc['lat']
             additional_address.save()
     else:
+        for i in range(5):
+            address = 'addresses-{}-address'.format(i)
+            if form.data.get(address):
+                loc = get_address_map_google(address)
+                for i in range(10):
+                    if loc is None:
+                        loc = get_address_map_google(address)
+                    else:
+                        break
+                if loc is None:
+                    add_message(request, messages.ERROR, "Problem with the inputted address.")
+                    vulnerable.delete()
+                    return render(request, 'dashboard/vulnerable/vulnerable_add.html', request.context)
+                else:
+                    additional_address = VulnerableAddress()
+                    additional_address.vulnerable = vulnerable
+                    additional_address.address = address
+                    additional_address.address_lng = loc['lng']
+                    additional_address.address_lat = loc['lat']
+                    additional_address.save()
+
         add_message(request, messages.ERROR, "Problem with the inputted address.")
         vulnerable.delete()
         return render(request, 'dashboard/vulnerable/vulnerable_add.html', request.context)
@@ -96,8 +124,14 @@ def geofence_record(activity, fence, an_activity, time='', person=''):
 
 @login_required
 def profile_edit_view(request):
+    """
+    This view renders the volunteer profile edit view.
+    :param request:
+    :return: render
+    """
     if request.method == 'POST':
         form = UserEditForm(request.POST, instance=request.user)
+        profile_form = ProfileForm(request.POST, instance=request.user.profile)
         if form.is_valid():
             user = form.save(request)
             user.refresh_from_db()  # load the profile instance created by the signal
@@ -106,67 +140,20 @@ def profile_edit_view(request):
             add_message(request, messages.SUCCESS, "Changes saved successfully.")
     else:
         form = UserEditForm(instance=request.user)
+        profile_form = ProfileForm(instance=request.user.profile)
         request.context['next'] = request.GET.get('next', reverse("index"))
     request.context['form'] = form
+    request.context['profile_form'] = profile_form
     return render(request, 'dashboard/profile/profile_edit.html', request.context)
 
 
 @login_required
-def manage_notifications_view(request):
-    if request.method == "POST":
-        notif = Notifications.objects.last()
-        form = ManageNotificationsForm(request.POST, initial=model_to_dict(notif))
-        if form.is_valid():
-            if form.cleaned_data.get('phone_notify'):
-                notif.phone_notify = True
-            else:
-                notif.phone_notify = False
-            if form.cleaned_data.get('email_notify'):
-                notif.email_notify = True
-            else:
-                notif.email_notify = False
-            if form.cleaned_data.get('twitter_dm_notify'):
-                notif.twitter_dm_notify = True
-            else:
-                notif.twitter_dm_notify = False
-            if form.cleaned_data.get('twitter_public_notify'):
-                notif.twitter_public_notify = True
-            else:
-                notif.twitter_public_notify = False
-            notif.save()
-            add_message(request, messages.SUCCESS, "Notifications successfully updated.")
-            return HttpResponseRedirect(reverse("index"))
-        else:
-            if form.cleaned_data:
-                if form.cleaned_data.get('phone_notify'):
-                    notif.phone_notify = True
-                else:
-                    notif.phone_notify = False
-                if form.cleaned_data.get('email_notify'):
-                    notif.email_notify = True
-                else:
-                    notif.email_notify = False
-                if form.cleaned_data.get('twitter_dm_notify'):
-                    notif.twitter_dm_notify = True
-                else:
-                    notif.twitter_dm_notify = False
-                if form.cleaned_data.get('twitter_public_notify'):
-                    notif.twitter_public_notify = True
-                else:
-                    notif.twitter_public_notify = False
-                notif.save()
-            add_message(request, messages.SUCCESS, "Notifications successfully updated.")
-            return HttpResponseRedirect(reverse("index"))
-
-    notif = Notifications.objects.last()
-    form = ManageNotificationsForm(initial=model_to_dict(notif))
-    request.context['notif'] = notif
-    request.context['form'] = form
-    return render(request, 'adminManage.html', request.context)
-
-
-@login_required
 def volunteer_edit_view(request):
+    """
+    Renders the volunteer edit view.
+    :param request:
+    :return: render
+    """
     profile = request.context['user_profile']
     if request.method == "POST":
         availability_formset = inlineformset_factory(Volunteer, VolunteerAvailability,
@@ -185,17 +172,11 @@ def volunteer_edit_view(request):
             if f.cleaned_data.get('address'):
                 add = f.cleaned_data.get('address')
                 address = get_address_map_google(add)
-                for i in range(25):
+                for i in range(5):
                     if address is None:
                         address = get_address_map_google(add)
                     else:
                         break
-                if address is None:
-                    for i in range(25):
-                        if address is None:
-                            address = get_address_map_google(add)
-                        else:
-                            break
                 if address is None:
                     messages.error(request, 'Address entered cannot be found. Try again')
                     return HttpResponseRedirect(request.path_info)
@@ -212,7 +193,7 @@ def volunteer_edit_view(request):
             if f.cleaned_data.get('address'):  # Check if there is a provided address
                 add = f.cleaned_data.get('address')
                 address = get_address_map_google(add)
-                for i in range(25):
+                for i in range(5):
                     if address is None:
                         address = get_address_map_google(add)
                     else:
@@ -252,6 +233,11 @@ def volunteer_edit_view(request):
 
 @login_required
 def vulnerable_list_view(request):
+    """
+    Renders the view to view all of the vulnerables in a list.
+    :param request:
+    :return:
+    """
     profile = request.context['user_profile']
     request.context['user'] = profile.user
     if profile.coordinator_email:
@@ -263,14 +249,19 @@ def vulnerable_list_view(request):
 
 @login_required
 def vulnerable_history_view(request, hash):
-    vulnerable_hash = hash
+    """
+    Renders the history/map view of a vulnerable person.
+    :param request:
+    :param hash: The hash of the vulnerable person
+    :return:
+    """
     person = Vulnerable.objects.filter(hash=hash).first()
-    LostPersonName = []
+    lostPersonName = list()
     name = person.first_name + ' ' + person.last_name
     print(name)
-    LostPersonName.append(name)
+    lostPersonName.append(name)
 
-    request.context['LostPersonName'] = LostPersonName
+    request.context['LostPersonName'] = lostPersonName
     request.context['Vulnerable'] = Vulnerable
 
     return render(request, 'dashboard/vulnerable/vulnerable_history.html', request.context)
@@ -278,6 +269,12 @@ def vulnerable_history_view(request, hash):
 
 @login_required
 def vulnerable_add_view(request):
+    """
+    Renders view to add a vulnerable person. This was originally done using a formset in AngularJS, but did not work
+    properly.
+    :param request:
+    :return:
+    """
     profile = request.context['user_profile']
     if request.method == "POST":
         address_formset = inlineformset_factory(Vulnerable,
@@ -290,6 +287,8 @@ def vulnerable_add_view(request):
             if not vulnerable.creation_time:
                 vulnerable.creation_time = timezone.now()
             vulnerable.save()
+        else:
+            messages.error(request, "Error")
         formset = address_formset(request.POST, queryset=VulnerableAddress.objects.all())
         if formset.is_valid():
             for form in formset:
@@ -297,7 +296,10 @@ def vulnerable_add_view(request):
             add_message(request, messages.SUCCESS, "Vulnerable added successfully.")
             return HttpResponseRedirect(next)
         else:
-            vulnerable.delete()
+            for form in formset:
+                create_address(request, vulnerable, form)
+            add_message(request, messages.SUCCESS, "Vulnerable added successfully.")
+            return HttpResponseRedirect(next)
     else:
         address_formset = inlineformset_factory(Vulnerable,
                                                 VulnerableAddress, form=VulnerableAddressForm, fk_name="vulnerable",
@@ -308,19 +310,17 @@ def vulnerable_add_view(request):
     request.context['next'] = next
     request.context['form'] = vulnerable_form
     request.context['formset'] = formset
-    addresses = json.loads("[]")
-    # for form in formset.forms:
-    #     form_json = json.loads("{}")
-    #     form_json['errors'] = list(form.errors.values())
-    #     form_json['instance_id'] = form.instance.id or None
-    #     form_json['value'] = form['address'].value() or None
-    #     addresses.append(form_json)
-    # request.context['addresses'] = json.dumps(addresses)
     return render(request, 'dashboard/vulnerable/vulnerable_add.html', request.context)
 
 
 @login_required
 def vulnerable_edit_view(request, hash):
+    """
+    Renders the view to edit a vulnerable person.
+    :param request:
+    :param hash: Hash of the vulnerable person.
+    :return:
+    """
     profile = request.context['user_profile']
     vulnerable = Vulnerable.objects.filter(hash=hash).first()
     if not vulnerable:
@@ -358,23 +358,21 @@ def vulnerable_edit_view(request, hash):
                                                 extra=how_many)
         form = VulnerableForm(instance=vulnerable)
         formset = address_formset(initial=address_list, prefix='addresses')
-        next = request.GET.get("next", reverse("vulnerable_list"))
+    next = request.GET.get("next", reverse("vulnerable_list"))
     request.context['next'] = next
     request.context['form'] = form
     request.context['formset'] = formset
-    addresses = json.loads("[]")
-    # for form in formset.forms:
-    #     form_json = json.loads("{}")
-    #     form_json['errors'] = list(form.errors.values())
-    #     form_json['instance_id'] = form.instance.id or None
-    #     form_json['value'] = form['address'].value() or None
-    #     addresses.append(form_json)
-    # request.context['addresses'] = json.dumps(addresses)
     return render(request, 'dashboard/vulnerable/vulnerable_edit.html', request.context)
 
 
 @login_required
 def vulnerable_delete_view(request, hash):
+    """
+    Helper function to delete a vulnerable person.
+    :param request:
+    :param hash: Hash of the vulnerable person.
+    :return:
+    """
     profile = request.context['user_profile']
     vulnerable = Vulnerable.objects.filter(hash=hash).first()
     if not vulnerable:
@@ -386,3 +384,32 @@ def vulnerable_delete_view(request, hash):
     vulnerable.delete()
     add_message(request, messages.SUCCESS, "Vulnerable person has been deleted successfully.")
     return HttpResponseRedirect(reverse("vulnerable_list"))
+
+
+@login_required
+def coordinator_delete_volunteer(request, hash):
+    """
+    Helper function for a coordinator to delete a volunteer.
+    :param request:
+    :param hash:
+    :return:
+    """
+    profile = request.context['user_profile']
+    volunteer = Volunteer.objects.filter(hash=hash).first()
+    if not volunteer:
+        add_message(request, messages.WARNING, "Volunteer not found.")
+        return HttpResponseRedirect(reverse("coordinator_remove_volunteer"))
+    volunteer.delete()
+    add_message(request, messages.SUCCESS, "Volunteer has been deleted successfully.")
+    return HttpResponseRedirect(reverse("coordinator_remove_volunteer"))
+
+
+@login_required
+def coordinator_remove_volunteer_view(request):
+    """
+    Renders the view to remove a volunteer.
+    :param request:
+    :return:
+    """
+    request.context['volunteer_list'] = Volunteer.objects.all()
+    return render(request, 'coordinator/remove_volunteer.html', request.context)

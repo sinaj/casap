@@ -14,7 +14,8 @@ from django.utils.html import strip_tags
 from django.forms import inlineformset_factory, forms
 
 from casap import settings
-from casap.forms.forms import UserLoginForm, UserCreateForm, VolunteerForm, Volunteer, VolunteerAvailabilityForm
+from casap.forms.forms import UserLoginForm, UserCreateForm, VolunteerForm, Volunteer, VolunteerAvailabilityForm, \
+    ProfileForm
 from casap.models import EmailConfirmationCode, Profile, PasswordResetCode, VolunteerAvailability
 from casap.utilities.utils import url_with_params, unquote_redirect_url, SimpleMailHelper, get_address_map_google
 
@@ -46,19 +47,23 @@ def register_view(request):
     if request.method == 'POST':
         next = request.POST.get("next", reverse("index"))
         form = UserCreateForm(request.POST)
-        if form.is_valid():
-            user = form.save(request)
+        profile_form = ProfileForm(request.POST)
+        if form.is_valid() and profile_form.is_valid():
+            user = form.save(request.POST)
             user.refresh_from_db()  # load the profile instance created by the signal
             user.email = user.username
+            user.profile.phone_number = profile_form.cleaned_data['phone_number']
             user.save()
             user = authenticate(username=user.username, password=form.cleaned_data.get('password1'))
             login(request, user)
-            send_confirmation_email(user)
-            return HttpResponseRedirect(url_with_params(next, dict(email=user.email)))
+            # send_confirmation_email(user)
+            return HttpResponseRedirect(reverse('index'))
         request.context['next'] = next
     else:
         form = UserCreateForm()
+        profile_form = ProfileForm()
         request.context['next'] = request.GET.get('next', reverse("index"))
+    request.context['profile_form'] = profile_form
     request.context['form'] = form
     return render(request, 'registration/register.html', request.context)
 
